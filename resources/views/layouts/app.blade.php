@@ -130,7 +130,7 @@
                     <i class="fas fa-balance-scale text-dark fs-5"></i>
                 </div>
                 <div>
-                    SIKABAYAN
+                    PANMUD HUKUM CONNECT
                     <small>Pengadilan Agama Se-Jawa Barat</small>
                 </div>
             </a>
@@ -143,7 +143,12 @@
                 <ul class="navbar-nav mb-2 mb-lg-0 gap-2">
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">
-                            <i class="fas fa-home me-1"></i> Jadwal Sidang
+                            <i class="fas fa-home me-1"></i> Beranda
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('jadwal-sidang*') ? 'active' : '' }}" href="{{ route('sidang.index') }}">
+                            <i class="fas fa-chart-pie me-1"></i> Jadwal Sidang
                         </a>
                     </li>
                     <li class="nav-item">

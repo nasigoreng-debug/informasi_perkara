@@ -10,24 +10,22 @@ use App\Http\Controllers\LaporanKasasiController;
 |--------------------------------------------------------------------------
 */
 
-// 1. JADWAL SIDANG (Halaman Utama)
-// Standar: Gunakan format nama 'resource.action' (sidang.index)
-// Agar konsisten dengan resource controller lainnya.
-Route::get('/', [SidangController::class, 'index'])->name('sidang.index');
+// 1. LANDING PAGE / PORTAL (Halaman Utama saat buka website)
+Route::get('/', function () {
+    return view('welcome');
+})->name('welcome');
 
 
-// 2. LAPORAN KASASI (Grouping)
-// Standar: Gunakan 'Route::controller' (Laravel 9+) agar tidak mengulang nama class.
+// 2. JADWAL SIDANG (Pindah ke URL /jadwal-sidang)
+Route::get('/jadwal-sidang', [SidangController::class, 'index'])->name('sidang.index');
+
+
+// 3. LAPORAN KASASI (Grouping)
 Route::controller(LaporanKasasiController::class)
-    ->prefix('kasasi')          // URL: /kasasi
-    ->name('kasasi.')           // Route Name: kasasi.
+    ->prefix('kasasi')
+    ->name('kasasi.')
     ->group(function () {
 
-        // URL: /kasasi
-        // Name: kasasi.index
-        Route::get('/', 'index')->name('index');
+        Route::get('/', 'index')->name('index'); // URL: /kasasi, Name: kasasi.index
 
-        // Contoh jika nanti ada fitur export/cetak (Sangat mudah ditambahkan)
-        // Route::get('/export', 'exportExcel')->name('export');
-        // Route::get('/{id}', 'show')->name('show');
     });
