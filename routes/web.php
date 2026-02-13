@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SidangController;
 use App\Http\Controllers\LaporanKasasiController;
+use App\Http\Controllers\LaporanPerkaraController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -29,3 +31,9 @@ Route::controller(LaporanKasasiController::class)
         Route::get('/', 'index')->name('index'); // URL: /kasasi, Name: kasasi.index
 
     });
+
+// 4. LAPORAN PERKARA
+Route::prefix('laporan-perkara')->name('laporan.')->group(function () {
+    Route::get('/', [LaporanPerkaraController::class, 'index'])->name('index');
+    Route::get('/export', [LaporanPerkaraController::class, 'export'])->name('export');
+});

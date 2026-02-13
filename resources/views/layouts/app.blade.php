@@ -12,15 +12,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            /* Elegan Dark Blue */
             --accent-color: #ffd700;
-            /* Warna Emas untuk highlight */
             --bg-body: #f8f9fa;
             --font-main: 'Inter', sans-serif;
         }
@@ -33,7 +30,6 @@
             min-height: 100vh;
         }
 
-        /* Navbar Styling - Publik */
         .navbar-public {
             background: var(--primary-gradient);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -71,7 +67,6 @@
             transform: translateY(-2px);
         }
 
-        /* Clock Widget di Pojok Kanan */
         .header-clock {
             color: #fff;
             text-align: right;
@@ -82,7 +77,6 @@
             font-size: 1.2rem;
             font-weight: 700;
             font-variant-numeric: tabular-nums;
-            /* Agar angka tidak goyang saat berubah */
         }
 
         .header-clock .date {
@@ -90,7 +84,6 @@
             opacity: 0.8;
         }
 
-        /* Content Animation */
         main {
             flex: 1;
             padding-bottom: 2rem;
@@ -98,18 +91,10 @@
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Footer */
         .footer-public {
             background-color: #fff;
             border-top: 1px solid #dee2e6;
@@ -148,14 +133,21 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('jadwal-sidang*') ? 'active' : '' }}" href="{{ route('sidang.index') }}">
-                            <i class="fas fa-chart-pie me-1"></i> Jadwal Sidang
+                            <i class="fas fa-calendar-alt me-1"></i> Jadwal Sidang
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('kasasi*') ? 'active' : '' }}" href="{{ route('kasasi.index') }}">
-                            <i class="fas fa-chart-pie me-1"></i> Data Kasasi
+                            <i class="fas fa-gavel me-1"></i> Data Kasasi
                         </a>
                     </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('laporan-perkara*') ? 'active' : '' }}" href="{{ route('laporan.index') }}">
+                            <i class="fas fa-chart-bar me-1"></i> Laporan Perkara
+                        </a>
+                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="#">
                             <i class="fas fa-search me-1"></i> Penelusuran Perkara
@@ -207,16 +199,12 @@
                 second: '2-digit',
                 hour12: false
             }).replace(/\./g, ':');
-
             document.getElementById('digital-clock').textContent = timeString;
         }
-
-        // Update setiap detik
         setInterval(updateClock, 1000);
-        updateClock(); // Jalankan langsung saat load
+        updateClock();
     </script>
 
     @stack('scripts')
 </body>
-
 </html>
