@@ -20,6 +20,7 @@ Route::get('/', function () {
 
 // 2. JADWAL SIDANG (Pindah ke URL /jadwal-sidang)
 Route::get('/jadwal-sidang', [SidangController::class, 'index'])->name('sidang.index');
+Route::get('/jadwal-sidang-visual', [SidangController::class, 'index_visual'])->name('sidang.index_visual');
 
 
 // 3. LAPORAN KASASI (Grouping)

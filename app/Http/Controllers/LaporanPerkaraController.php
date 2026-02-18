@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\LaporanPerkaraExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Config\SatkerConfig;
 
 class LaporanPerkaraController extends Controller
 {
@@ -28,28 +29,76 @@ class LaporanPerkaraController extends Controller
         $m = $request->get('bulan');
         $q = $request->get('triwulan');
 
-        $where = "WHERE YEAR(p.tanggal_pendaftaran) = $y";
-        if ($m) $where .= " AND MONTH(p.tanggal_pendaftaran) = $m";
-        elseif ($q) {
-            $r = [1 => [1,3], 2 => [4,6], 3 => [7,9], 4 => [10,12]];
-            $where .= " AND MONTH(p.tanggal_pendaftaran) BETWEEN ".$r[$q][0]." AND ".$r[$q][1];
+        $laporan = [];
+        // Inisialisasi total untuk baris paling bawah
+        $totals = array_fill_keys(array_keys($this->jenisPerkara), 0);
+        $grandTotalJml = 0;
+
+        // Loop melalui 26 Satker dari Config
+        foreach (SatkerConfig::SATKERS as $koneksi => $namaSatker) {
+            try {
+                // Bina Query menggunakan Query Builder (Lebih selamat daripada Raw SQL)
+                $query = DB::connection($koneksi)->table('perkara as p')
+                    ->whereYear('p.tanggal_pendaftaran', $y);
+
+                // Filter Bulan / Triwulan
+                if ($m) {
+                    $query->whereMonth('p.tanggal_pendaftaran', $m);
+                } elseif ($q) {
+                    $range = [1 => [1,3], 2 => [4,6], 3 => [7,9], 4 => [10,12]];
+                    $query->whereBetween(DB::raw('MONTH(p.tanggal_pendaftaran)'), [$range[$q][0], $range[$q][1]]);
+                }
+
+                // Buat SELECT secara dinamik untuk setiap jenis perkara
+                $selects = ["COUNT(*) as jml"];
+                foreach ($this->jenisPerkara as $key => $nama) {
+                    $selects[] = "COUNT(CASE WHEN p.jenis_perkara_nama = '$nama' THEN 1 END) AS $key";
+                }
+
+                $data = $query->selectRaw(implode(", ", $selects))->first();
+
+                // Masukkan hasil ke dalam row
+                $row = [
+                    'no_urut' => SatkerConfig::getNomorUrut($koneksi),
+                    'satker' => strtoupper($namaSatker),
+                    'jml' => $data->jml ?? 0
+                ];
+
+                foreach ($this->jenisPerkara as $key => $nama) {
+                    $val = $data->$key ?? 0;
+                    $row[$key] = $val;
+                    $totals[$key] += $val; // Tambah ke jumlah keseluruhan
+                }
+
+                $laporan[] = (object) $row;
+                $grandTotalJml += ($data->jml ?? 0);
+
+            } catch (\Exception $e) {
+                // Jika satu satker ralat/offline, kita tetap paparkan barisnya dengan nilai 0
+                $row = ['no_urut' => SatkerConfig::getNomorUrut($koneksi), 'satker' => strtoupper($namaSatker), 'jml' => 0];
+                foreach ($this->jenisPerkara as $key => $n) $row[$key] = 0;
+                $laporan[] = (object) $row;
+                continue;
+            }
         }
 
-        $dbs = ['bandung', 'indramayu', 'majalengka', 'sumber', 'ciamis', 'tasikmalaya', 'karawang', 'cimahi', 'subang', 'sumedang', 'purwakarta', 'sukabumi', 'cianjur', 'kuningan', 'cibadak', 'cirebon', 'garut', 'bogor', 'bekasi', 'cibinong', 'cikarang', 'depok', 'tasikkota', 'banjar', 'soreang', 'ngamprah'];
+        // Susun semula mengikut No Urut
+        usort($laporan, fn($a, $b) => $a->no_urut <=> $b->no_urut);
 
-        $sub = [];
-        foreach ($dbs as $i => $db) {
-            $no = $i + 1; $name = strtoupper($db); $cols = [];
-            foreach ($this->jenisPerkara as $a => $n) $cols[] = "COUNT(CASE WHEN p.jenis_perkara_nama = '$n' THEN 1 END) AS $a";
-            $sub[] = "SELECT '$no' AS no_urut, '$name' AS satker, ".implode(", ", $cols).", COUNT(*) AS jml FROM $db.perkara p $where";
-        }
+        // Tambah baris JUMLAH KESELURUHAN di paling bawah
+        $footer = [
+            'no_urut' => 'TOTAL',
+            'satker' => 'JUMLAH KESELURUHAN',
+            'jml' => $grandTotalJml
+        ];
+        foreach ($totals as $key => $val) $footer[$key] = $val;
+        $laporan[] = (object) $footer;
 
-        $union = implode(" UNION ALL ", $sub);
-        $sums = []; foreach ($this->jenisPerkara as $a => $n) $sums[] = "SUM($a)";
-        $totalS = implode(", ", $sums);
-
-        $sql = "SELECT * FROM ($union) AS g UNION ALL SELECT 'TOTAL', 'JUMLAH KESELURUHAN', $totalS, SUM(jml) FROM ($union) AS t ORDER BY CASE WHEN no_urut = 'TOTAL' THEN 999 ELSE CAST(no_urut AS UNSIGNED) END";
-
-        return ['laporan' => DB::select($sql), 'year' => $y, 'month' => $m, 'quarter' => $q];
+        return [
+            'laporan' => $laporan, 
+            'year' => $y, 
+            'month' => $m, 
+            'quarter' => $q
+        ];
     }
 }

@@ -91,8 +91,15 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .footer-public {
@@ -137,11 +144,16 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->is('jadwal-sidang-visual*') ? 'active' : '' }}" href="{{ route('sidang.index_visual') }}">
+                            <i class="fas fa-calendar-alt me-1"></i> Jadwal Sidang Publik
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->is('kasasi*') ? 'active' : '' }}" href="{{ route('kasasi.index') }}">
                             <i class="fas fa-gavel me-1"></i> Data Kasasi
                         </a>
                     </li>
-                    
+
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('laporan-perkara*') ? 'active' : '' }}" href="{{ route('laporan.index') }}">
                             <i class="fas fa-chart-bar me-1"></i> Laporan Perkara
@@ -207,4 +219,5 @@
 
     @stack('scripts')
 </body>
+
 </html>

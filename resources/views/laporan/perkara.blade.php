@@ -14,7 +14,7 @@
             @elseif($quarter)
             Triwulan {{ $quarter }}
             @else
-            gitTahun
+            Tahun
             @endif
             {{ $year }}
         </h5>

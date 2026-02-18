@@ -29,46 +29,57 @@ class LaporanKasasiController extends Controller
         $bulanInput = $request->input('bulan');
         $bulan = ($bulanInput !== null && $bulanInput !== '') ? (int) $bulanInput : null;
 
-        // 2. Tarik data dari Service (Pastikan Service sudah menerima 2 parameter)
+        // 2. Tarik data dari Service
         $data = $this->kasasiService->getLaporanKasasi($tahun, $bulan);
         $totals = $this->kasasiService->getTotalPerSatker($tahun, $bulan);
         $grandTotal = $this->kasasiService->getGrandTotal($tahun, $bulan);
         $years = $this->kasasiService->getAvailableYears();
 
-        // 3. FORMAT TANGGAL - Tetap dipertahankan sesuai logika kamu
+        // 3. FORMAT TANGGAL - Proteksi agar tidak muncul tanggal hari ini jika kosong
         $data = $data->map(function ($item) {
-            if ($item->tgl_reg_kasasi != '-') {
-                try {
-                    $tanggal = $item->tgl_reg_kasasi;
+            $tanggalInput = trim($item->tgl_reg_kasasi ?? '');
 
+            // Jika kosong, strip, atau nol database, set ke NULL
+            if ($tanggalInput === '' || $tanggalInput === '-' || $tanggalInput === '0000-00-00') {
+                $item->tgl_reg_kasasi = null;
+            } else {
+                try {
                     // Cek jika format sudah Y-m-d (ISO)
-                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
-                        $item->tgl_reg_kasasi = $tanggal;
-                    } 
+                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalInput)) {
+                        $item->tgl_reg_kasasi = $tanggalInput;
+                    }
                     // Cek jika format d-m-Y
-                    elseif (strpos($tanggal, '-') !== false && strlen($tanggal) <= 10) {
-                        $item->tgl_reg_kasasi = Carbon::createFromFormat('d-m-Y', $tanggal)->format('Y-m-d');
+                    elseif (preg_match('/^\d{2}-\d{2}-\d{4}$/', $tanggalInput)) {
+                        $item->tgl_reg_kasasi = Carbon::createFromFormat('d-m-Y', $tanggalInput)->format('Y-m-d');
                     }
                     // Format Indonesia 'dd MMMM yyyy'
                     else {
                         $konversiBulan = [
-                            'Januari' => 'January', 'Februari' => 'February', 'Maret' => 'March',
-                            'April' => 'April', 'Mei' => 'May', 'Juni' => 'June',
-                            'Juli' => 'July', 'Agustus' => 'August', 'September' => 'September',
-                            'Oktober' => 'October', 'November' => 'November', 'Desember' => 'December'
+                            'Januari' => 'January',
+                            'Februari' => 'February',
+                            'Maret' => 'March',
+                            'April' => 'April',
+                            'Mei' => 'May',
+                            'Juni' => 'June',
+                            'Juli' => 'July',
+                            'Agustus' => 'August',
+                            'September' => 'September',
+                            'Oktober' => 'October',
+                            'November' => 'November',
+                            'Desember' => 'December'
                         ];
-                        $tanggal_en = str_replace(array_keys($konversiBulan), array_values($konversiBulan), $tanggal);
+                        $tanggal_en = str_replace(array_keys($konversiBulan), array_values($konversiBulan), $tanggalInput);
                         $item->tgl_reg_kasasi = Carbon::parse($tanggal_en)->format('Y-m-d');
                     }
                 } catch (\Exception $e) {
-                    Log::warning('Gagal parse tanggal: ' . $item->tgl_reg_kasasi);
-                    $item->tgl_reg_kasasi = date('Y-m-d', strtotime($item->tgl_reg_kasasi)) ?: '-';
+                    Log::warning('Gagal parse tanggal: ' . $tanggalInput);
+                    // Paksa NULL jika gagal parse agar tidak lari ke tanggal hari ini
+                    $item->tgl_reg_kasasi = null;
                 }
             }
             return $item;
         });
 
-        // 4. Masukkan 'bulan' ke compact agar View bisa membacanya
         return view('laporan.kasasi.index', compact(
             'data',
             'totals',

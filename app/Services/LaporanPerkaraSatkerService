@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\PerkaraSatker;
+use App\Config\SatkerConfig;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
+
+class LaporanPerkaraService
+{
+    public function getLaporanSemuaSatker($tahun): Collection
+    {
+        $allData = collect();
+
+        foreach (SatkerConfig::SATKERS as $koneksi => $namaSatker) {
+            try {
+                // AMBIL NAMA DATABASE DARI CONFIG (Penting agar JOIN tidak error)
+                $dbName = config("database.connections.{$koneksi}.database");
+
+                // Ambil data menggunakan model PerkaraSatker
+                $data = PerkaraSatker::konekKe($koneksi, 'perkara')
+                    ->select(
+                        'perkara.perkara_id',
+                        'perkara.nomor_perkara',
+                        'perkara.tgl_register',
+                        'pj.jenis_perkara_nama'
+                    )
+                    // PAKSA JOIN ke database satker yang benar, bukan ke 'bandung'
+                    ->join(DB::raw("`{$dbName}`.perkara_jenis pj"), 'perkara.jenis_perkara_id', '=', 'pj.jenis_perkara_id')
+                    ->whereYear('perkara.tgl_register', $tahun)
+                    ->get();
+
+                $allData->push((object)[
+                    'nama_satker' => $namaSatker,
+                    'total' => $data->count(),
+                    'data' => $data
+                ]);
+
+            } catch (\Exception $e) {
+                // Jika satker offline atau database tidak ada, lanjut ke satker berikutnya
+                continue;
+            }
+        }
+
+        return $allData;
+    }
+}

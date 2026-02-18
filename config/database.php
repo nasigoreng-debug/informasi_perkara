@@ -64,6 +64,22 @@ return [
         ],
 
         // ============================================
+        // DATABASE SIAPPTA
+        // ============================================
+
+        'siappta' => [
+            'driver' => 'mysql',
+            'host' => env('DB_SIAPPTA_HOST', '192.168.16.121'),
+            'port' => env('DB_SIAPPTA_PORT', '3306'),
+            'database' => env('DB_SIAPPTA_DATABASE', 'SIAPPTA'), // Kunci ini harus sama dengan .env
+            'username' => env('DB_SIAPPTA_USERNAME', 'root'),
+            'password' => env('DB_SIAPPTA_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+        ],
+        // ============================================
         // 26 DATABASE PENGADILAN AGAMA - LARAVEL 10
         // ============================================
 
