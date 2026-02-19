@@ -7,41 +7,84 @@ use Illuminate\Support\Facades\DB;
 use App\Exports\LaporanPerkaraExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Config\SatkerConfig;
+use Illuminate\Support\Facades\Log;
 
 class LaporanPerkaraController extends Controller
 {
     private $jenisPerkara = [
-        'iz' => 'Izin Poligami', 'pp' => 'Pencegahan Perkawinan', 'p_ppn' => 'Penolakan Perkawinan oleh PPN', 'pb' => 'Pembatalan Perkawinan', 'lks' => 'Kelalaian Kewajiban Suami/Isteri', 'ct' => 'Cerai Talak', 'cg' => 'Cerai Gugat', 'hb' => 'Harta Bersama', 'pa' => 'Penguasaan Anak', 'nai' => 'Nafkah Anak oleh Ibu', 'hbi' => 'Hak-hak Bekas Isteri', 'psa' => 'Pengesahan Anak', 'pkot' => 'Pencabutan Kekuasaan Orang Tua', 'pw' => 'Perwalian', 'phw' => 'Pencabutan Kekuasaan Wali', 'pol' => 'Penunjukan orang lain sebagai Wali oleh Pengadilan', 'grw' => 'Ganti Rugi terhadap Wali', 'aua' => 'Asal Usul Anak', 'pkc' => 'Penolakan Kawin Campuran', 'isbath' => 'Pengesahan Perkawinan/Istbat Nikah', 'ik' => 'Izin Kawin', 'dk' => 'Dispensasi Kawin', 'wa' => 'Wali Adhol', 'kw' => 'Kewarisan', 'wst' => 'Wasiat', 'hb_h' => 'Hibah', 'wkf' => 'Wakaf', 'zkt' => 'Zakat', 'infq' => 'Infaq', 'es' => 'Ekonomi Syariah', 'p3hp' => 'P3HP/Penetapan Ahli Waris', 'll' => 'Lain-Lain'
+        'iz' => 'Izin Poligami', 'pp' => 'Pencegahan Perkawinan', 'p_ppn' => 'Penolakan Perkawinan oleh PPN', 
+        'pb' => 'Pembatalan Perkawinan', 'lks' => 'Kelalaian Kewajiban Suami/Isteri', 'ct' => 'Cerai Talak', 
+        'cg' => 'Cerai Gugat', 'hb' => 'Harta Bersama', 'pa' => 'Penguasaan Anak', 
+        'nai' => 'Nafkah Anak oleh Ibu', 'hbi' => 'Hak-hak Bekas Isteri', 'psa' => 'Pengesahan Anak', 
+        'pkot' => 'Pencabutan Kekuasaan Orang Tua', 'pw' => 'Perwalian', 'phw' => 'Pencabutan Kekuasaan Wali', 
+        'pol' => 'Penunjukan orang lain sebagai Wali oleh Pengadilan', 'grw' => 'Ganti Rugi terhadap Wali', 
+        'aua' => 'Asal Usul Anak', 'pkc' => 'Penolakan Kawin Campuran', 'isbath' => 'Pengesahan Perkawinan/Istbat Nikah', 
+        'ik' => 'Izin Kawin', 'dk' => 'Dispensasi Kawin', 'wa' => 'Wali Adhol', 'kw' => 'Kewarisan', 
+        'wst' => 'Wasiat', 'hb_h' => 'Hibah', 'wkf' => 'Wakaf', 'zkt' => 'Zakat', 'infq' => 'Infaq', 
+        'es' => 'Ekonomi Syariah', 'p3hp' => 'P3HP/Penetapan Ahli Waris', 'll' => 'Lain-Lain'
     ];
 
+    private $statusPutusan = [
+        'dicabut' => 67,
+        'ditolak' => 63,
+        'dikabulkan' => 62,
+        'tidak_diterima' => [64, 92],
+        'gugur' => [65, 93],
+        'dicoret' => 66,
+    ];
+
+    /**
+     * Laporan Perkara Diterima
+     */
     public function index(Request $request) {
         $res = $this->fetch($request);
         return view('laporan.perkara', array_merge($res, ['jenisPerkara' => $this->jenisPerkara]));
     }
 
-    public function export(Request $request) {
-        $res = $this->fetch($request);
-        return Excel::download(new LaporanPerkaraExport($res['laporan'], $this->jenisPerkara), 'Laporan_Perkara.xlsx');
+    /**
+     * Laporan Perkara Diputus
+     */
+    public function putus(Request $request) {
+        $res = $this->fetchPutus($request);
+        return view('laporan.perkara-putus', array_merge($res, [
+            'jenisPerkara' => $this->jenisPerkara,
+            'statusPutusan' => $this->statusPutusan
+        ]));
     }
 
+    /**
+     * Export Laporan Perkara Diterima
+     */
+    public function export(Request $request) {
+        $res = $this->fetch($request);
+        return Excel::download(new LaporanPerkaraExport($res['laporan'], $this->jenisPerkara), 'Laporan_Perkara_Diterima.xlsx');
+    }
+
+    /**
+     * Export Laporan Perkara Diputus
+     */
+    public function exportPutus(Request $request) {
+        $res = $this->fetchPutus($request);
+        return Excel::download(new LaporanPerkaraExport($res['laporan'], $this->jenisPerkara), 'Laporan_Perkara_Diputus.xlsx');
+    }
+
+    /**
+     * Fetch data untuk laporan perkara diterima
+     */
     private function fetch($request) {
         $y = $request->get('tahun', date('Y'));
         $m = $request->get('bulan');
         $q = $request->get('triwulan');
 
         $laporan = [];
-        // Inisialisasi total untuk baris paling bawah
         $totals = array_fill_keys(array_keys($this->jenisPerkara), 0);
         $grandTotalJml = 0;
 
-        // Loop melalui 26 Satker dari Config
         foreach (SatkerConfig::SATKERS as $koneksi => $namaSatker) {
             try {
-                // Bina Query menggunakan Query Builder (Lebih selamat daripada Raw SQL)
                 $query = DB::connection($koneksi)->table('perkara as p')
                     ->whereYear('p.tanggal_pendaftaran', $y);
 
-                // Filter Bulan / Triwulan
                 if ($m) {
                     $query->whereMonth('p.tanggal_pendaftaran', $m);
                 } elseif ($q) {
@@ -49,7 +92,6 @@ class LaporanPerkaraController extends Controller
                     $query->whereBetween(DB::raw('MONTH(p.tanggal_pendaftaran)'), [$range[$q][0], $range[$q][1]]);
                 }
 
-                // Buat SELECT secara dinamik untuk setiap jenis perkara
                 $selects = ["COUNT(*) as jml"];
                 foreach ($this->jenisPerkara as $key => $nama) {
                     $selects[] = "COUNT(CASE WHEN p.jenis_perkara_nama = '$nama' THEN 1 END) AS $key";
@@ -57,7 +99,6 @@ class LaporanPerkaraController extends Controller
 
                 $data = $query->selectRaw(implode(", ", $selects))->first();
 
-                // Masukkan hasil ke dalam row
                 $row = [
                     'no_urut' => SatkerConfig::getNomorUrut($koneksi),
                     'satker' => strtoupper($namaSatker),
@@ -67,30 +108,28 @@ class LaporanPerkaraController extends Controller
                 foreach ($this->jenisPerkara as $key => $nama) {
                     $val = $data->$key ?? 0;
                     $row[$key] = $val;
-                    $totals[$key] += $val; // Tambah ke jumlah keseluruhan
+                    $totals[$key] += $val;
                 }
 
                 $laporan[] = (object) $row;
                 $grandTotalJml += ($data->jml ?? 0);
 
             } catch (\Exception $e) {
-                // Jika satu satker ralat/offline, kita tetap paparkan barisnya dengan nilai 0
-                $row = ['no_urut' => SatkerConfig::getNomorUrut($koneksi), 'satker' => strtoupper($namaSatker), 'jml' => 0];
+                Log::error("Error fetch diterima {$koneksi}: " . $e->getMessage());
+                $row = [
+                    'no_urut' => SatkerConfig::getNomorUrut($koneksi), 
+                    'satker' => strtoupper($namaSatker), 
+                    'jml' => 0
+                ];
                 foreach ($this->jenisPerkara as $key => $n) $row[$key] = 0;
                 $laporan[] = (object) $row;
                 continue;
             }
         }
 
-        // Susun semula mengikut No Urut
         usort($laporan, fn($a, $b) => $a->no_urut <=> $b->no_urut);
 
-        // Tambah baris JUMLAH KESELURUHAN di paling bawah
-        $footer = [
-            'no_urut' => 'TOTAL',
-            'satker' => 'JUMLAH KESELURUHAN',
-            'jml' => $grandTotalJml
-        ];
+        $footer = ['no_urut' => 'TOTAL', 'satker' => 'JUMLAH KESELURUHAN', 'jml' => $grandTotalJml];
         foreach ($totals as $key => $val) $footer[$key] = $val;
         $laporan[] = (object) $footer;
 
@@ -99,6 +138,191 @@ class LaporanPerkaraController extends Controller
             'year' => $y, 
             'month' => $m, 
             'quarter' => $q
+        ];
+    }
+
+    /**
+     * Fetch data untuk laporan perkara diputus
+     */
+    private function fetchPutus($request) {
+        $y = $request->get('tahun', date('Y'));
+        $m = $request->get('bulan');
+        $q = $request->get('triwulan');
+
+        $laporan = [];
+        
+        // Inisialisasi totals
+        $totals = array_fill_keys(array_keys($this->jenisPerkara), 0);
+        $totalsStatus = [
+            'dicabut' => 0, 'ditolak' => 0, 'dikabulkan' => 0, 
+            'tidak_diterima' => 0, 'gugur' => 0, 'dicoret' => 0
+        ];
+        $grandTotalJml = 0;
+        $grandTotalSisaLalu = 0;
+        $grandTotalDiterima = 0;
+
+        foreach (SatkerConfig::SATKERS as $koneksi => $namaSatker) {
+            try {
+                // ========== 1. AMBIL DATA SISA TAHUN LALU ==========
+                $sisaLalu = DB::connection($koneksi)->table('perkara as p')
+                    ->join('perkara_putusan as pu', 'p.perkara_id', '=', 'pu.perkara_id')
+                    ->whereYear('p.tanggal_pendaftaran', '<', $y)
+                    ->where(function($q) use ($y) {
+                        $q->whereNull('pu.tanggal_putusan')
+                          ->orWhereYear('pu.tanggal_putusan', $y);
+                    })
+                    ->count(DB::raw('DISTINCT p.perkara_id'));
+
+                // ========== 2. AMBIL DATA DITERIMA ==========
+                $queryDiterima = DB::connection($koneksi)->table('perkara as p')
+                    ->whereYear('p.tanggal_pendaftaran', $y);
+
+                if ($m) {
+                    $queryDiterima->whereMonth('p.tanggal_pendaftaran', $m);
+                } elseif ($q) {
+                    $range = [1 => [1,3], 2 => [4,6], 3 => [7,9], 4 => [10,12]];
+                    $queryDiterima->whereBetween(DB::raw('MONTH(p.tanggal_pendaftaran)'), [$range[$q][0], $range[$q][1]]);
+                }
+
+                $diterima = $queryDiterima->count();
+
+                // ========== 3. AMBIL DATA DIPUTUS DETAIL ==========
+                $queryPutus = DB::connection($koneksi)->table('perkara as p')
+                    ->join('perkara_putusan as pu', 'p.perkara_id', '=', 'pu.perkara_id')
+                    ->whereYear('pu.tanggal_putusan', $y);
+
+                if ($m) {
+                    $queryPutus->whereMonth('pu.tanggal_putusan', $m);
+                } elseif ($q) {
+                    $range = [1 => [1,3], 2 => [4,6], 3 => [7,9], 4 => [10,12]];
+                    $queryPutus->whereBetween(DB::raw('MONTH(pu.tanggal_putusan)'), [$range[$q][0], $range[$q][1]]);
+                }
+
+                // Buat SELECT untuk jenis perkara (hanya yang dikabulkan)
+                $selects = ["COUNT(DISTINCT p.perkara_id) as jml"];
+                foreach ($this->jenisPerkara as $key => $nama) {
+                    $selects[] = "COUNT(CASE WHEN p.jenis_perkara_nama = '$nama' AND pu.status_putusan_id = 62 THEN 1 END) AS $key";
+                }
+
+                // Tambahkan SELECT untuk status putusan
+                $selects[] = "COUNT(CASE WHEN pu.status_putusan_id = 67 THEN 1 END) AS dicabut";
+                $selects[] = "COUNT(CASE WHEN pu.status_putusan_id = 63 THEN 1 END) AS ditolak";
+                $selects[] = "COUNT(CASE WHEN pu.status_putusan_id = 62 THEN 1 END) AS dikabulkan";
+                $selects[] = "COUNT(CASE WHEN pu.status_putusan_id IN (64, 92) THEN 1 END) AS tidak_diterima";
+                $selects[] = "COUNT(CASE WHEN pu.status_putusan_id IN (65, 93) THEN 1 END) AS gugur";
+                $selects[] = "COUNT(CASE WHEN pu.status_putusan_id = 66 THEN 1 END) AS dicoret";
+
+                $data = $queryPutus->selectRaw(implode(", ", $selects))->first();
+
+                $beban = $sisaLalu + $diterima;
+                $totalDiputus = $data->jml ?? 0;
+                $sisaAkhir = $beban - $totalDiputus;
+                $persentase = ($totalDiputus > 0) ? round(($data->dikabulkan / $totalDiputus) * 100, 2) : 0;
+
+                // Buat row data
+                $row = [
+                    'no_urut' => SatkerConfig::getNomorUrut($koneksi),
+                    'satker' => strtoupper($namaSatker),
+                    'sisa_tahun_lalu' => $sisaLalu,
+                    'diterima' => $diterima,
+                    'beban' => $beban,
+                    'jml' => $totalDiputus,
+                    'dicabut' => $data->dicabut ?? 0,
+                    'ditolak' => $data->ditolak ?? 0,
+                    'dikabulkan' => $data->dikabulkan ?? 0,
+                    'tidak_diterima' => $data->tidak_diterima ?? 0,
+                    'gugur' => $data->gugur ?? 0,
+                    'dicoret' => $data->dicoret ?? 0,
+                    'persentase' => $persentase,
+                    'sisa' => $sisaAkhir
+                ];
+
+                // Tambahkan data jenis perkara
+                foreach ($this->jenisPerkara as $key => $nama) {
+                    $val = $data->$key ?? 0;
+                    $row[$key] = $val;
+                    $totals[$key] += $val;
+                }
+
+                // Akumulasi totals
+                $totalsStatus['dicabut'] += ($data->dicabut ?? 0);
+                $totalsStatus['ditolak'] += ($data->ditolak ?? 0);
+                $totalsStatus['dikabulkan'] += ($data->dikabulkan ?? 0);
+                $totalsStatus['tidak_diterima'] += ($data->tidak_diterima ?? 0);
+                $totalsStatus['gugur'] += ($data->gugur ?? 0);
+                $totalsStatus['dicoret'] += ($data->dicoret ?? 0);
+                
+                $grandTotalJml += $totalDiputus;
+                $grandTotalSisaLalu += $sisaLalu;
+                $grandTotalDiterima += $diterima;
+
+                $laporan[] = (object) $row;
+
+            } catch (\Exception $e) {
+                Log::error("Error fetch putus {$koneksi}: " . $e->getMessage());
+                // Jika error, buat row dengan nilai 0
+                $row = [
+                    'no_urut' => SatkerConfig::getNomorUrut($koneksi),
+                    'satker' => strtoupper($namaSatker),
+                    'sisa_tahun_lalu' => 0,
+                    'diterima' => 0,
+                    'beban' => 0,
+                    'jml' => 0,
+                    'dicabut' => 0,
+                    'ditolak' => 0,
+                    'dikabulkan' => 0,
+                    'tidak_diterima' => 0,
+                    'gugur' => 0,
+                    'dicoret' => 0,
+                    'persentase' => 0,
+                    'sisa' => 0
+                ];
+                foreach ($this->jenisPerkara as $key => $nama) {
+                    $row[$key] = 0;
+                }
+                $laporan[] = (object) $row;
+                continue;
+            }
+        }
+
+        // Urutkan berdasarkan no_urut
+        usort($laporan, fn($a, $b) => $a->no_urut <=> $b->no_urut);
+
+        // Hitung total beban dan sisa
+        $totalBeban = $grandTotalSisaLalu + $grandTotalDiterima;
+        $totalSisaAkhir = $totalBeban - $grandTotalJml;
+        $totalPersentase = ($grandTotalJml > 0) ? round(($totalsStatus['dikabulkan'] / $grandTotalJml) * 100, 2) : 0;
+
+        // Buat footer TOTAL
+        $footer = [
+            'no_urut' => 'TOTAL',
+            'satker' => 'JUMLAH KESELURUHAN',
+            'sisa_tahun_lalu' => $grandTotalSisaLalu,
+            'diterima' => $grandTotalDiterima,
+            'beban' => $totalBeban,
+            'jml' => $grandTotalJml,
+            'dicabut' => $totalsStatus['dicabut'],
+            'ditolak' => $totalsStatus['ditolak'],
+            'dikabulkan' => $totalsStatus['dikabulkan'],
+            'tidak_diterima' => $totalsStatus['tidak_diterima'],
+            'gugur' => $totalsStatus['gugur'],
+            'dicoret' => $totalsStatus['dicoret'],
+            'persentase' => $totalPersentase,
+            'sisa' => $totalSisaAkhir
+        ];
+
+        // Tambahkan totals jenis perkara ke footer
+        foreach ($totals as $key => $val) {
+            $footer[$key] = $val;
+        }
+
+        $laporan[] = (object) $footer;
+
+        return [
+            'laporan' => $laporan,
+            'year' => $y,
+            'month' => $m,
+            'quarter' => $q,
         ];
     }
 }

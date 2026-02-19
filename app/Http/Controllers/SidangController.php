@@ -70,13 +70,17 @@ class SidangController extends Controller
     /**
      * TAMPILAN VISUAL (Untuk Display TV - Tanpa Pagination)
      */
+    /**
+     * TAMPILAN VISUAL (HANYA HARI INI - TANPA PAGINATION)
+     */
     public function index_visual(Request $request)
     {
         try {
             Carbon::setLocale('id');
-            $hariIni = now()->toDateString();
+            $hariIni = now()->toDateString(); // Mengambil tanggal hari ini saja
 
-            $allPerkaras = SidangSiappta::select(
+            // QUERY DIUBAH: Menggunakan '=' agar jadwal besok tidak ikut muncul
+            $perkarasHariIni = \App\Models\SidangSiappta::select(
                 'perkara.*',
                 'hakim_tinggi.kode as kode_hakim',
                 'hakim_tinggi.nama as nama_hakim_lengkap'
@@ -84,30 +88,21 @@ class SidangController extends Controller
                 ->leftJoin('hakim_tinggi', 'perkara.km_id', '=', 'hakim_tinggi.id')
                 ->whereNull('perkara.tgl_putusan')
                 ->whereNotNull('perkara.tgl_sidang_pertama')
-                ->whereDate('perkara.tgl_sidang_pertama', '>=', $hariIni)
+                ->whereDate('perkara.tgl_sidang_pertama', '=', $hariIni) // KUNCINYA DI SINI
                 ->orderBy('perkara.tgl_sidang_pertama', 'asc')
                 ->get();
 
-            $perkarasSorted = $allPerkaras->map(function ($perkara) use ($hariIni) {
-                $tglSidang = Carbon::parse($perkara->tgl_sidang_pertama)->toDateString();
-                $perkara->status_sidang = ($tglSidang == $hariIni) ? 'HARI_INI' : 'AKAN_DATANG';
-                $perkara->tanggal_sidang_terdekat = $tglSidang;
-                return $perkara;
-            })->sortBy(function ($item) {
-                return ($item->status_sidang == 'HARI_INI' ? '1' : '2') . $item->tanggal_sidang_terdekat;
-            })->values();
-
             return view('perkara.index_visual', [
-                'perkaras' => $perkarasSorted,
-                'sidangHariIni' => $perkarasSorted->where('status_sidang', 'HARI_INI')->count(),
-                'totalSidangAkanDatang' => $perkarasSorted->where('status_sidang', 'AKAN_DATANG')->count(),
-                'totalDitampilkan' => $perkarasSorted->count(),
+                'perkaras' => $perkarasHariIni,
+                'sidangHariIni' => $perkarasHariIni->count(),
+                'totalSidangAkanDatang' => 0,
+                'totalDitampilkan' => $perkarasHariIni->count(),
                 'hariIni' => $hariIni,
                 'hariIniFormatted' => Carbon::parse($hariIni)->translatedFormat('l, d F Y')
             ]);
         } catch (\Exception $e) {
-            Log::error('Error di SidangController@index_visual: ' . $e->getMessage());
-            return response()->json(['error' => 'Gagal memuat display visual'], 500);
+            \Illuminate\Support\Facades\Log::error('Error Sidang Visual: ' . $e->getMessage());
+            return response()->json(['error' => 'Gagal memuat data'], 500);
         }
     }
 }

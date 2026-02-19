@@ -36,7 +36,8 @@ class LaporanKasasiServiceL10
     protected function getDataSatker($database, $namaSatker, $nomorUrut, $tahun, $bulan): Collection
     {
         try {
-            $sql = "SELECT pb.nomor_perkara_pn, pb.nomor_perkara_banding, pk.nomor_perkara_kasasi,
+            // PERBAIKAN: Tambahkan pk.perkara_id ke dalam SELECT
+            $sql = "SELECT pk.perkara_id, pb.nomor_perkara_pn, pb.nomor_perkara_banding, pk.nomor_perkara_kasasi,
                            pk.tanggal_pendaftaran_kasasi, pk.amar_putusan_kasasi, pk.putusan_kasasi,
                            pb.hakim1_banding, p.jenis_perkara_nama, ? as nomor_urut, ? as pengadilan_agama
                     FROM {$database}.perkara_kasasi pk
@@ -46,14 +47,12 @@ class LaporanKasasiServiceL10
 
             $params = [$nomorUrut, $namaSatker];
 
-            // Filter Tahun: Cek di tanggal ATAU di 4 digit terakhir nomor perkara
             if ($tahun) {
                 $sql .= " AND (YEAR(pk.tanggal_pendaftaran_kasasi) = ? OR RIGHT(TRIM(pk.nomor_perkara_kasasi), 4) = ?)";
                 $params[] = $tahun;
                 $params[] = $tahun;
             }
 
-            // Filter Bulan
             if ($bulan) {
                 $sql .= " AND (MONTH(pk.tanggal_pendaftaran_kasasi) = ? OR pk.tanggal_pendaftaran_kasasi IS NULL)";
                 $params[] = $bulan;
@@ -61,7 +60,7 @@ class LaporanKasasiServiceL10
 
             $results = DB::connection($database)->select($sql, $params);
 
-            return collect($results)->map(function ($item, $key) use ($nomorUrut) {
+            return collect($results)->map(function ($item, $key) use ($nomorUrut, $database) {
                 $cleanAmar = strip_tags($item->amar_putusan_kasasi ?? '');
                 $lowerAmar = strtolower($cleanAmar);
                 $statusColor = "secondary";
@@ -81,7 +80,10 @@ class LaporanKasasiServiceL10
                 }
 
                 return (object) [
-                    'unique_id' => $nomorUrut . '_' . $key,
+                    // PERBAIKAN: Gunakan database asal dan perkara_id untuk Unique ID agar tidak bentrok
+                    'unique_id' => $database . '_' . $item->perkara_id,
+                    'perkara_id' => $item->perkara_id, // Kolom identitas utama
+                    'nama_db' => $database,           // Identitas database asal (untuk DB Lokal)
                     'nomor_urut' => $item->nomor_urut,
                     'pengadilan_agama' => $item->pengadilan_agama,
                     'no_pa' => $item->nomor_perkara_pn ?? '-',
