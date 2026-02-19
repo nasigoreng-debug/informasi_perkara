@@ -77,6 +77,17 @@
             padding: 0.5rem;
             margin-top: 0.5rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-width: 260px;
+        }
+
+        .dropdown-header {
+            color: var(--accent-color);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.5rem 1rem;
+            opacity: 0.9;
         }
 
         .dropdown-item {
@@ -102,6 +113,11 @@
         .dropdown-item i {
             width: 20px;
             text-align: center;
+        }
+
+        .dropdown-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 0.5rem 0;
         }
 
         .header-clock {
@@ -195,26 +211,29 @@
                             <i class="fas fa-home me-1"></i> Beranda
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('sidang.index') ? 'active' : '' }}" href="{{ route('sidang.index') }}">
-                            <i class="fas fa-calendar-alt me-1"></i> Jadwal Sidang
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('sidang.index_visual') ? 'active' : '' }}" href="{{ route('sidang.index_visual') }}">
-                            <i class="fas fa-calendar-alt me-1"></i> Jadwal Sidang Publik
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('kasasi.index') ? 'active' : '' }}" href="{{ route('kasasi.index') }}">
-                            <i class="fas fa-gavel me-1"></i> Monitoring Kasasi
-                        </a>
-                    </li>
+                    
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->routeIs('laporan.index') || request()->routeIs('laporan-putus.index') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-chart-bar me-1"></i> Laporan Perkara
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('sidang.*') || request()->routeIs('laporan.index') || request()->routeIs('laporan-putus.index') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-calendar-alt me-1"></i> Jadwal & Laporan
                         </a>
                         <ul class="dropdown-menu">
+                            <li class="dropdown-submenu">
+                                <span class="dropdown-header"><i class="fas fa-calendar me-2"></i>JADWAL SIDANG</span>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('sidang.index') ? 'active' : '' }}" href="{{ route('sidang.index') }}">
+                                    <i class="fas fa-list me-2"></i> Jadwal Sidang (Tabel)
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('sidang.index_visual') ? 'active' : '' }}" href="{{ route('sidang.index_visual') }}">
+                                    <i class="fas fa-calendar-week me-2"></i> Jadwal Sidang Publik (Visual)
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="dropdown-submenu">
+                                <span class="dropdown-header"><i class="fas fa-chart-bar me-2"></i>LAPORAN PERKARA</span>
+                            </li>
                             <li>
                                 <a class="dropdown-item {{ request()->routeIs('laporan.index') ? 'active' : '' }}" href="{{ route('laporan.index') }}">
                                     <i class="fas fa-inbox me-2"></i> Laporan Diterima (RK3)
@@ -227,6 +246,13 @@
                             </li>
                         </ul>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('kasasi.index') ? 'active' : '' }}" href="{{ route('kasasi.index') }}">
+                            <i class="fas fa-gavel me-1"></i> Monitoring Kasasi
+                        </a>
+                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="#">
                             <i class="fas fa-search me-1"></i> Penelusuran Perkara
