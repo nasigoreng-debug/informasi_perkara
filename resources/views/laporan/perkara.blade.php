@@ -1,104 +1,105 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan Statistik Perkara')
+@section('title', 'Laporan Statistik Perkara Diterima')
 
 @section('content')
 <div class="container-fluid py-4">
 
+    @php
+        // Helper untuk nama bulan Indonesia
+        $namaBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+    @endphp
+
     <div class="text-center mb-4">
-        <h3 class="fw-bold text-uppercase" style="color: #2c5364;">Laporan Perkara Diterima Pengadilan Agama Se-Jawa Barat</h3>
-        <h5 class="text-secondary">
-            Periode:
-            @if($month)
-            Bulan {{ date('F', mktime(0, 0, 0, $month, 1)) }}
-            @elseif($quarter)
-            Triwulan {{ $quarter }}
-            @else
-            Tahun
-            @endif
-            {{ $year }}
+        <h3 class="fw-bold text-uppercase" style="color: #2c3e50; letter-spacing: 1px;">Laporan Perkara Diterima</h3>
+        <h5 class="text-muted fw-normal">
+            Pengadilan Agama Se-Jawa Barat | 
+            <span class="badge bg-secondary">
+                @if(!empty($month)) Bulan {{ $namaBulan[(int)$month] }}
+                @elseif(!empty($quarter)) Triwulan {{ $quarter }}
+                @else Tahun @endif {{ $year }}
+            </span>
         </h5>
-        <hr class="mx-auto" style="width: 100px; height: 3px; background: #2c5364; border-radius: 5px;">
+        <div class="mx-auto" style="width: 60px; height: 4px; background: #3498db; border-radius: 10px; margin-top: 10px;"></div>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 bg-white">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-filter me-2"></i>Filter Laporan
-            </h6>
-        </div>
-        <div class="card-body">
-            <form action="{{ route('laporan.index') }}" method="GET" class="row g-3 align-items-end">
-
+    {{-- Filter Card --}}
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <form action="{{ route('laporan.index') }}" method="GET" class="row g-2 align-items-end">
                 <div class="col-md-2">
-                    <label class="form-label small fw-bold">Tahun</label>
-                    <select name="tahun" class="form-select">
+                    <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 10px;">Tahun</label>
+                    <select name="tahun" class="form-select form-select-sm shadow-sm">
                         @for($t=date('Y'); $t>=2020; $t--)
-                        <option value="{{$t}}" {{$year == $t ? 'selected' : ''}}>{{$t}}</option>
+                            <option value="{{$t}}" {{$year == $t ? 'selected' : ''}}>{{$t}}</option>
                         @endfor
                     </select>
                 </div>
-
                 <div class="col-md-2">
-                    <label class="form-label small fw-bold">Bulan</label>
-                    <select name="bulan" class="form-select">
-                        <option value="">-- Semua Bulan --</option>
-                        @foreach(range(1,12) as $m)
-                        <option value="{{$m}}" {{$month == $m ? 'selected' : ''}}>{{date('F', mktime(0,0,0,$m,1))}}</option>
+                    <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 10px;">Bulan</label>
+                    <select name="bulan" class="form-select form-select-sm shadow-sm">
+                        <option value="">Semua Bulan</option>
+                        @foreach($namaBulan as $num => $nama)
+                            <option value="{{$num}}" {{ ($month == $num) ? 'selected' : '' }}>{{$nama}}</option>
                         @endforeach
                     </select>
                 </div>
-
                 <div class="col-md-2">
-                    <label class="form-label small fw-bold">Triwulan</label>
-                    <select name="triwulan" class="form-select">
-                        <option value="">-- Semua TW --</option>
-                        <option value="1" {{$quarter == 1 ? 'selected' : ''}}>Triwulan I</option>
-                        <option value="2" {{$quarter == 2 ? 'selected' : ''}}>Triwulan II</option>
-                        <option value="3" {{$quarter == 3 ? 'selected' : ''}}>Triwulan III</option>
-                        <option value="4" {{$quarter == 4 ? 'selected' : ''}}>Triwulan IV</option>
+                    <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 10px;">Triwulan</label>
+                    <select name="triwulan" class="form-select form-select-sm shadow-sm">
+                        <option value="">Semua Triwulan</option>
+                        @for($i=1; $i<=4; $i++)
+                            <option value="{{$i}}" {{ $quarter == $i ? 'selected' : '' }}>Triwulan {{ $i }}</option>
+                        @endfor
                     </select>
                 </div>
-
-                <div class="col-md-6 d-flex justify-content-start gap-2">
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="fas fa-search me-1"></i> Terapkan
-                    </button>
-                    <a href="{{ route('laporan.export', request()->all()) }}" class="btn btn-success px-4">
-                        <i class="fas fa-file-excel me-1"></i> Export Excel
-                    </a>
-                    <a href="{{ route('laporan.index') }}" class="btn btn-outline-secondary px-4">
-                        <i class="fas fa-undo me-1"></i> Reset
-                    </a>
+                <div class="col-md-6 d-flex gap-2">
+                    <button type="submit" class="btn btn-dark btn-sm px-3 shadow-sm"><i class="fas fa-filter me-1"></i> Filter</button>
+                    <a href="{{ route('laporan.export', request()->all()) }}" class="btn btn-success btn-sm px-3 shadow-sm"><i class="fas fa-file-excel me-1"></i> Excel</a>
+                    <a href="{{ route('laporan-putus.index') }}" class="btn btn-outline-primary btn-sm px-3 shadow-sm ms-auto">Lihat Diputus <i class="fas fa-chevron-right ms-1"></i></a>
                 </div>
-
             </form>
         </div>
     </div>
 
-    <div class="card shadow">
+    {{-- Table Card --}}
+    <div class="card shadow-sm border-0">
         <div class="card-body p-0">
-            <div class="table-responsive" style="max-height: 75vh;">
-                <table class="table table-bordered table-sm text-nowrap align-middle mb-0">
-                    <thead class="table-dark sticky-top">
+            <div class="table-responsive" style="max-height: 78vh;">
+                <table class="table table-bordered align-middle mb-0">
+                    <thead class="text-center align-middle">
                         <tr>
-                            <th class="fz-1 text-center">No</th>
-                            <th class="fz-2 text-center">Satuan Kerja</th>
+                            <th class="fz-1 sticky-col header-dark">NO</th>
+                            <th class="fz-2 sticky-col header-dark border-end-strong">SATUAN KERJA</th>
+                            
                             @foreach($jenisPerkara as $alias => $label)
-                            <th class="v-head">{{ $label }}</th>
+                                <th class="v-head" title="{{ $label }}"><span>{{ $label }}</span></th>
                             @endforeach
-                            <th class="v-head bg-primary text-white">TOTAL</th>
+                            
+                            <th class="v-head header-blue text-white border-start-strong"><span>TOTAL DITERIMA</span></th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($laporan as $row)
-                        <tr class="{{ $row->no_urut == 'TOTAL' ? 'table-secondary fw-bold' : '' }}">
-                            <td class="text-center fz-1">{{ $row->no_urut }}</td>
-                            <td class="fz-2 px-2">{{ $row->satker }}</td>
+                        @php $isTotal = ($row->no_urut == 'TOTAL' || $row->satker == 'JUMLAH KESELURUHAN'); @endphp
+                        <tr class="{{ $isTotal ? 'fw-bold sticky-footer' : '' }}">
+                            <td class="text-center fz-1 sticky-col {{ $isTotal ? 'header-dark' : 'bg-white' }}">{{ $row->no_urut }}</td>
+                            <td class="fz-2 sticky-col {{ $isTotal ? 'header-dark' : 'bg-white fw-bold' }} px-3 text-uppercase border-end-strong" style="font-size: 10px;">
+                                {{ $row->satker }}
+                            </td>
+                            
                             @foreach($jenisPerkara as $alias => $label)
-                            <td class="text-center">{{ number_format($row->$alias) }}</td>
+                                <td class="text-center border-sub {{ $isTotal ? 'bg-dark text-white' : '' }}">
+                                    {{ number_format($row->$alias) }}
+                                </td>
                             @endforeach
-                            <td class="text-center fw-bold">{{ number_format($row->jml) }}</td>
+                            
+                            <td class="text-center fw-bold border-start-strong {{ $isTotal ? 'header-blue text-white' : 'bg-light-blue text-primary' }}">
+                                {{ number_format($row->jml) }}
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -111,65 +112,72 @@
 
 @push('styles')
 <style>
-    /* CSS Header Berdiri */
-    .v-head {
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
-        text-align: left;
-        padding: 15px 5px !important;
-        height: 180px;
-        font-size: 11px;
-        min-width: 38px;
-    }
-
-    /* Membekukan Kolom 1 & 2 */
-    .sticky-top {
+    /* Global Table Style */
+    .table { font-size: 11px; border-collapse: separate; border-spacing: 0; }
+    .table td, .table th { padding: 8px 4px !important; border: 1px solid #dee2e6 !important; }
+    
+    /* Perfect Center Header */
+    thead th { 
+        vertical-align: middle !important; 
+        text-align: center !important; 
+        font-weight: 700; 
+        text-transform: uppercase; 
+        letter-spacing: 0.5px; 
         position: sticky;
         top: 0;
         z-index: 1000;
     }
+    
+    /* Header Colors */
+    .header-dark { background-color: #2c3e50 !important; color: #ffffff !important; }
+    .header-blue { background-color: #2980b9 !important; color: #ffffff !important; }
+    
+    /* Vertical Header Logic */
+    .v-head {
+        height: 250px; 
+        min-width: 40px;
+        max-width: 55px;
+        white-space: normal !important;
+        background-color: #2c3e50;
+        color: white;
+        vertical-align: middle !important;
+    }
+    .v-head span {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        display: inline-block;
+        text-align: center;
+        line-height: 1.1;
+        height: 100%;
+        margin: 0 auto;
+    }
 
-    thead th.fz-1,
-    thead th.fz-2 {
-        background-color: #212529 !important;
+    /* Sticky Columns */
+    .table-responsive { position: relative; border-radius: 8px; border: 1px solid #dee2e6; overflow: auto; }
+    .sticky-col { position: sticky !important; z-index: 10; }
+    .fz-1 { left: 0; width: 45px; }
+    .fz-2 { left: 45px; min-width: 180px; }
+
+    /* Pertemuan Header & Sticky Col */
+    thead th.sticky-col { z-index: 1100 !important; }
+
+    /* Border Strong - Pemisah Kategori */
+    .border-end-strong { border-right: 3px solid #2c3e50 !important; }
+    .border-start-strong { border-left: 3px solid #2c3e50 !important; }
+    .border-sub { border-right: 1px solid #dee2e6 !important; }
+
+    /* Row Styling */
+    tbody tr:nth-child(even) td:not(.sticky-col) { background-color: #fcfcfc; }
+    tbody tr:hover td { background-color: #f1f7ff !important; transition: 0.1s; }
+    .bg-light-blue { background-color: #ebf5fb !important; }
+
+    /* Footer / Total Row Sticky */
+    .sticky-footer td {
+        position: sticky;
+        bottom: 0;
+        z-index: 1000;
+        background-color: #2c3e50 !important;
         color: white !important;
-        z-index: 1001;
-        position: sticky;
-    }
-
-    tbody td.fz-1,
-    tbody td.fz-2 {
-        position: sticky;
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        z-index: 10;
-    }
-
-    .fz-1 {
-        left: 0;
-        width: 45px;
-    }
-
-    .fz-2 {
-        left: 45px;
-        border-right: 2px solid #dee2e6 !important;
-        min-width: 180px;
-    }
-
-    /* Efek Zebra & Hover */
-    tbody tr:nth-child(even) td.fz-1,
-    tbody tr:nth-child(even) td.fz-2 {
-        background-color: #f8f9fa !important;
-    }
-
-    tr.table-secondary td.fz-1,
-    tr.table-secondary td.fz-2 {
-        background-color: #e9ecef !important;
-        font-weight: bold;
-    }
-
-    .table td {
-        font-size: 12.5px;
     }
 </style>
 @endpush

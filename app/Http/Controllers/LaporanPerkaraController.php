@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\LaporanPerkaraExport;
+use App\Exports\LaporanPerkaraDiputusExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Config\SatkerConfig;
 use Illuminate\Support\Facades\Log;
@@ -12,16 +13,38 @@ use Illuminate\Support\Facades\Log;
 class LaporanPerkaraController extends Controller
 {
     private $jenisPerkara = [
-        'iz' => 'Izin Poligami', 'pp' => 'Pencegahan Perkawinan', 'p_ppn' => 'Penolakan Perkawinan oleh PPN', 
-        'pb' => 'Pembatalan Perkawinan', 'lks' => 'Kelalaian Kewajiban Suami/Isteri', 'ct' => 'Cerai Talak', 
-        'cg' => 'Cerai Gugat', 'hb' => 'Harta Bersama', 'pa' => 'Penguasaan Anak', 
-        'nai' => 'Nafkah Anak oleh Ibu', 'hbi' => 'Hak-hak Bekas Isteri', 'psa' => 'Pengesahan Anak', 
-        'pkot' => 'Pencabutan Kekuasaan Orang Tua', 'pw' => 'Perwalian', 'phw' => 'Pencabutan Kekuasaan Wali', 
-        'pol' => 'Penunjukan orang lain sebagai Wali oleh Pengadilan', 'grw' => 'Ganti Rugi terhadap Wali', 
-        'aua' => 'Asal Usul Anak', 'pkc' => 'Penolakan Kawin Campuran', 'isbath' => 'Pengesahan Perkawinan/Istbat Nikah', 
-        'ik' => 'Izin Kawin', 'dk' => 'Dispensasi Kawin', 'wa' => 'Wali Adhol', 'kw' => 'Kewarisan', 
-        'wst' => 'Wasiat', 'hb_h' => 'Hibah', 'wkf' => 'Wakaf', 'zkt' => 'Zakat', 'infq' => 'Infaq', 
-        'es' => 'Ekonomi Syariah', 'p3hp' => 'P3HP/Penetapan Ahli Waris', 'll' => 'Lain-Lain'
+        'iz' => 'Izin Poligami',
+        'pp' => 'Pencegahan Perkawinan',
+        'p_ppn' => 'Penolakan Perkawinan oleh PPN',
+        'pb' => 'Pembatalan Perkawinan',
+        'lks' => 'Kelalaian Kewajiban Suami/Isteri',
+        'ct' => 'Cerai Talak',
+        'cg' => 'Cerai Gugat',
+        'hb' => 'Harta Bersama',
+        'pa' => 'Penguasaan Anak',
+        'nai' => 'Nafkah Anak oleh Ibu',
+        'hbi' => 'Hak-hak Bekas Isteri',
+        'psa' => 'Pengesahan Anak',
+        'pkot' => 'Pencabutan Kekuasaan Orang Tua',
+        'pw' => 'Perwalian',
+        'phw' => 'Pencabutan Kekuasaan Wali',
+        'pol' => 'Penunjukan orang lain sebagai Wali oleh Pengadilan',
+        'grw' => 'Ganti Rugi terhadap Wali',
+        'aua' => 'Asal Usul Anak',
+        'pkc' => 'Penolakan Kawin Campuran',
+        'isbath' => 'Pengesahan Perkawinan/Istbat Nikah',
+        'ik' => 'Izin Kawin',
+        'dk' => 'Dispensasi Kawin',
+        'wa' => 'Wali Adhol',
+        'kw' => 'Kewarisan',
+        'wst' => 'Wasiat',
+        'hb_h' => 'Hibah',
+        'wkf' => 'Wakaf',
+        'zkt' => 'Zakat',
+        'infq' => 'Infaq',
+        'es' => 'Ekonomi Syariah',
+        'p3hp' => 'P3HP/Penetapan Ahli Waris',
+        'll' => 'Lain-Lain'
     ];
 
     private $statusPutusan = [
@@ -36,7 +59,8 @@ class LaporanPerkaraController extends Controller
     /**
      * Laporan Perkara Diterima
      */
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $res = $this->fetch($request);
         return view('laporan.perkara', array_merge($res, ['jenisPerkara' => $this->jenisPerkara]));
     }
@@ -44,7 +68,8 @@ class LaporanPerkaraController extends Controller
     /**
      * Laporan Perkara Diputus
      */
-    public function putus(Request $request) {
+    public function putus(Request $request)
+    {
         $res = $this->fetchPutus($request);
         return view('laporan.perkara-putus', array_merge($res, [
             'jenisPerkara' => $this->jenisPerkara,
@@ -55,7 +80,8 @@ class LaporanPerkaraController extends Controller
     /**
      * Export Laporan Perkara Diterima
      */
-    public function export(Request $request) {
+    public function export(Request $request)
+    {
         $res = $this->fetch($request);
         return Excel::download(new LaporanPerkaraExport($res['laporan'], $this->jenisPerkara), 'Laporan_Perkara_Diterima.xlsx');
     }
@@ -63,15 +89,30 @@ class LaporanPerkaraController extends Controller
     /**
      * Export Laporan Perkara Diputus
      */
-    public function exportPutus(Request $request) {
+    public function exportPutus(Request $request)
+    {
         $res = $this->fetchPutus($request);
-        return Excel::download(new LaporanPerkaraExport($res['laporan'], $this->jenisPerkara), 'Laporan_Perkara_Diputus.xlsx');
+
+        return Excel::download(
+            new LaporanPerkaraDiputusExport(
+                $res['laporan'],
+                $this->jenisPerkara,
+                $res['year'],
+                $res['month'],
+                $res['quarter']
+            ),
+            'Laporan_Perkara_Diputus_' . $res['year'] .
+                (!empty($res['month']) ? '_Bulan_' . $res['month'] : '') .
+                (!empty($res['quarter']) ? '_Triwulan_' . $res['quarter'] : '') .
+                '.xlsx'
+        );
     }
 
     /**
      * Fetch data untuk laporan perkara diterima
      */
-    private function fetch($request) {
+    private function fetch($request)
+    {
         $y = $request->get('tahun', date('Y'));
         $m = $request->get('bulan');
         $q = $request->get('triwulan');
@@ -88,7 +129,7 @@ class LaporanPerkaraController extends Controller
                 if ($m) {
                     $query->whereMonth('p.tanggal_pendaftaran', $m);
                 } elseif ($q) {
-                    $range = [1 => [1,3], 2 => [4,6], 3 => [7,9], 4 => [10,12]];
+                    $range = [1 => [1, 3], 2 => [4, 6], 3 => [7, 9], 4 => [10, 12]];
                     $query->whereBetween(DB::raw('MONTH(p.tanggal_pendaftaran)'), [$range[$q][0], $range[$q][1]]);
                 }
 
@@ -113,12 +154,11 @@ class LaporanPerkaraController extends Controller
 
                 $laporan[] = (object) $row;
                 $grandTotalJml += ($data->jml ?? 0);
-
             } catch (\Exception $e) {
                 Log::error("Error fetch diterima {$koneksi}: " . $e->getMessage());
                 $row = [
-                    'no_urut' => SatkerConfig::getNomorUrut($koneksi), 
-                    'satker' => strtoupper($namaSatker), 
+                    'no_urut' => SatkerConfig::getNomorUrut($koneksi),
+                    'satker' => strtoupper($namaSatker),
                     'jml' => 0
                 ];
                 foreach ($this->jenisPerkara as $key => $n) $row[$key] = 0;
@@ -134,9 +174,9 @@ class LaporanPerkaraController extends Controller
         $laporan[] = (object) $footer;
 
         return [
-            'laporan' => $laporan, 
-            'year' => $y, 
-            'month' => $m, 
+            'laporan' => $laporan,
+            'year' => $y,
+            'month' => $m,
             'quarter' => $q
         ];
     }
@@ -144,18 +184,23 @@ class LaporanPerkaraController extends Controller
     /**
      * Fetch data untuk laporan perkara diputus
      */
-    private function fetchPutus($request) {
+    private function fetchPutus($request)
+    {
         $y = $request->get('tahun', date('Y'));
         $m = $request->get('bulan');
         $q = $request->get('triwulan');
 
         $laporan = [];
-        
+
         // Inisialisasi totals
         $totals = array_fill_keys(array_keys($this->jenisPerkara), 0);
         $totalsStatus = [
-            'dicabut' => 0, 'ditolak' => 0, 'dikabulkan' => 0, 
-            'tidak_diterima' => 0, 'gugur' => 0, 'dicoret' => 0
+            'dicabut' => 0,
+            'ditolak' => 0,
+            'dikabulkan' => 0,
+            'tidak_diterima' => 0,
+            'gugur' => 0,
+            'dicoret' => 0
         ];
         $grandTotalJml = 0;
         $grandTotalSisaLalu = 0;
@@ -167,9 +212,9 @@ class LaporanPerkaraController extends Controller
                 $sisaLalu = DB::connection($koneksi)->table('perkara as p')
                     ->join('perkara_putusan as pu', 'p.perkara_id', '=', 'pu.perkara_id')
                     ->whereYear('p.tanggal_pendaftaran', '<', $y)
-                    ->where(function($q) use ($y) {
+                    ->where(function ($q) use ($y) {
                         $q->whereNull('pu.tanggal_putusan')
-                          ->orWhereYear('pu.tanggal_putusan', $y);
+                            ->orWhereYear('pu.tanggal_putusan', $y);
                     })
                     ->count(DB::raw('DISTINCT p.perkara_id'));
 
@@ -180,7 +225,7 @@ class LaporanPerkaraController extends Controller
                 if ($m) {
                     $queryDiterima->whereMonth('p.tanggal_pendaftaran', $m);
                 } elseif ($q) {
-                    $range = [1 => [1,3], 2 => [4,6], 3 => [7,9], 4 => [10,12]];
+                    $range = [1 => [1, 3], 2 => [4, 6], 3 => [7, 9], 4 => [10, 12]];
                     $queryDiterima->whereBetween(DB::raw('MONTH(p.tanggal_pendaftaran)'), [$range[$q][0], $range[$q][1]]);
                 }
 
@@ -194,7 +239,7 @@ class LaporanPerkaraController extends Controller
                 if ($m) {
                     $queryPutus->whereMonth('pu.tanggal_putusan', $m);
                 } elseif ($q) {
-                    $range = [1 => [1,3], 2 => [4,6], 3 => [7,9], 4 => [10,12]];
+                    $range = [1 => [1, 3], 2 => [4, 6], 3 => [7, 9], 4 => [10, 12]];
                     $queryPutus->whereBetween(DB::raw('MONTH(pu.tanggal_putusan)'), [$range[$q][0], $range[$q][1]]);
                 }
 
@@ -251,13 +296,12 @@ class LaporanPerkaraController extends Controller
                 $totalsStatus['tidak_diterima'] += ($data->tidak_diterima ?? 0);
                 $totalsStatus['gugur'] += ($data->gugur ?? 0);
                 $totalsStatus['dicoret'] += ($data->dicoret ?? 0);
-                
+
                 $grandTotalJml += $totalDiputus;
                 $grandTotalSisaLalu += $sisaLalu;
                 $grandTotalDiterima += $diterima;
 
                 $laporan[] = (object) $row;
-
             } catch (\Exception $e) {
                 Log::error("Error fetch putus {$koneksi}: " . $e->getMessage());
                 // Jika error, buat row dengan nilai 0
