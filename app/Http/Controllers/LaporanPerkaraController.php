@@ -62,7 +62,7 @@ class LaporanPerkaraController extends Controller
     public function index(Request $request)
     {
         $res = $this->fetch($request);
-        return view('laporan.perkara', array_merge($res, ['jenisPerkara' => $this->jenisPerkara]));
+        return view('laporan.perkara-diterima', array_merge($res, ['jenisPerkara' => $this->jenisPerkara]));
     }
 
     /**

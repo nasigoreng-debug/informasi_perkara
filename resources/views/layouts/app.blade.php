@@ -69,39 +69,37 @@
             transform: translateY(-2px);
         }
 
-        /* Dropdown menu styling */
+        /* Dropdown menu styling - DENGAN JARAK LEGA */
         .dropdown-menu {
             background: var(--primary-gradient);
             border: none;
             border-radius: 12px;
-            padding: 0.5rem;
+            padding: 0.75rem;
             margin-top: 0.5rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            min-width: 260px;
+            min-width: 300px;
         }
 
         .dropdown-header {
             color: var(--accent-color);
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            padding: 0.5rem 1rem;
-            opacity: 0.9;
+            padding: 0.5rem 1rem 0.25rem 1rem;
         }
 
         .dropdown-item {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.9rem;
-            padding: 0.6rem 1.2rem;
+            color: white;
+            font-size: 0.95rem;
+            padding: 0.7rem 1.2rem;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            margin: 4px 0;
         }
 
         .dropdown-item:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-            color: #fff;
-            transform: translateX(5px);
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
         }
 
         .dropdown-item.active {
@@ -110,14 +108,26 @@
             font-weight: 600;
         }
 
+        .dropdown-item.active:hover {
+            background-color: var(--accent-color);
+            color: #0f2027 !important;
+        }
+
         .dropdown-item i {
-            width: 20px;
+            width: 24px;
             text-align: center;
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+
+        /* Jarak khusus antara dua menu jadwal */
+        .jadwal-tabel {
+            margin-bottom: 8px;
         }
 
         .dropdown-divider {
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            margin: 0.5rem 0;
+            border-top: 2px solid rgba(255, 255, 255, 0.15);
+            margin: 0.75rem 0;
         }
 
         .header-clock {
@@ -213,14 +223,20 @@
                     </li>
                     
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->routeIs('sidang.*') || request()->routeIs('laporan.index') || request()->routeIs('laporan-putus.index') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle {{ 
+                            request()->routeIs('sidang.index') || 
+                            request()->routeIs('sidang.index_visual') || 
+                            request()->routeIs('laporan.index') || 
+                            request()->routeIs('laporan-putus.index') ? 'active' : '' 
+                        }}" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-calendar-alt me-1"></i> Jadwal & Laporan
                         </a>
                         <ul class="dropdown-menu">
-                            <li class="dropdown-submenu">
-                                <span class="dropdown-header"><i class="fas fa-calendar me-2"></i>JADWAL SIDANG</span>
+                            <!-- SECTION JADWAL SIDANG -->
+                            <li class="dropdown-header">
+                                <i class="fas fa-calendar me-2"></i>JADWAL SIDANG
                             </li>
-                            <li>
+                            <li class="jadwal-tabel">
                                 <a class="dropdown-item {{ request()->routeIs('sidang.index') ? 'active' : '' }}" href="{{ route('sidang.index') }}">
                                     <i class="fas fa-list me-2"></i> Jadwal Sidang (Tabel)
                                 </a>
@@ -230,9 +246,13 @@
                                     <i class="fas fa-calendar-week me-2"></i> Jadwal Sidang Publik (Visual)
                                 </a>
                             </li>
+                            
+                            <!-- DIVIDER -->
                             <li><hr class="dropdown-divider"></li>
-                            <li class="dropdown-submenu">
-                                <span class="dropdown-header"><i class="fas fa-chart-bar me-2"></i>LAPORAN PERKARA</span>
+                            
+                            <!-- SECTION LAPORAN PERKARA -->
+                            <li class="dropdown-header">
+                                <i class="fas fa-chart-bar me-2"></i>LAPORAN PERKARA
                             </li>
                             <li>
                                 <a class="dropdown-item {{ request()->routeIs('laporan.index') ? 'active' : '' }}" href="{{ route('laporan.index') }}">
