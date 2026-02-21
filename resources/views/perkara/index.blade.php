@@ -7,7 +7,7 @@
     <div id="refreshBar" class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
 </div>
 
-<div class="loading-overlay" id="loadingOverlay">
+<div class="loading-overlay active" id="loadingOverlay">
     <div class="text-center">
         <div class="spinner-border text-primary mb-2" role="status" style="width: 3rem; height: 3rem;"></div>
         <div class="fw-bold text-muted">Memuat Data Sidang...</div>
@@ -67,7 +67,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div>
                         <div class="text-uppercase text-muted small fw-bold">Sidang Hari Ini</div>
-                        <div class="fs-2 fw-bold text-dark" id="countHariIni">{{ $sidangHariIni }}</div>
+                        <div class="fs-2 fw-bold text-dark" id="countHariIni">{{ $sidangHariIni ?? 0 }}</div>
                     </div>
                     <div class="bg-success bg-opacity-10 text-success rounded-circle p-3">
                         <i class="fas fa-gavel fa-xl"></i>
@@ -84,7 +84,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div>
                         <div class="text-uppercase text-muted small fw-bold">Akan Datang</div>
-                        <div class="fs-2 fw-bold text-dark" id="countAkanDatang">{{ $totalSidangAkanDatang }}</div>
+                        <div class="fs-2 fw-bold text-dark" id="countAkanDatang">{{ $totalSidangAkanDatang ?? 0 }}</div>
                     </div>
                     <div class="bg-info bg-opacity-10 text-info rounded-circle p-3">
                         <i class="fas fa-calendar-plus fa-xl"></i>
@@ -101,13 +101,13 @@
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div>
                         <div class="text-uppercase text-muted small fw-bold">Total Terjadwal</div>
-                        <div class="fs-2 fw-bold text-dark" id="countTotal">{{ $totalDitampilkan }}</div>
+                        <div class="fs-2 fw-bold text-dark" id="countTotal">{{ $totalDitampilkan ?? 0 }}</div>
                     </div>
                     <div class="bg-secondary bg-opacity-10 text-secondary rounded-circle p-3">
                         <i class="fas fa-list fa-xl"></i>
                     </div>
                 </div>
-                <span class="badge badge-soft-secondary w-100 filter-badge" data-filter="ALL">
+                <span class="badge badge-soft-secondary w-100 filter-badge active border border-dark" data-filter="ALL">
                     <i class="fas fa-layer-group me-1"></i> Tampilkan Semua
                 </span>
             </div>
@@ -120,7 +120,7 @@
                 <table class="table table-clean w-100 mb-0" id="sidangTable">
                     <thead>
                         <tr>
-                            <th class="ps-4" width="5%" onclick="sortTable(0)" style="cursor:pointer">No</th>
+                            <th class="ps-4" width="5%" onclick="sortTable(0)" style="cursor:pointer">No <i class="fas fa-sort small ms-1 text-muted opacity-50"></i></th>
                             <th width="18%" onclick="sortTable(1)" style="cursor:pointer">
                                 Tanggal <i class="fas fa-sort small ms-1 text-muted opacity-50"></i>
                             </th>
@@ -141,7 +141,9 @@
                     <tbody id="tableBody">
                         @forelse($perkaras as $index => $perkara)
                         @php
-                        $carbonDate = \Carbon\Carbon::parse($perkara->tanggal_sidang_terdekat);
+                        // Perlindungan jika data tanggal null
+                        $tanggalAman = $perkara->tanggal_sidang_terdekat ?? now()->toDateString();
+                        $carbonDate = \Carbon\Carbon::parse($tanggalAman);
                         $isToday = $carbonDate->isToday();
 
                         // Logic Class Baris
@@ -160,12 +162,12 @@
                         elseif(str_contains($jp, 'itsbat')) $badgeJenisClass = 'badge-soft-primary';
 
                         // Hitung nomor urut (mempertimbangkan pagination)
-                        $nomorUrut = $perkaras->firstItem() + $index;
+                        $nomorUrut = (method_exists($perkaras, 'firstItem') ? $perkaras->firstItem() : 1) + $index;
                         @endphp
 
                         <tr class="{{ $rowClass }} animate__animated animate__fadeIn"
-                            data-status="{{ $perkara->status_sidang }}"
-                            data-tanggal="{{ $perkara->tanggal_sidang_terdekat }}"
+                            data-status="{{ $perkara->status_sidang ?? ($isToday ? 'HARI_INI' : 'AKAN_DATANG') }}"
+                            data-tanggal="{{ $tanggalAman }}"
                             style="animation-delay: {{ $index * 0.03 }}s;">
 
                             <td class="ps-4 text-muted fw-bold">{{ $nomorUrut }}</td>
@@ -182,7 +184,7 @@
                             <td>
                                 <div class="d-flex flex-column">
                                     <span class="font-mono fw-bold text-primary">{{ $perkara->nomor_perkara_banding ?? '-' }}</span>
-                                    @if($perkara->nomor_perkara_pa)
+                                    @if(!empty($perkara->nomor_perkara_pa))
                                     <small class="text-muted font-mono mt-1" style="font-size: 0.8rem;">
                                         <i class="fas fa-arrow-turn-up me-1" style="transform: rotate(90deg)"></i>
                                         {{ $perkara->nomor_perkara_pa }}
@@ -231,9 +233,9 @@
             </div>
         </div>
 
-        @if($perkaras->hasPages())
+        @if(method_exists($perkaras, 'hasPages') && $perkaras->hasPages())
         <div class="card-footer bg-white border-top py-3">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <small class="text-muted">
                     Menampilkan <span class="fw-bold">{{ $perkaras->firstItem() }}</span> - <span class="fw-bold">{{ $perkaras->lastItem() }}</span> dari <span class="fw-bold">{{ $perkaras->total() }}</span> data
                 </small>
@@ -307,6 +309,7 @@
         position: sticky;
         top: 0;
         z-index: 10;
+        user-select: none;
     }
 
     .table-clean tbody td {
@@ -405,16 +408,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    // PERBAIKAN: Menggunakan IIFE agar kebal dari bentrok Turbolinks/Livewire
+    (function() {
         updateTime();
         startAutoRefresh();
         startVisitorCounter();
 
         // Hapus loading overlay setelah 800ms
         setTimeout(() => {
-            document.getElementById('loadingOverlay').classList.remove('active');
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.classList.remove('active');
         }, 800);
-    });
+    })();
 
     // 1. UPDATE WAKTU REAL-TIME
     function updateTime() {
@@ -427,8 +432,9 @@
             hour: '2-digit',
             minute: '2-digit'
         };
-        const timeStr = now.toLocaleDateString('id-ID', options);
-        document.getElementById('lastUpdateTime').textContent = timeStr.replace('.', ':');
+        // PERBAIKAN: Menggunakan toLocaleString agar jam ikut ter-format
+        const timeStr = now.toLocaleString('id-ID', options);
+        document.getElementById('lastUpdateTime').textContent = timeStr.replace(/\./g, ':');
     }
 
     // 2. AUTO REFRESH LOGIC
@@ -439,9 +445,10 @@
 
         setInterval(() => {
             timeLeft--;
-            const percent = (timeLeft / duration) * 100;
-            bar.style.width = percent + '%';
-
+            if (bar) {
+                const percent = (timeLeft / duration) * 100;
+                bar.style.width = percent + '%';
+            }
             if (timeLeft <= 0) refreshData();
         }, 1000);
     }
@@ -450,12 +457,12 @@
     function startVisitorCounter() {
         let count = Math.floor(Math.random() * 30) + 15;
         const el = document.getElementById('visitorCount');
-        el.textContent = count;
+        if (el) el.textContent = count;
 
         setInterval(() => {
             count += Math.floor(Math.random() * 3) - 1;
             if (count < 5) count = 5;
-            el.textContent = count;
+            if (el) el.textContent = count;
         }, 10000);
     }
 
@@ -464,7 +471,6 @@
         const rows = document.querySelectorAll('#tableBody tr');
         let visible = 0;
 
-        // Atur style tombol filter
         document.querySelectorAll('.filter-badge').forEach(b => {
             b.classList.remove('active', 'border', 'border-dark');
             if (b.dataset.filter === status) b.classList.add('active', 'border', 'border-dark');
@@ -480,7 +486,7 @@
             }
         });
 
-        showToast(`Menampilkan ${visible} data sidang`, 'info');
+        showToast(`Menampilkan ${visible} baris (di halaman ini)`, 'info');
     }
 
     function resetFilter() {
@@ -504,7 +510,7 @@
         setTimeout(() => window.location.reload(), 500);
     }
 
-    // 7. SORTING TABLE
+    // 7. SORTING TABLE 
     let sortDir = 1;
 
     function sortTable(n) {
@@ -518,16 +524,23 @@
             rows = table.rows;
             for (i = 1; i < (rows.length - 1); i++) {
                 shouldSwitch = false;
-                x = rows[i].getElementsByTagName("TD")[n];
-                y = rows[i + 1].getElementsByTagName("TD")[n];
+                x = rows[i].getElementsByTagName("TD")[n].innerText.trim().toLowerCase();
+                y = rows[i + 1].getElementsByTagName("TD")[n].innerText.trim().toLowerCase();
+
+                let numX = parseFloat(x);
+                let numY = parseFloat(y);
+                if (!isNaN(numX) && !isNaN(numY)) {
+                    x = numX;
+                    y = numY;
+                }
 
                 if (sortDir == 1) {
-                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                    if (x > y) {
                         shouldSwitch = true;
                         break;
                     }
                 } else {
-                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                    if (x < y) {
                         shouldSwitch = true;
                         break;
                     }
@@ -540,10 +553,9 @@
         }
     }
 
-    // 8. EXPORT & PRINT
+    // 8. EXPORT & PRINT 
     function exportToExcel() {
         const table = document.getElementById('sidangTable');
-        // Gunakan SheetJS untuk export
         const wb = XLSX.utils.table_to_book(table, {
             sheet: "Jadwal Sidang"
         });
@@ -553,17 +565,28 @@
 
     function printTable() {
         const printContent = document.getElementById('tableContainer').innerHTML;
-        const original = document.body.innerHTML;
+        const printWindow = window.open('', '_blank', 'height=700,width=1000');
 
-        document.body.innerHTML = `
-            <h3 style="text-align:center; font-family:sans-serif;">Jadwal Sidang - PTA Bandung</h3>
-            <p style="text-align:center; font-family:sans-serif; font-size:12px;">Dicetak: ${new Date().toLocaleString()}</p>
-            <hr>
-            ${printContent}
-        `;
-        window.print();
-        document.body.innerHTML = original;
-        location.reload();
+        printWindow.document.write('<html><head><title>Cetak Jadwal Sidang</title>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: Arial, sans-serif; padding: 20px; }');
+        printWindow.document.write('h2 { text-align: center; margin-bottom: 5px; }');
+        printWindow.document.write('.text-muted { text-align: center; color: #666; font-size: 12px; margin-bottom: 20px; }');
+        printWindow.document.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px;}');
+        printWindow.document.write('th, td { border: 1px solid #000; padding: 8px; text-align: left; }');
+        printWindow.document.write('th { background-color: #f2f2f2; }');
+        printWindow.document.write('</style></head><body>');
+        printWindow.document.write('<h2>Jadwal Sidang - PTA Bandung</h2>');
+        printWindow.document.write('<div class="text-muted">Dicetak pada: ' + new Date().toLocaleString('id-ID') + '</div>');
+        printWindow.document.write(printContent);
+        printWindow.document.write('</body></html>');
+
+        printWindow.document.close();
+
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
     }
 
     // 9. TOAST NOTIFICATION
@@ -582,8 +605,7 @@
         container.appendChild(el.firstChild);
 
         setTimeout(() => {
-            const t = container.querySelector('.toast');
-            if (t) t.remove();
+            if (el.firstChild) el.firstChild.remove();
         }, 3000);
     }
 </script>

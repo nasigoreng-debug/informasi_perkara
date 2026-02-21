@@ -32,32 +32,29 @@
 
         .navbar-public {
             background: var(--primary-gradient);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             padding: 0.75rem 0;
         }
 
         .navbar-brand {
             font-weight: 700;
-            font-size: 1.2rem;
-            letter-spacing: 0.5px;
+            font-size: 1.1rem;
             color: #fff !important;
-            line-height: 1.2;
         }
 
         .navbar-brand small {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 400;
             opacity: 0.8;
-            letter-spacing: 1px;
             text-transform: uppercase;
         }
 
         .nav-link {
             color: rgba(255, 255, 255, 0.8) !important;
             font-weight: 500;
-            font-size: 0.9rem;
-            padding: 0.5rem 1rem !important;
+            font-size: 0.85rem;
+            padding: 0.6rem 1.2rem !important;
             border-radius: 50px;
             transition: all 0.3s ease;
         }
@@ -66,103 +63,28 @@
         .nav-link.active {
             background-color: rgba(255, 255, 255, 0.15);
             color: #fff !important;
-            transform: translateY(-2px);
-        }
-
-        /* Dropdown menu styling - DENGAN JARAK LEGA */
-        .dropdown-menu {
-            background: var(--primary-gradient);
-            border: none;
-            border-radius: 12px;
-            padding: 0.75rem;
-            margin-top: 0.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            min-width: 300px;
-        }
-
-        .dropdown-header {
-            color: var(--accent-color);
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 0.5rem 1rem 0.25rem 1rem;
-        }
-
-        .dropdown-item {
-            color: white;
-            font-size: 0.95rem;
-            padding: 0.7rem 1.2rem;
-            border-radius: 8px;
-            margin: 4px 0;
-        }
-
-        .dropdown-item:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        .dropdown-item.active {
-            background-color: var(--accent-color);
-            color: #0f2027 !important;
-            font-weight: 600;
-        }
-
-        .dropdown-item.active:hover {
-            background-color: var(--accent-color);
-            color: #0f2027 !important;
-        }
-
-        .dropdown-item i {
-            width: 24px;
-            text-align: center;
-            margin-right: 10px;
-            font-size: 1rem;
-        }
-
-        /* Jarak khusus antara dua menu jadwal */
-        .jadwal-tabel {
-            margin-bottom: 8px;
-        }
-
-        .dropdown-divider {
-            border-top: 2px solid rgba(255, 255, 255, 0.15);
-            margin: 0.75rem 0;
         }
 
         .header-clock {
             color: #fff;
             text-align: right;
             line-height: 1.2;
-            min-width: 150px;
         }
 
         .header-clock .time {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            font-variant-numeric: tabular-nums;
         }
 
         .header-clock .date {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             opacity: 0.8;
         }
 
         main {
             flex: 1;
-            padding: 1.5rem 0;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            /* Padding dikurangi agar hero header landing page bisa menempel ke atas */
+            padding: 0; 
         }
 
         .footer-public {
@@ -170,27 +92,7 @@
             border-top: 1px solid #dee2e6;
             padding: 1.5rem 0;
             color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #2c5364;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #1a3a47;
+            font-size: 0.85rem;
         }
     </style>
 
@@ -201,7 +103,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark navbar-public sticky-top">
         <div class="container-fluid px-4">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/') }}">
-                <div class="bg-white rounded-circle d-flex justify-content-center align-items-center shadow-sm" style="width: 40px; height: 40px;">
+                <div class="bg-white rounded-circle d-flex justify-content-center align-items-center" style="width: 35px; height: 35px;">
                     <i class="fas fa-balance-scale text-dark fs-6"></i>
                 </div>
                 <div>
@@ -210,85 +112,23 @@
                 </div>
             </a>
 
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="publicNav">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('welcome') ? 'active' : '' }}" href="{{ url('/') }}">
                             <i class="fas fa-home me-1"></i> Beranda
                         </a>
                     </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ 
-                            request()->routeIs('sidang.index') || 
-                            request()->routeIs('sidang.index_visual') || 
-                            request()->routeIs('laporan.index') || 
-                            request()->routeIs('laporan-putus.index') ? 'active' : '' 
-                        }}" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-calendar-alt me-1"></i> Jadwal & Laporan
-                        </a>
-                        <ul class="dropdown-menu">
-                            <!-- SECTION JADWAL SIDANG -->
-                            <li class="dropdown-header">
-                                <i class="fas fa-calendar me-2"></i>JADWAL SIDANG
-                            </li>
-                            <li class="jadwal-tabel">
-                                <a class="dropdown-item {{ request()->routeIs('sidang.index') ? 'active' : '' }}" href="{{ route('sidang.index') }}">
-                                    <i class="fas fa-list me-2"></i> Jadwal Sidang (Tabel)
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ request()->routeIs('sidang.index_visual') ? 'active' : '' }}" href="{{ route('sidang.index_visual') }}">
-                                    <i class="fas fa-calendar-week me-2"></i> Jadwal Sidang Publik (Visual)
-                                </a>
-                            </li>
-                            
-                            <!-- DIVIDER -->
-                            <li><hr class="dropdown-divider"></li>
-                            
-                            <!-- SECTION LAPORAN PERKARA -->
-                            <li class="dropdown-header">
-                                <i class="fas fa-chart-bar me-2"></i>LAPORAN PERKARA
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ request()->routeIs('laporan.index') ? 'active' : '' }}" href="{{ route('laporan.index') }}">
-                                    <i class="fas fa-inbox me-2"></i> Laporan Diterima (RK3)
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ request()->routeIs('laporan-putus.index') ? 'active' : '' }}" href="{{ route('laporan-putus.index') }}">
-                                    <i class="fas fa-gavel me-2"></i> Laporan Diputus (RK4)
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('kasasi.index') ? 'active' : '' }}" href="{{ route('kasasi.index') }}">
-                            <i class="fas fa-gavel me-1"></i> Monitoring Kasasi
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-search me-1"></i> Penelusuran Perkara
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-info-circle me-1"></i> Informasi
-                        </a>
-                    </li>
                 </ul>
-            </div>
 
-            <div class="d-none d-lg-block header-clock">
-                <div class="time" id="digital-clock">00:00:00</div>
-                <div class="date" id="current-date"></div>
+                <div class="d-none d-lg-block header-clock">
+                    <div class="time" id="digital-clock">00:00:00</div>
+                    <div class="date" id="current-date"></div>
+                </div>
             </div>
         </div>
     </nav>
@@ -299,16 +139,8 @@
 
     <footer class="footer-public mt-auto">
         <div class="container text-center">
-            <div class="row justify-content-center align-items-center">
-                <div class="col-md-8">
-                    <h6 class="fw-bold text-dark mb-1">PENGADILAN TINGGI AGAMA BANDUNG</h6>
-                    <p class="mb-0 small">Jl. Soekarno Hatta No.714, Bandung, Jawa Barat</p>
-                    <hr class="my-3 w-50 mx-auto opacity-25">
-                    <p class="mb-0 small text-muted">
-                        &copy; {{ date('Y') }} Sistem Statistik Perkara Terintegrasi. All Rights Reserved.
-                    </p>
-                </div>
-            </div>
+            <h6 class="fw-bold text-dark mb-1">PENGADILAN TINGGI AGAMA BANDUNG</h6>
+            <p class="mb-0 small text-muted">&copy; {{ date('Y') }} Sistem Statistik Perkara.</p>
         </div>
     </footer>
 
@@ -318,49 +150,21 @@
     <script>
         function updateClock() {
             const now = new Date();
-            
-            // Format waktu
             const timeString = now.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
             });
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             
-            // Format tanggal Indonesia
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            };
-            const dateString = now.toLocaleDateString('id-ID', options);
+            const clockEl = document.getElementById('digital-clock');
+            const dateEl = document.getElementById('current-date');
             
-            document.getElementById('digital-clock').textContent = timeString;
-            document.getElementById('current-date').textContent = dateString;
+            if (clockEl) clockEl.textContent = timeString.replace(/\./g, ':');
+            if (dateEl) dateEl.textContent = now.toLocaleDateString('id-ID', options);
         }
-        
-        // Update setiap detik
         setInterval(updateClock, 1000);
-        
-        // Panggil pertama kali
         updateClock();
-
-        // Tutup dropdown otomatis saat klik di luar
-        $(document).on('click', function(e) {
-            if (!$(e.target).closest('.dropdown').length) {
-                $('.dropdown-toggle').parent().removeClass('show');
-                $('.dropdown-menu').removeClass('show');
-            }
-        });
-
-        // Prevent dropdown from closing when clicking inside
-        $('.dropdown-menu').on('click', function(e) {
-            e.stopPropagation();
-        });
     </script>
 
     @stack('scripts')
 </body>
-
 </html>

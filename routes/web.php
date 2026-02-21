@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SidangController;
 use App\Http\Controllers\LaporanKasasiController;
 use App\Http\Controllers\LaporanPerkaraController;
+use App\Http\Controllers\RekapEksekusiController;
 
 
 /*
@@ -42,4 +43,11 @@ Route::prefix('laporan-perkara')->name('laporan.')->group(function () {
 Route::prefix('laporan-perkara-putus')->name('laporan-putus.')->group(function () {
     Route::get('/', [LaporanPerkaraController::class, 'putus'])->name('index');
     Route::get('/export', [LaporanPerkaraController::class, 'exportPutus'])->name('export');
+});
+
+// 6. REKAP EKSEKUSI
+Route::prefix('eksekusi')->name('laporan.eksekusi.')->group(function () {
+    Route::get('/', [RekapEksekusiController::class, 'index'])->name('index');
+    Route::get('/export', [RekapEksekusiController::class, 'export'])->name('export');
+    Route::get('/detail', [RekapEksekusiController::class, 'detail'])->name('detail');
 });

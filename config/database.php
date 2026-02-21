@@ -46,7 +46,7 @@ return [
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => env('DB_HOST', '192.168.16.121'),
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
@@ -65,7 +65,7 @@ return [
 
         'mysql_lokal' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => env('DB_HOST', '192.168.16.121'),
             'database' => 'db_informasi',
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
@@ -81,7 +81,7 @@ return [
             'driver' => 'mysql',
             'host' => env('DB_SIAPPTA_HOST', '192.168.16.121'),
             'port' => env('DB_SIAPPTA_PORT', '3306'),
-            'database' => env('DB_SIAPPTA_DATABASE', 'SIAPPTA'), // Kunci ini harus sama dengan .env
+            'database' => env('DB_SIAPPTA_DATABASE', 'SIAPPTA'),
             'username' => env('DB_SIAPPTA_USERNAME', 'root'),
             'password' => env('DB_SIAPPTA_PASSWORD', ''),
             'charset' => 'utf8mb4',
@@ -89,6 +89,25 @@ return [
             'prefix' => '',
             'strict' => false,
         ],
+
+        // ============================================
+        // DATABASE ELAPORAN
+        // ============================================
+
+        'elaporan' => [
+            'driver' => 'mysql',
+            'host' => env('DB_ELAPORAN_HOST', '127.0.0.1'),
+            'port' => env('DB_ELAPORAN_PORT', '3306'),
+            'database' => env('DB_ELAPORAN_DATABASE', 'elaporan'),
+            'username' => env('DB_ELAPORAN_USERNAME', 'root'),
+            'password' => env('DB_ELAPORAN_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+
         // ============================================
         // 26 DATABASE PENGADILAN AGAMA - LARAVEL 10
         // ============================================
@@ -96,7 +115,7 @@ return [
         // 1. PA BANDUNG
         'bandung' => [
             'driver' => 'mysql',
-            'host' => env('DB_BANDUNG_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_BANDUNG_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_BANDUNG_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_BANDUNG', 'bandung'),
             'username' => env('DB_BANDUNG_USERNAME', env('DB_USERNAME', 'root')),
@@ -112,7 +131,7 @@ return [
         // 2. PA INDRAMAYU
         'indramayu' => [
             'driver' => 'mysql',
-            'host' => env('DB_INDRAMAYU_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_INDRAMAYU_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_INDRAMAYU_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_INDRAMAYU', 'indramayu'),
             'username' => env('DB_INDRAMAYU_USERNAME', env('DB_USERNAME', 'root')),
@@ -127,7 +146,7 @@ return [
         // 3. PA MAJALENGKA
         'majalengka' => [
             'driver' => 'mysql',
-            'host' => env('DB_MAJALENGKA_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_MAJALENGKA_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_MAJALENGKA_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_MAJALENGKA', 'majalengka'),
             'username' => env('DB_MAJALENGKA_USERNAME', env('DB_USERNAME', 'root')),
@@ -142,7 +161,7 @@ return [
         // 4. PA SUMBER
         'sumber' => [
             'driver' => 'mysql',
-            'host' => env('DB_SUMBER_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_SUMBER_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_SUMBER_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_SUMBER', 'sumber'),
             'username' => env('DB_SUMBER_USERNAME', env('DB_USERNAME', 'root')),
@@ -157,7 +176,7 @@ return [
         // 5. PA CIAMIS
         'ciamis' => [
             'driver' => 'mysql',
-            'host' => env('DB_CIAMIS_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_CIAMIS_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_CIAMIS_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_CIAMIS', 'ciamis'),
             'username' => env('DB_CIAMIS_USERNAME', env('DB_USERNAME', 'root')),
@@ -172,7 +191,7 @@ return [
         // 6. PA TASIKMALAYA
         'tasikmalaya' => [
             'driver' => 'mysql',
-            'host' => env('DB_TASIKMALAYA_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_TASIKMALAYA_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_TASIKMALAYA_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_TASIKMALAYA', 'tasikmalaya'),
             'username' => env('DB_TASIKMALAYA_USERNAME', env('DB_USERNAME', 'root')),
@@ -187,7 +206,7 @@ return [
         // 7. PA KARAWANG
         'karawang' => [
             'driver' => 'mysql',
-            'host' => env('DB_KARAWANG_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_KARAWANG_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_KARAWANG_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_KARAWANG', 'karawang'),
             'username' => env('DB_KARAWANG_USERNAME', env('DB_USERNAME', 'root')),
@@ -202,7 +221,7 @@ return [
         // 8. PA CIMAHI
         'cimahi' => [
             'driver' => 'mysql',
-            'host' => env('DB_CIMAHI_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_CIMAHI_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_CIMAHI_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_CIMAHI', 'cimahi'),
             'username' => env('DB_CIMAHI_USERNAME', env('DB_USERNAME', 'root')),
@@ -217,7 +236,7 @@ return [
         // 9. PA SUBANG
         'subang' => [
             'driver' => 'mysql',
-            'host' => env('DB_SUBANG_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_SUBANG_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_SUBANG_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_SUBANG', 'subang'),
             'username' => env('DB_SUBANG_USERNAME', env('DB_USERNAME', 'root')),
@@ -232,7 +251,7 @@ return [
         // 10. PA SUMEDANG
         'sumedang' => [
             'driver' => 'mysql',
-            'host' => env('DB_SUMEDANG_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_SUMEDANG_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_SUMEDANG_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_SUMEDANG', 'sumedang'),
             'username' => env('DB_SUMEDANG_USERNAME', env('DB_USERNAME', 'root')),
@@ -247,7 +266,7 @@ return [
         // 11. PA PURWAKARTA
         'purwakarta' => [
             'driver' => 'mysql',
-            'host' => env('DB_PURWAKARTA_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_PURWAKARTA_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_PURWAKARTA_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_PURWAKARTA', 'purwakarta'),
             'username' => env('DB_PURWAKARTA_USERNAME', env('DB_USERNAME', 'root')),
@@ -262,7 +281,7 @@ return [
         // 12. PA SUKABUMI
         'sukabumi' => [
             'driver' => 'mysql',
-            'host' => env('DB_SUKABUMI_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_SUKABUMI_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_SUKABUMI_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_SUKABUMI', 'sukabumi'),
             'username' => env('DB_SUKABUMI_USERNAME', env('DB_USERNAME', 'root')),
@@ -277,7 +296,7 @@ return [
         // 13. PA CIANJUR
         'cianjur' => [
             'driver' => 'mysql',
-            'host' => env('DB_CIANJUR_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_CIANJUR_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_CIANJUR_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_CIANJUR', 'cianjur'),
             'username' => env('DB_CIANJUR_USERNAME', env('DB_USERNAME', 'root')),
@@ -292,7 +311,7 @@ return [
         // 14. PA KUNINGAN
         'kuningan' => [
             'driver' => 'mysql',
-            'host' => env('DB_KUNINGAN_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_KUNINGAN_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_KUNINGAN_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_KUNINGAN', 'kuningan'),
             'username' => env('DB_KUNINGAN_USERNAME', env('DB_USERNAME', 'root')),
@@ -307,7 +326,7 @@ return [
         // 15. PA CIBADAK
         'cibadak' => [
             'driver' => 'mysql',
-            'host' => env('DB_CIBADAK_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_CIBADAK_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_CIBADAK_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_CIBADAK', 'cibadak'),
             'username' => env('DB_CIBADAK_USERNAME', env('DB_USERNAME', 'root')),
@@ -322,7 +341,7 @@ return [
         // 16. PA CIREBON
         'cirebon' => [
             'driver' => 'mysql',
-            'host' => env('DB_CIREBON_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_CIREBON_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_CIREBON_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_CIREBON', 'cirebon'),
             'username' => env('DB_CIREBON_USERNAME', env('DB_USERNAME', 'root')),
@@ -337,7 +356,7 @@ return [
         // 17. PA GARUT
         'garut' => [
             'driver' => 'mysql',
-            'host' => env('DB_GARUT_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_GARUT_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_GARUT_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_GARUT', 'garut'),
             'username' => env('DB_GARUT_USERNAME', env('DB_USERNAME', 'root')),
@@ -352,7 +371,7 @@ return [
         // 18. PA BOGOR
         'bogor' => [
             'driver' => 'mysql',
-            'host' => env('DB_BOGOR_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_BOGOR_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_BOGOR_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_BOGOR', 'bogor'),
             'username' => env('DB_BOGOR_USERNAME', env('DB_USERNAME', 'root')),
@@ -367,7 +386,7 @@ return [
         // 19. PA BEKASI
         'bekasi' => [
             'driver' => 'mysql',
-            'host' => env('DB_BEKASI_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_BEKASI_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_BEKASI_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_BEKASI', 'bekasi'),
             'username' => env('DB_BEKASI_USERNAME', env('DB_USERNAME', 'root')),
@@ -382,7 +401,7 @@ return [
         // 20. PA CIBINONG
         'cibinong' => [
             'driver' => 'mysql',
-            'host' => env('DB_CIBINONG_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_CIBINONG_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_CIBINONG_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_CIBINONG', 'cibinong'),
             'username' => env('DB_CIBINONG_USERNAME', env('DB_USERNAME', 'root')),
@@ -397,7 +416,7 @@ return [
         // 21. PA CIKARANG
         'cikarang' => [
             'driver' => 'mysql',
-            'host' => env('DB_CIKARANG_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_CIKARANG_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_CIKARANG_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_CIKARANG', 'cikarang'),
             'username' => env('DB_CIKARANG_USERNAME', env('DB_USERNAME', 'root')),
@@ -412,7 +431,7 @@ return [
         // 22. PA DEPOK
         'depok' => [
             'driver' => 'mysql',
-            'host' => env('DB_DEPOK_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_DEPOK_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_DEPOK_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_DEPOK', 'depok'),
             'username' => env('DB_DEPOK_USERNAME', env('DB_USERNAME', 'root')),
@@ -427,7 +446,7 @@ return [
         // 23. PA KOTA TASIKMALAYA
         'tasikkota' => [
             'driver' => 'mysql',
-            'host' => env('DB_TASIKKOTA_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_TASIKKOTA_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_TASIKKOTA_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_TASIKKOTA', 'tasikkota'),
             'username' => env('DB_TASIKKOTA_USERNAME', env('DB_USERNAME', 'root')),
@@ -442,7 +461,7 @@ return [
         // 24. PA KOTA BANJAR
         'banjar' => [
             'driver' => 'mysql',
-            'host' => env('DB_BANJAR_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_BANJAR_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_BANJAR_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_BANJAR', 'banjar'),
             'username' => env('DB_BANJAR_USERNAME', env('DB_USERNAME', 'root')),
@@ -457,7 +476,7 @@ return [
         // 25. PA SOREANG
         'soreang' => [
             'driver' => 'mysql',
-            'host' => env('DB_SOREANG_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_SOREANG_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_SOREANG_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_SOREANG', 'soreang'),
             'username' => env('DB_SOREANG_USERNAME', env('DB_USERNAME', 'root')),
@@ -472,7 +491,7 @@ return [
         // 26. PA NGAMPRAH
         'ngamprah' => [
             'driver' => 'mysql',
-            'host' => env('DB_NGAMPRAH_HOST', env('DB_HOST', '127.0.0.1')),
+            'host' => env('DB_NGAMPRAH_HOST', env('DB_HOST', '192.168.16.121')),
             'port' => env('DB_NGAMPRAH_PORT', env('DB_PORT', '3306')),
             'database' => env('DB_NGAMPRAH', 'ngamprah'),
             'username' => env('DB_NGAMPRAH_USERNAME', env('DB_USERNAME', 'root')),
@@ -488,7 +507,7 @@ return [
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => env('DB_HOST', '192.168.16.121'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
@@ -552,7 +571,7 @@ return [
 
         'default' => [
             'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'host' => env('REDIS_HOST', '192.168.16.121'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
@@ -561,7 +580,7 @@ return [
 
         'cache' => [
             'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'host' => env('REDIS_HOST', '192.168.16.121'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
