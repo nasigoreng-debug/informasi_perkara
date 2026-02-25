@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+// Baris di bawah ini sangat penting untuk memperbaiki error "not found" tadi
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Baris ini yang akan merapikan tampilan pagination Anda
+        Paginator::useBootstrapFive();
     }
 }

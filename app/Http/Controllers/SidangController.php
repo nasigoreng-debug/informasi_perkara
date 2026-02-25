@@ -68,18 +68,15 @@ class SidangController extends Controller
     }
 
     /**
-     * TAMPILAN VISUAL (Untuk Display TV - Tanpa Pagination)
-     */
-    /**
      * TAMPILAN VISUAL (HANYA HARI INI - TANPA PAGINATION)
      */
     public function index_visual(Request $request)
     {
         try {
             Carbon::setLocale('id');
-            $hariIni = now()->toDateString(); // Mengambil tanggal hari ini saja
+            $hariIni = now()->toDateString();
 
-            // QUERY DIUBAH: Menggunakan '=' agar jadwal besok tidak ikut muncul
+            // 1. AMBIL DATA JADWAL SIDANG
             $perkarasHariIni = \App\Models\SidangSiappta::select(
                 'perkara.*',
                 'hakim_tinggi.kode as kode_hakim',
@@ -88,17 +85,36 @@ class SidangController extends Controller
                 ->leftJoin('hakim_tinggi', 'perkara.km_id', '=', 'hakim_tinggi.id')
                 ->whereNull('perkara.tgl_putusan')
                 ->whereNotNull('perkara.tgl_sidang_pertama')
-                ->whereDate('perkara.tgl_sidang_pertama', '=', $hariIni) // KUNCINYA DI SINI
+                ->whereDate('perkara.tgl_sidang_pertama', '=', $hariIni)
                 ->orderBy('perkara.tgl_sidang_pertama', 'asc')
                 ->get();
 
+            // 2. AMBIL DATA PENGUNJUNG DARI DATABASE
+            $visitorStats = [
+                // Hitung yang akses hari ini
+                'today' => \App\Models\Visitor::whereDate('visit_date', $hariIni)->count(),
+
+                // Hitung yang akses bulan ini
+                'month' => \App\Models\Visitor::whereMonth('visit_date', now()->month)
+                    ->whereYear('visit_date', now()->year)
+                    ->count(),
+
+                // Hitung total seluruh kunjungan
+                'total' => \App\Models\Visitor::count(),
+
+                // Simulasi Online (Visitor dalam 5 menit terakhir + angka acak sedikit agar dinamis)
+                'online' => \App\Models\Visitor::where('updated_at', '>=', now()->subMinutes(5))->count() + rand(2, 5)
+            ];
+
+            // 3. KIRIM SEMUA DATA KE VIEW
             return view('perkara.index_visual', [
                 'perkaras' => $perkarasHariIni,
                 'sidangHariIni' => $perkarasHariIni->count(),
                 'totalSidangAkanDatang' => 0,
                 'totalDitampilkan' => $perkarasHariIni->count(),
                 'hariIni' => $hariIni,
-                'hariIniFormatted' => Carbon::parse($hariIni)->translatedFormat('l, d F Y')
+                'hariIniFormatted' => Carbon::parse($hariIni)->translatedFormat('l, d F Y'),
+                'visitorStats' => $visitorStats
             ]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error Sidang Visual: ' . $e->getMessage());

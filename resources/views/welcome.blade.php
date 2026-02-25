@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Layanan Perkara | PTA Bandung</title>
+    <title>Portal Utama | PTA Bandung</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,7 +18,7 @@
             --accent-gold: #ffd700;
             --bg-light: #f4f7fa;
             --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-            --card-hover-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+            --card-hover-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
         }
 
         body {
@@ -31,27 +31,14 @@
             color: #2d3436;
         }
 
-        /* Hero Section */
         .hero-header {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
-            padding: 120px 0 160px;
+            padding: 100px 0 160px;
             color: white;
-            border-bottom-left-radius: 100px;
-            border-bottom-right-radius: 100px;
+            border-bottom-left-radius: 60px;
+            border-bottom-right-radius: 60px;
             position: relative;
             overflow: hidden;
-        }
-
-        /* Dekorasi Background Hero */
-        .hero-header::after {
-            content: '';
-            position: absolute;
-            top: -10%;
-            right: -10%;
-            width: 400px;
-            height: 400px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 50%;
         }
 
         .main-container {
@@ -60,77 +47,77 @@
             padding-bottom: 80px;
         }
 
-        /* Card Styling */
-        .menu-card {
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 35px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
+        /* Welcome Card Styling */
+        .welcome-card {
+            border: none;
+            border-radius: 40px;
+            background: #ffffff;
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-decoration: none;
+            text-decoration: none !important;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            padding: 50px 35px;
+            padding: 60px 40px;
             height: 100%;
             box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
         }
 
-        .menu-card:hover {
-            transform: translateY(-20px);
-            box-shadow: var(--card-hover-shadow) !important;
-            background: #ffffff;
-            border-color: #fff;
+        .welcome-card:hover {
+            transform: translateY(-15px);
+            box-shadow: var(--card-hover-shadow);
         }
 
-        /* Icon Wrapper */
-        .icon-wrapper {
-            width: 100px;
-            height: 100px;
-            border-radius: 30px;
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            transition: all 0.3s;
+        }
+
+        .card-monitoring::before {
+            background: #0d6efd;
+        }
+
+        .card-laporan::before {
+            background: #ffc107;
+        }
+
+        .icon-box {
+            width: 120px;
+            height: 120px;
+            border-radius: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 30px;
-            font-size: 2.8rem;
+            font-size: 3.5rem;
             transition: all 0.5s ease;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
         }
 
-        .menu-card:hover .icon-wrapper {
-            transform: scale(1.15) rotate(8deg);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        .welcome-card:hover .icon-box {
+            transform: scale(1.15) rotate(5deg);
         }
 
         .card-title {
-            font-size: 1.4rem;
-            letter-spacing: -0.5px;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
         }
 
-        .card-text {
+        .card-desc {
+            font-size: 1rem;
+            color: #636e72;
+            max-width: 280px;
             line-height: 1.6;
-            opacity: 0.8;
-            font-size: 0.95rem;
         }
 
-        /* Button Styling */
-        .btn-custom {
-            border-radius: 18px;
-            padding: 14px 20px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            transition: all 0.3s;
-            border: none;
-        }
-
-        .menu-card:hover .btn-custom {
-            transform: scale(1.05);
-        }
-
-        /* Badge Online */
         .badge-online {
             font-size: 0.75rem;
             padding: 8px 18px;
@@ -138,42 +125,12 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
-            letter-spacing: 1px;
         }
 
         footer {
-            padding: 50px 0;
+            padding: 40px 0;
             background: #ffffff;
             border-top: 1px solid #eef2f6;
-            color: #636e72;
-        }
-
-        .footer-logo {
-            font-weight: 800;
-            color: var(--primary-dark);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Staggered Animation Delay */
-        .card-delay-1 {
-            animation-delay: 0.1s;
-        }
-
-        .card-delay-2 {
-            animation-delay: 0.2s;
-        }
-
-        .card-delay-3 {
-            animation-delay: 0.3s;
-        }
-
-        .card-delay-4 {
-            animation-delay: 0.4s;
-        }
-
-        .card-delay-5 {
-            animation-delay: 0.5s;
         }
     </style>
 </head>
@@ -181,99 +138,48 @@
 <body>
 
     <header class="hero-header text-center">
-        <div class="container">
+        <div class="container px-4">
             <div class="animate__animated animate__fadeInDown">
-                <span class="badge-online mb-3 d-inline-block text-uppercase fw-bold">
-                    <i class="fas fa-circle text-success me-2 animate__animated animate__flash animate__infinite"></i> Sistem Terintegrasi Online
+                <span class="badge-online mb-3 d-inline-block text-uppercase fw-bold text-white">
+                    <i class="fas fa-shield-alt me-2 text-success"></i> Portal Resmi PTA Bandung
                 </span>
-                <h1 class="display-3 fw-extrabold mb-3">Portal Informasi Perkara</h1>
-                <p class="lead opacity-75 mx-auto mb-0" style="max-width: 650px; font-weight: 500;">
-                    Monitoring dan Informasi Kepaniteraan Muda Hukum <br>
-                    <span style="color: var(--accent-gold)">Pengadilan Tinggi Agama Bandung</span>
+                <h1 class="display-4 fw-bold mb-3">Selamat Datang</h1>
+                <p class="lead opacity-75 mx-auto mb-0" style="max-width: 600px;">
+                    Silakan pilih kategori layanan informasi perkara yang Anda butuhkan
                 </p>
             </div>
         </div>
     </header>
 
-    <main class="main-container container">
-        <div class="row justify-content-center g-4">
+    <main class="main-container container px-4">
+        <div class="row justify-content-center g-5">
 
-            {{-- 1. KASASI --}}
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp card-delay-1">
-                <a href="{{ route('kasasi.index') }}" class="card menu-card">
-                    <div class="icon-wrapper bg-primary bg-opacity-10 text-primary">
-                        <i class="fas fa-balance-scale-right"></i>
+            <div class="col-md-6 col-lg-5 animate__animated animate__fadeInLeft">
+                <a href="{{ route('monitoring') }}" class="card welcome-card card-monitoring">
+                    <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                        <i class="fas fa-desktop"></i>
                     </div>
-                    <h4 class="card-title fw-bold text-dark mb-3">Monitoring Kasasi</h4>
-                    <p class="card-text text-muted mb-4">
-                        Monitoring perkara kasasi dari seluruh Satuan Kerja secara real-time.
+                    <h2 class="card-title text-uppercase">Monitoring</h2>
+                    <p class="card-desc">
+                        Akses layanan real-time: Kasasi, Jadwal Sidang, dan Administrasi Surat Masuk.
                     </p>
-                    <div class="mt-auto w-100">
-                        <div class="btn btn-primary btn-custom w-100 shadow-sm">Lihat Detail Perkara</div>
+                    <div class="btn btn-primary px-5 py-3 mt-4 fw-bold rounded-pill">
+                        MASUK MONITORING <i class="fas fa-arrow-right ms-2"></i>
                     </div>
                 </a>
             </div>
 
-            {{-- 2. JADWAL SIDANG --}}
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp card-delay-2">
-                <a href="{{ route('sidang.index') }}" class="card menu-card">
-                    <div class="icon-wrapper bg-success bg-opacity-10 text-success">
-                        <i class="fas fa-calendar-check"></i>
+            <div class="col-md-6 col-lg-5 animate__animated animate__fadeInRight">
+                <a href="{{ route('laporan-utama') }}" class="card welcome-card card-laporan">
+                    <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                        <i class="fas fa-file-signature"></i>
                     </div>
-                    <h4 class="card-title fw-bold text-dark mb-3">Jadwal Sidang</h4>
-                    <p class="card-text text-muted mb-4">
-                        Lihat jadwal persidangan Pengadilan Tinggi Agama Bandung.
+                    <h2 class="card-title text-uppercase">Laporan</h2>
+                    <p class="card-desc">
+                        Rekapitulasi data perkara diterima, perkara diputus, dan laporan eksekusi.
                     </p>
-                    <div class="mt-auto w-100">
-                        <div class="btn btn-success btn-custom w-100 shadow-sm">Lihat Jadwal Sidang</div>
-                    </div>
-                </a>
-            </div>
-
-            {{-- 3. PERKARA DITERIMA --}}
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp card-delay-3">
-                <a href="{{ route('laporan.index') }}" class="card menu-card">
-                    <div class="icon-wrapper bg-warning bg-opacity-10 text-warning">
-                        <i class="fas fa-file-invoice"></i>
-                    </div>
-                    <h4 class="card-title fw-bold text-dark mb-3">Perkara Diterima</h4>
-                    <p class="card-text text-muted mb-4">
-                        Rekapitulasi laporan perkara yang diterima Pengadilan Agama se-Jawa Barat.
-                    </p>
-                    <div class="mt-auto w-100">
-                        <div class="btn btn-warning text-dark btn-custom w-100 shadow-sm">Lihat Laporan</div>
-                    </div>
-                </a>
-            </div>
-
-            {{-- 4. PERKARA DIPUTUS --}}
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp card-delay-4">
-                <a href="{{ route('laporan-putus.index') }}" class="card menu-card">
-                    <div class="icon-wrapper bg-danger bg-opacity-10 text-danger">
-                        <i class="fas fa-gavel"></i>
-                    </div>
-                    <h4 class="card-title fw-bold text-dark mb-3">Perkara Diputus</h4>
-                    <p class="card-text text-muted mb-4">
-                        Rekapitulasi laporan perkara yang diputus Pengadilan Agama se-Jawa Barat.
-                    </p>
-                    <div class="mt-auto w-100">
-                        <div class="btn btn-danger btn-custom w-100 shadow-sm">Lihat Laporan</div>
-                    </div>
-                </a>
-            </div>
-
-            {{-- 5. MONITORING EKSEKUSI --}}
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp card-delay-5">
-                <a href="{{ route('laporan.eksekusi.index') }}" class="card menu-card">
-                    <div class="icon-wrapper bg-info bg-opacity-10 text-info">
-                        <i class="fas fa-clipboard-list"></i>
-                    </div>
-                    <h4 class="card-title fw-bold text-dark mb-3">Monitoring Eksekusi</h4>
-                    <p class="card-text text-muted mb-4">
-                        Informasi penyelesaian eksekusi putusan di wilayah hukum Pengadilan Tinggi Agama Bandung.
-                    </p>
-                    <div class="mt-auto w-100">
-                        <div class="btn btn-info text-white btn-custom w-100 shadow-sm">Lihat Eksekusi</div>
+                    <div class="btn btn-warning px-5 py-3 mt-4 fw-bold rounded-pill">
+                        MASUK LAPORAN <i class="fas fa-arrow-right ms-2"></i>
                     </div>
                 </a>
             </div>
@@ -281,11 +187,10 @@
         </div>
     </main>
 
-    <footer>
-        <div class="container text-center">
-            <div class="footer-logo mb-3">PTA BANDUNG</div>
-            <p class="mb-1 fw-semibold text-dark">Pengadilan Tinggi Agama Bandung</p>
-            <p class="small mb-0 opacity-50">Menuju Peradilan Modern yang Transparan dan Akuntabel &copy; {{ date('Y') }}</p>
+    <footer class="text-center mt-auto">
+        <div class="container">
+            <div class="fw-bold text-primary mb-1" style="letter-spacing: 2px;">PTA BANDUNG</div>
+            <p class="small text-muted mb-0">&copy; {{ date('Y') }} Pengadilan Tinggi Agama Bandung - Terintegrasi & Transparan</p>
         </div>
     </footer>
 

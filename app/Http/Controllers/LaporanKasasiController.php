@@ -29,7 +29,7 @@ class LaporanKasasiController extends Controller
         $years = $this->kasasiService->getAvailableYears();
 
         // 2. Ambil data "selipan" PDF dari database lokal db_informasi
-        $allDocs = DB::connection('mysql_lokal')->table('monitoring_kasasi_docs')->get();
+        $allDocs = DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')->get();
 
         // 3. Gabungkan data (Merge)
         $data = $data->map(function ($item) use ($allDocs) {
@@ -75,7 +75,7 @@ class LaporanKasasiController extends Controller
                 }
 
                 // 4. CEK DAN HAPUS FILE LAMA (JIKA ADA)
-                $oldData = \DB::connection('mysql_lokal')
+                $oldData = \DB::connection('db_pm_hukum')
                     ->table('monitoring_kasasi_docs')
                     ->where('perkara_id', $perkara_id)
                     ->where('nama_db', $nama_db)
@@ -98,7 +98,7 @@ class LaporanKasasiController extends Controller
                     $dbFilePath = 'putusan_pdf/' . $filename;
 
                     // 6. Update Database Lokal (db_informasi)
-                    \DB::connection('mysql_lokal')->table('monitoring_kasasi_docs')->updateOrInsert(
+                    \DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')->updateOrInsert(
                         ['perkara_id' => $perkara_id, 'nama_db' => $nama_db],
                         [
                             'file_pdf' => $dbFilePath,

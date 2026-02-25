@@ -14,8 +14,10 @@
 
     body {
         background-color: var(--bg-light);
-        font-family: "Bookman Old Style", "Bookman", serif;
+        /* Mengganti font ke Sans-Serif Standar Modern */
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         color: #2d3436;
+        line-height: 1.6;
     }
 
     .dashboard-header {
@@ -56,15 +58,17 @@
     .custom-table thead th {
         background-color: #f8fafc;
         color: #64748b;
-        font-weight: bold;
+        font-weight: 700;
         text-transform: uppercase;
         padding: 1.2rem;
+        font-size: 0.85rem;
+        letter-spacing: 0.025em;
     }
 
     .angka-link {
         color: inherit;
         text-decoration: none;
-        font-weight: bold;
+        font-weight: 600;
         padding: 4px 8px;
         border-radius: 6px;
     }
@@ -80,22 +84,23 @@
         color: #e11d48;
         padding: 0.5rem 0.8rem;
         border-radius: 10px;
-        font-weight: bold;
+        font-weight: 700;
         border: 1px solid #fecdd3;
     }
 
     .tfoot-total {
         background-color: var(--pta-navy) !important;
         color: white !important;
-        font-weight: bold;
+        font-weight: 700;
     }
 
     input[type="date"] {
         border-radius: 10px;
         border: 1px solid rgba(255, 255, 255, 0.2);
         padding: 5px 10px;
-        font-weight: bold;
+        font-weight: 600;
         color: var(--pta-navy);
+        font-family: inherit;
     }
 
     .btn-reset {
@@ -114,13 +119,13 @@
 @endpush
 
 @section('content')
-<div class="container-fluid py-4 px-xl-5">
+<div class="container py-4 px-xl-5">
     @php
     $urutanManual = ['BANDUNG', 'INDRAMAYU', 'MAJALENGKA', 'SUMBER', 'CIAMIS', 'TASIKMALAYA', 'KARAWANG', 'CIMAHI', 'SUBANG', 'SUMEDANG', 'PURWAKARTA', 'SUKABUMI', 'CIANJUR', 'KUNINGAN', 'CIBADAK', 'CIREBON', 'GARUT', 'BOGOR', 'BEKASI', 'CIBINONG', 'CIKARANG', 'DEPOK', 'TASIKKOTA', 'BANJAR', 'SOREANG', 'NGAMPRAH'];
     $sortedData = collect($data)->sortBy(function($item) use ($urutanManual) {
-    $namaClean = strtoupper(trim(str_replace(['PA ', 'PENGADILAN AGAMA '], '', $item->satker)));
-    $index = array_search($namaClean, $urutanManual);
-    return ($index === false) ? 999 : $index;
+        $namaClean = strtoupper(trim(str_replace(['PA ', 'PENGADILAN AGAMA '], '', $item->satker)));
+        $index = array_search($namaClean, $urutanManual);
+        return ($index === false) ? 999 : $index;
     });
     $hariIni = date('Y-m-d');
     $tglAkhirFix = ($tglAkhir >= date('Y-12-31') || $tglAkhir > $hariIni) ? $hariIni : $tglAkhir;
@@ -129,8 +134,8 @@
     <div class="dashboard-header mb-4 animate__animated animate__fadeIn">
         <div class="row align-items-center">
             <div class="col-md-4">
-                <h3 class="mb-1 text-uppercase fw-bold">Rekapitulasi Kinerja Eksekusi</h3>
-                <p class="mb-0 opacity-75">PTA Bandung | Periode Pencarian</p>
+                <h3 class="mb-1 text-uppercase fw-bold" style="letter-spacing: -0.5px;">Penyelesaian <br> Perkara Eksekusi</h3>
+                <p class="mb-0 opacity-75 small">PTA Bandung | Periode Pencarian</p>
             </div>
             <div class="col-md-8">
                 <form action="{{ route('laporan.eksekusi.index') }}" method="GET" class="d-flex justify-content-md-end align-items-center gap-2">
@@ -151,21 +156,32 @@
         </div>
     </div>
 
-    {{-- Global Overview & KPI tetap sama --}}
     <div class="global-overview shadow-lg mb-4 animate__animated animate__fadeInUp">
-        <h6 class="text-white-50 fw-bold mb-3 text-uppercase small"><i class="bi bi-globe me-2"></i> Akumulasi Seluruh Perkara (Global)</h6>
+        <h6 class="text-white-50 fw-bold mb-3 text-uppercase small" style="letter-spacing: 1px;"><i class="bi bi-globe me-2"></i> Akumulasi Seluruh Permohonan Eksekusi</h6>
         <div class="row align-items-center text-center text-md-start">
             <div class="col-md-3 global-stat-box">
-                <p class="text-white-50 mb-1 small">TOTAL DITERIMA</p>
-                <h2 class="fw-bold mb-0"><a href="{{ route('laporan.eksekusi.detail', ['satker' => 'ALL', 'jenis' => 'TOTAL_DITERIMA', 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="text-info text-decoration-none">{{ number_format($allTime['diterima'], 0, ',', '.') }}</a></h2>
+                <p class="text-white-50 mb-1 small">TOTAL PERMOHONAN</p>
+                <h2 class="fw-bold mb-0">
+                    <a href="{{ route('laporan.eksekusi.detail', ['satker' => 'ALL', 'jenis' => 'TOTAL_DITERIMA', 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="text-info text-decoration-none">
+                        {{ number_format($allTime['diterima'], 0, ',', '.') }}
+                    </a>
+                </h2>
             </div>
             <div class="col-md-3 global-stat-box">
                 <p class="text-white-50 mb-1 small">TOTAL SELESAI</p>
-                <h2 class="fw-bold mb-0"><a href="{{ route('laporan.eksekusi.detail', ['satker' => 'ALL', 'jenis' => 'TOTAL_SELESAI', 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="text-success text-decoration-none">{{ number_format($allTime['selesai'], 0, ',', '.') }}</a></h2>
+                <h2 class="fw-bold mb-0">
+                    <a href="{{ route('laporan.eksekusi.detail', ['satker' => 'ALL', 'jenis' => 'TOTAL_SELESAI', 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="text-success text-decoration-none">
+                        {{ number_format($allTime['selesai'], 0, ',', '.') }}
+                    </a>
+                </h2>
             </div>
             <div class="col-md-2 global-stat-box">
                 <p class="text-white-50 mb-1 small">SISA</p>
-                <h2 class="fw-bold mb-0"><a href="{{ route('laporan.eksekusi.detail', ['satker' => 'ALL', 'jenis' => 'TOTAL_SISA', 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="text-warning text-decoration-none">{{ number_format($allTime['sisa'], 0, ',', '.') }}</a></h2>
+                <h2 class="fw-bold mb-0">
+                    <a href="{{ route('laporan.eksekusi.detail', ['satker' => 'ALL', 'jenis' => 'TOTAL_SISA', 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="text-warning text-decoration-none">
+                        {{ number_format($allTime['sisa'], 0, ',', '.') }}
+                    </a>
+                </h2>
             </div>
             <div class="col-md-4 ps-md-4 mt-3 mt-md-0">
                 <div class="d-flex justify-content-between mb-2 small fw-bold">
@@ -180,7 +196,7 @@
     </div>
 
     <div class="row g-4 mb-5 animate__animated animate__fadeInUp">
-        @foreach([['Sisa Lalu', $summary['SISA']], ['Diterima', $summary['DITERIMA']], ['Total Beban', $summary['BEBAN']], ['Selesai', $summary['SELESAI']], ['Sisa Kini', $summary['SISA_TAHUN_INI']]] as $c)
+        @foreach([['Sisa Lalu', $summary['SISA']], ['Diterima', $summary['DITERIMA']], ['Total Beban', $summary['BEBAN']], ['Selesai', $summary['SELESAI']], ['Sisa', $summary['SISA_TAHUN_INI']]] as $c)
         <div class="col-md col-6">
             <div class="card kpi-card border-0 shadow-sm h-100 p-4 text-center">
                 <h6 class="small fw-bold text-uppercase text-muted mb-2">{{ $c[0] }}</h6>
@@ -194,8 +210,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
             <h5 class="fw-bold text-dark mb-0">Rincian Per Satuan Kerja</h5>
             <div class="d-flex gap-2">
-                {{-- Tombol Export Baru --}}
-                <button onclick="exportToExcel()" class="btn btn-success fw-bold px-4 rounded-pill shadow-sm">
+                <button onclick="exportToExcel()" class="btn btn-success btn-sm fw-bold px-4 rounded-pill shadow-sm">
                     <i class="bi bi-file-earmark-excel me-2"></i> Ekspor Excel
                 </button>
             </div>
@@ -219,13 +234,13 @@
                     @foreach($sortedData as $row)
                     @php $persen = $row->BEBAN > 0 ? ($row->SELESAI / $row->BEBAN) * 100 : 0; @endphp
                     <tr>
-                        <td>{{ $no++ }}</td>
-                        <td class="text-start fw-bold">{{ $row->satker }}</td>
+                        <td class="small">{{ $no++ }}</td>
+                        <td class="text-start fw-bold text-dark">{{ $row->satker }}</td>
                         <td><a href="{{ route('laporan.eksekusi.detail', ['satker' => $row->satker, 'jenis' => 'SISA', 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="angka-link">{{ number_format($row->SISA, 0, ',', '.') }}</a></td>
                         <td><a href="{{ route('laporan.eksekusi.detail', ['satker' => $row->satker, 'jenis' => 'DITERIMA', 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="angka-link">{{ number_format($row->DITERIMA, 0, ',', '.') }}</a></td>
                         <td><a href="{{ route('laporan.eksekusi.detail', ['satker' => $row->satker, 'jenis' => 'BEBAN', 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="angka-link text-primary">{{ number_format($row->BEBAN, 0, ',', '.') }}</a></td>
                         <td><a href="{{ route('laporan.eksekusi.detail', ['satker' => $row->satker, 'jenis' => 'SELESAI', 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="angka-link text-success">{{ number_format($row->SELESAI, 0, ',', '.') }}</a></td>
-                        <td><b>{{ number_format($persen, 1, ',', '.') }}%</b></td>
+                        <td class="fw-bold">{{ number_format($persen, 1, ',', '.') }}%</td>
                         <td><a href="{{ route('laporan.eksekusi.detail', ['satker' => $row->satker, 'jenis' => 'SISA_TAHUN_INI', 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="angka-link {{ $row->SISA_TAHUN_INI > 0 ? 'badge-sisa' : '' }}">{{ number_format($row->SISA_TAHUN_INI, 0, ',', '.') }}</a></td>
                     </tr>
                     @endforeach
@@ -246,63 +261,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const tglAwal = document.getElementById('tgl_awal');
-        const tglAkhir = document.getElementById('tgl_akhir');
-        const today = new Date().toISOString().split('T')[0];
-        tglAwal.max = today;
-        tglAkhir.max = today;
-
-        function updateMinMax() {
-            tglAkhir.min = tglAwal.value;
-            if (tglAkhir.value < tglAwal.value && tglAkhir.value !== "") {
-                tglAkhir.value = tglAwal.value;
-            }
-        }
-        updateMinMax();
-        tglAwal.addEventListener('change', updateMinMax);
-    });
-
-    function exportToExcel() {
-        let table = document.getElementById("rekapTable");
-        let html = table.outerHTML;
-
-        // Tambahkan style CSS agar Excel menampilkan border dan warna
-        let style = `
-            <style>
-                table { border-collapse: collapse; width: 100%; font-family: 'Bookman Old Style', serif; }
-                th, td { border: 1px solid black; padding: 8px; text-align: center; }
-                th { background-color: #f2f2f2; font-weight: bold; text-transform: uppercase; }
-                .tfoot-total { background-color: #1a2a6c; color: white; font-weight: bold; }
-                .text-start { text-align: left; }
-                h2 { text-align: center; margin-bottom: 20px; }
-            </style>
-        `;
-
-        // Buat judul laporan di atas tabel
-        let header = `
-            <h2>REKAPITULASI KINERJA EKSEKUSI PTA BANDUNG</h2>
-            <p>Periode: ${document.getElementById('tgl_awal').value} s/d ${document.getElementById('tgl_akhir').value}</p>
-        `;
-
-        let uri = 'data:application/vnd.ms-excel;base64,';
-        let template = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-            <head><meta charset="UTF-8">${style}</head>
-            <body>${header}${html}</body></html>
-        `;
-
-        let base64 = function(s) {
-            return window.btoa(unescape(encodeURIComponent(s)))
-        };
-
-        let link = document.createElement("a");
-        link.href = uri + base64(template);
-        link.download = 'Rekap_Eksekusi_Bandung_' + new Date().toLocaleDateString() + '.xls';
-        link.click();
-    }
-</script>
-@endpush

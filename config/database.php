@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'db_pm_hukum'),
 
     /*
     |--------------------------------------------------------------------------
@@ -43,34 +43,21 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
-        'mysql' => [
+        // ============================================
+        // DATABASE PANMUD HUKUM (SERVER 172.16.12.123)
+        // ============================================
+        'db_pm_hukum' => [
             'driver' => 'mysql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', '192.168.16.121'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
-            'unix_socket' => env('DB_SOCKET', ''),
+            'host' => env('DB_HOST_PM_HUKUM', '127.0.0.1'),
+            'port' => env('DB_PORT_PM_HUKUM', '3306'),
+            'database' => env('DB_DATABASE_PM_HUKUM', 'db_pm_hukum'),
+            'username' => env('DB_USERNAME_PM_HUKUM', 'root'),
+            'password' => env('DB_PASSWORD_PM_HUKUM', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
-            'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
-        ],
-
-        'mysql_lokal' => [
-            'driver' => 'mysql',
-            'host' => env('DB_HOST', '192.168.16.121'),
-            'database' => 'db_informasi',
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
         ],
 
         // ============================================

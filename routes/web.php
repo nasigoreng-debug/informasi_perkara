@@ -5,7 +5,8 @@ use App\Http\Controllers\SidangController;
 use App\Http\Controllers\LaporanKasasiController;
 use App\Http\Controllers\LaporanPerkaraController;
 use App\Http\Controllers\RekapEksekusiController;
-
+use App\Http\Controllers\SuratMasukController;
+use App\Http\Controllers\LaporanBandingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,41 +14,86 @@ use App\Http\Controllers\RekapEksekusiController;
 |--------------------------------------------------------------------------
 */
 
-// 1. LANDING PAGE / PORTAL
+// --- 1. LANDING & MAIN HUB ---
+// Ini adalah halaman awal (pilihan Monitoring atau Laporan)
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
+// Halaman khusus daftar menu Monitoring
+Route::get('/monitoring', function () {
+    return view('monitoring');
+})->name('monitoring');
 
-// 2. JADWAL SIDANG
-Route::get('/jadwal-sidang', [SidangController::class, 'index'])->name('sidang.index');
-Route::get('/jadwal-sidang-visual', [SidangController::class, 'index_visual'])->name('sidang.index_visual');
+// Halaman khusus daftar menu Laporan
+Route::get('/laporan-utama', function () {
+    return view('laporan-utama');
+})->name('laporan-utama');
 
 
-// 3. LAPORAN KASASI
-Route::controller(LaporanKasasiController::class)
-    ->prefix('kasasi')
-    ->name('kasasi.')
-    ->group(function () {
+// --- 2. MONITORING GROUP (Detail Fitur) ---
+
+// Jadwal Sidang
+Route::controller(SidangController::class)->prefix('jadwal-sidang')->name('sidang.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/visual', 'index_visual')->name('index_visual');
+});
+
+// Laporan Kasasi
+Route::controller(LaporanKasasiController::class)->prefix('kasasi')->name('kasasi.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/detail', 'detail')->name('detail');
+    Route::put('/upload-pdf/{perkara_id}', 'uploadPdf')->name('upload');
+});
+
+// Surat Masuk
+Route::controller(SuratMasukController::class)->prefix('surat-masuk')->name('surat.')->group(function () {
+    Route::get('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/', 'index')->name('index');
+    Route::get('/create', 'create')->name('create');
+    Route::post('/store', 'store')->name('store');
+    Route::get('/edit/{id}', 'edit')->name('edit');
+    Route::put('/update/{id}', 'update')->name('update');
+    Route::delete('/delete/{id}', 'destroy')->name('destroy');
+    Route::get('/download/{id}', 'download')->name('download');
+    Route::get('/cetak', 'printPDF')->name('cetak');
+});
+
+
+// --- 3. LAPORAN GROUP (Detail Fitur) ---
+
+Route::controller(LaporanPerkaraController::class)->group(function () {
+    // Perkara Diterima
+    Route::prefix('laporan-perkara')->name('laporan.')->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::put('/upload-pdf/{perkara_id}', 'uploadPdf')->name('upload');
+        Route::get('/export', 'export')->name('export');
     });
 
-// 4. LAPORAN PERKARA DITERIMA (sesuai yang sudah ada)
-Route::prefix('laporan-perkara')->name('laporan.')->group(function () {
-    Route::get('/', [LaporanPerkaraController::class, 'index'])->name('index');
-    Route::get('/export', [LaporanPerkaraController::class, 'export'])->name('export');
+    // Perkara Putus
+    Route::prefix('laporan-perkara-putus')->name('laporan-putus.')->group(function () {
+        Route::get('/', 'putus')->name('index');
+        Route::get('/export', 'exportPutus')->name('export');
+    });
 });
 
-// 5. LAPORAN PERKARA PUTUS
-Route::prefix('laporan-perkara-putus')->name('laporan-putus.')->group(function () {
-    Route::get('/', [LaporanPerkaraController::class, 'putus'])->name('index');
-    Route::get('/export', [LaporanPerkaraController::class, 'exportPutus'])->name('export');
+// Rekap Eksekusi (Masuk dalam kategori monitoring/laporan sesuai kebutuhan)
+Route::controller(RekapEksekusiController::class)->prefix('eksekusi')->name('laporan.eksekusi.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/export', 'export')->name('export');
+    Route::get('/detail', 'detail')->name('detail');
 });
 
-// 6. REKAP EKSEKUSI
-Route::prefix('eksekusi')->name('laporan.eksekusi.')->group(function () {
-    Route::get('/', [RekapEksekusiController::class, 'index'])->name('index');
-    Route::get('/export', [RekapEksekusiController::class, 'export'])->name('export');
-    Route::get('/detail', [RekapEksekusiController::class, 'detail'])->name('detail');
+
+// Group Laporan Banding
+Route::prefix('laporan/banding')->name('laporan.banding.')->group(function () {
+
+    // --- LAPORAN RK1 (PENERIMAAN) ---
+    Route::get('/diterima', [LaporanBandingController::class, 'diterima'])->name('diterima');
+    Route::get('/detail', [LaporanBandingController::class, 'detail'])->name('detail');
+    Route::get('/diterima/export', [LaporanBandingController::class, 'exportRK1'])->name('diterima.export'); // Tambahan Export RK1
+
+    // --- LAPORAN RK2 (KEADAAN PERKARA / PUTUS) ---
+    Route::get('/putus', [LaporanBandingController::class, 'diputus'])->name('putus');
+    Route::get('/putus/detail', [LaporanBandingController::class, 'detailPutus'])->name('putus.detail');
+    Route::get('/putus/export', [LaporanBandingController::class, 'exportRK2'])->name('putus.export');
 });

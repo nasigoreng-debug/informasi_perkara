@@ -208,13 +208,17 @@ class LaporanPerkaraController extends Controller
 
         foreach (SatkerConfig::SATKERS as $koneksi => $namaSatker) {
             try {
-                // ========== 1. AMBIL DATA SISA TAHUN LALU ==========
+                // ========== 1. AMBIL DATA SISA TAHUN LALU (REVISI) ==========
                 $sisaLalu = DB::connection($koneksi)->table('perkara as p')
-                    ->join('perkara_putusan as pu', 'p.perkara_id', '=', 'pu.perkara_id')
+                    // Gunakan leftJoin agar perkara yang belum putus tetap terhitung
+                    ->leftJoin('perkara_putusan as pu', 'p.perkara_id', '=', 'pu.perkara_id')
+                    // Perkara yang daftar sebelum tahun ini
                     ->whereYear('p.tanggal_pendaftaran', '<', $y)
                     ->where(function ($q) use ($y) {
+                        // Belum putus (NULL) 
+                        // ATAU putus pada tahun ini atau setelahnya (masuk sisa tahun lalu)
                         $q->whereNull('pu.tanggal_putusan')
-                            ->orWhereYear('pu.tanggal_putusan', $y);
+                            ->orWhereYear('pu.tanggal_putusan', '>=', $y);
                     })
                     ->count(DB::raw('DISTINCT p.perkara_id'));
 
