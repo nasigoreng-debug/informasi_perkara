@@ -5,8 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sistem Statistik Perkara Pengadilan Agama">
-    <title>@yield('title', 'Portal Data')</title>
+    <title>@yield('title', 'Panmud Hukum')</title>
 
+    <link rel="shortcut icon" href="{{ asset('/favicon/favicon.ico') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -84,7 +85,7 @@
         main {
             flex: 1;
             /* Padding dikurangi agar hero header landing page bisa menempel ke atas */
-            padding: 0; 
+            padding: 0;
         }
 
         .footer-public {
@@ -151,21 +152,29 @@
         function updateClock() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('id-ID', {
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
             });
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+
             const clockEl = document.getElementById('digital-clock');
             const dateEl = document.getElementById('current-date');
-            
+
             if (clockEl) clockEl.textContent = timeString.replace(/\./g, ':');
             if (dateEl) dateEl.textContent = now.toLocaleDateString('id-ID', options);
         }
         setInterval(updateClock, 1000);
         updateClock();
-        
     </script>
 
     @stack('scripts')
 </body>
+
 </html>

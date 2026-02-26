@@ -123,9 +123,9 @@
     @php
     $urutanManual = ['BANDUNG', 'INDRAMAYU', 'MAJALENGKA', 'SUMBER', 'CIAMIS', 'TASIKMALAYA', 'KARAWANG', 'CIMAHI', 'SUBANG', 'SUMEDANG', 'PURWAKARTA', 'SUKABUMI', 'CIANJUR', 'KUNINGAN', 'CIBADAK', 'CIREBON', 'GARUT', 'BOGOR', 'BEKASI', 'CIBINONG', 'CIKARANG', 'DEPOK', 'TASIKKOTA', 'BANJAR', 'SOREANG', 'NGAMPRAH'];
     $sortedData = collect($data)->sortBy(function($item) use ($urutanManual) {
-        $namaClean = strtoupper(trim(str_replace(['PA ', 'PENGADILAN AGAMA '], '', $item->satker)));
-        $index = array_search($namaClean, $urutanManual);
-        return ($index === false) ? 999 : $index;
+    $namaClean = strtoupper(trim(str_replace(['PA ', 'PENGADILAN AGAMA '], '', $item->satker)));
+    $index = array_search($namaClean, $urutanManual);
+    return ($index === false) ? 999 : $index;
     });
     $hariIni = date('Y-m-d');
     $tglAkhirFix = ($tglAkhir >= date('Y-12-31') || $tglAkhir > $hariIni) ? $hariIni : $tglAkhir;

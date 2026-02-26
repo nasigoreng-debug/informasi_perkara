@@ -132,7 +132,7 @@ class BandingService
     public function getDetailPutusan($satkerKey, $jenis, $tglAwal, $tglAkhir)
     {
         $filterSatker = $this->getFilterSatkerQuery($satkerKey);
-        $query = "SELECT DISTINCT a.nomor_perkara_banding, a.nomor_perkara_pa, a.jenis_perkara_nama AS jenis_perkara, a.tgl_register, a.tgl_putusan 
+        $query = "SELECT DISTINCT a.nomor_perkara_banding, a.nomor_perkara_pa, a.jenis_perkara AS jenis_perkara, a.tgl_register, a.tgl_putusan 
                   FROM siappta.perkara a WHERE {$filterSatker} ";
 
         if ($jenis == 'sisa_lalu') {
@@ -157,7 +157,7 @@ class BandingService
         $kondisiEcourt = ($jenis === 'ecourt') ? "AND b.nomor_perkara IS NOT NULL" : "";
         $kondisiManual = ($jenis === 'manual') ? "AND b.nomor_perkara IS NULL" : "";
 
-        return DB::connection('bandung')->select("SELECT a.nama_satker, a.nomor_perkara_banding, a.nomor_perkara_pa, a.jenis_perkara_nama AS jenis_perkara, a.tgl_register, IF(b.nomor_perkara IS NOT NULL, 'E-Court', 'Manual') as jenis 
+        return DB::connection('bandung')->select("SELECT a.nama_satker, a.nomor_perkara_banding, a.nomor_perkara_pa, a.jenis_perkara AS jenis_perkara, a.tgl_register, IF(b.nomor_perkara IS NOT NULL, 'E-Court', 'Manual') as jenis 
             FROM siappta.perkara a LEFT JOIN {$db}.ecourt_banding b ON a.nomor_perkara_pa = b.nomor_perkara 
             WHERE a.tgl_register BETWEEN '{$tglAwal}' AND '{$tglAkhir}' AND a.nama_satker LIKE '%{$namaLike}%' {$kondisiEcourt} {$kondisiManual} ORDER BY a.tgl_register ASC");
     }
@@ -165,5 +165,56 @@ class BandingService
     public function getSummary()
     {
         return $this->barisTotal;
+    }
+
+    /**
+     * FITUR BARU: Rekap Per Jenis Perkara (Hanya Tambahan, Tidak Merubah Yang Sudah Fix)
+     */
+    public function getRekapJenisPerkara($tglAwal, $tglAkhir)
+    {
+        $unions = [];
+        foreach ($this->daftarSatker as $satker) {
+            $db = strtolower($satker);
+            // Tetap gunakan filter kunci yang sudah sinkron 100%
+            $filter = $this->getFilterSatkerQuery($satker);
+
+            $hasTable = false;
+            try {
+                $check = DB::connection('bandung')->select("SHOW TABLES IN {$db} LIKE 'ecourt_banding'");
+                $hasTable = count($check) > 0;
+            } catch (\Exception $e) {
+                $hasTable = false;
+            }
+
+            if ($hasTable) {
+                $unions[] = "SELECT a.jenis_perkara as jenis, 
+                             MAX(IF(b.nomor_perkara IS NOT NULL, 'E-Court', 'Manual')) as pendaftaran
+                             FROM siappta.perkara a LEFT JOIN {$db}.ecourt_banding b ON a.nomor_perkara_pa = b.nomor_perkara 
+                             WHERE {$filter} AND a.tgl_register BETWEEN '{$tglAwal}' AND '{$tglAkhir}' 
+                             GROUP BY a.nomor_perkara_banding";
+            } else {
+                $unions[] = "SELECT a.jenis_perkara as jenis, 
+                             'Manual' as pendaftaran
+                             FROM siappta.perkara a WHERE {$filter} AND a.tgl_register BETWEEN '{$tglAwal}' AND '{$tglAkhir}'
+                             GROUP BY a.nomor_perkara_banding";
+            }
+        }
+
+        $gabunganSql = implode("\n UNION ALL \n", $unions);
+
+        // Query final untuk grouping berdasarkan Jenis Perkara
+        // Query final dengan Subquery agar tidak error ROLLUP vs ORDER BY
+        $sql = "SELECT * FROM (
+                SELECT 
+                    IFNULL(jenis, 'TOTAL SELURUH JENIS PERKARA') as kategori,
+                    COUNT(*) as total,
+                    SUM(CASE WHEN pendaftaran = 'E-Court' THEN 1 ELSE 0 END) as ecourt,
+                    SUM(CASE WHEN pendaftaran = 'Manual' THEN 1 ELSE 0 END) as manual
+                FROM ($gabunganSql) as data_jenis
+                GROUP BY jenis WITH ROLLUP
+            ) AS hasil_akhir
+            ORDER BY CASE WHEN kategori = 'TOTAL SELURUH JENIS PERKARA' THEN 1 ELSE 0 END, total DESC";
+
+        return DB::connection('bandung')->select($sql);
     }
 }

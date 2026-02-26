@@ -78,6 +78,7 @@
     }
 
     @media print {
+
         .navbar,
         .btn,
         .search-box,
@@ -139,7 +140,7 @@
                 </button>
             </div>
         </div>
-        
+
         <div class="table-responsive">
             <table class="table custom-table align-middle text-center mb-0" id="detailTable">
                 <thead>
@@ -157,25 +158,25 @@
                 </thead>
                 <tbody>
                     @forelse($data as $index => $row)
-                        @php
-                            $isValid = !empty($row->tanggal_permohonan) && substr($row->tanggal_permohonan, 0, 4) != '0000';
-                            $usiaText = '-'; $colorClass = '';
-                            if ($isValid) {
-                                $start = \Carbon\Carbon::parse($row->tanggal_permohonan);
-                                $end = (!empty($row->tanggal_selesai) && substr($row->tanggal_selesai, 0, 4) != '0000') ? \Carbon\Carbon::parse($row->tanggal_selesai) : \Carbon\Carbon::now();
-                                $days = $start->diffInDays($end); 
-                                $diff = $start->diff($end);
+                    @php
+                    $isValid = !empty($row->tanggal_permohonan) && substr($row->tanggal_permohonan, 0, 4) != '0000';
+                    $usiaText = '-'; $colorClass = '';
+                    if ($isValid) {
+                    $start = \Carbon\Carbon::parse($row->tanggal_permohonan);
+                    $end = (!empty($row->tanggal_selesai) && substr($row->tanggal_selesai, 0, 4) != '0000') ? \Carbon\Carbon::parse($row->tanggal_selesai) : \Carbon\Carbon::now();
+                    $days = $start->diffInDays($end);
+                    $diff = $start->diff($end);
 
-                                if ($days <= 155) $colorClass='bg-green';
-                                elseif ($days <= 365) $colorClass='bg-yellow';
-                                else $colorClass='bg-red';
+                    if ($days <= 155) $colorClass='bg-green' ;
+                        elseif ($days <=365) $colorClass='bg-yellow' ;
+                        else $colorClass='bg-red' ;
 
-                                $p=[];
-                                if ($diff->y > 0) $p[] = "{$diff->y} Thn";
-                                if ($diff->m > 0) $p[] = "{$diff->m} Bln";
-                                if ($diff->d > 0) $p[] = "{$diff->d} Hr";
-                                $usiaText = count($p) > 0 ? implode(', ', $p) : '0 Hr';
-                            }
+                        $p=[];
+                        if ($diff->y > 0) $p[] = "{$diff->y} Tahun";
+                        if ($diff->m > 0) $p[] = "{$diff->m} Bulan";
+                        if ($diff->d > 0) $p[] = "{$diff->d} Hari";
+                        $usiaText = count($p) > 0 ? implode(', ', $p) : '0 Hari';
+                        }
                         @endphp
                         <tr>
                             <td class="small text-muted">{{ $index + 1 }}</td>
@@ -186,25 +187,27 @@
                             <td class="small">{{ $isValid ? date('d/m/Y', strtotime($row->tanggal_permohonan)) : '-' }}</td>
                             <td>
                                 @if(!empty($row->tanggal_selesai) && substr($row->tanggal_selesai, 0, 4) != '0000')
-                                    <span class="badge bg-success" style="font-weight: 500;">{{ date('d/m/Y', strtotime($row->tanggal_selesai)) }}</span>
+                                <span class="badge bg-success" style="font-weight: 500;">{{ date('d/m/Y', strtotime($row->tanggal_selesai)) }}</span>
                                 @else
-                                    <span class="badge bg-warning text-dark" style="font-weight: 500;">PROSES</span>
+                                <span class="badge bg-warning text-dark" style="font-weight: 500;">PROSES</span>
                                 @endif
                             </td>
                             <td>
-                                @if($usiaText != '-') 
-                                    <div class="age-badge {{ $colorClass }}">{{ $usiaText }}</div> 
-                                @else 
-                                    - 
+                                @if($usiaText != '-')
+                                <div class="age-badge {{ $colorClass }}">{{ $usiaText }}</div>
+                                @else
+                                -
                                 @endif
                             </td>
-                            <td class="text-start"><div style="font-size: 0.8rem; max-height: 50px; overflow-y: auto;">{{ $row->keterangan ?? '-' }}</div></td>
+                            <td class="text-start">
+                                <div style="font-size: 0.8rem; max-height: 50px; overflow-y: auto;">{{ $row->keterangan ?? '-' }}</div>
+                            </td>
                         </tr>
-                    @empty
+                        @empty
                         <tr>
                             <td colspan="10" class="py-5 text-muted">Data rincian tidak ditemukan.</td>
                         </tr>
-                    @endforelse
+                        @endforelse
                 </tbody>
             </table>
         </div>
@@ -243,11 +246,11 @@
                 </style>
             </head>
             <body>
-                <h2 style="text-align:center">RINCIAN PERKARA EKSEKUSI</h2>
+                <h2 style="text-align:center">PERMOHONAN PERKARA EKSEKUSI <br> PENGADILAN AGAMA {{ $satker }} <br> Periode <b>{{ date('d-m-Y', strtotime($tglAwal)) }} s.d {{ date('d-m-Y', strtotime($tglAkhir)) }}</b></h2>
                 ${tableHTML}
             </body>
             </html>`;
-            
+
         let downloadLink = document.createElement("a");
         downloadLink.href = 'data:application/vnd.ms-excel,' + encodeURIComponent(template);
         downloadLink.download = filename + '.xls';

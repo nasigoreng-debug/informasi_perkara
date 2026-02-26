@@ -78,4 +78,28 @@ class LaporanBandingController extends Controller
         // Tambahkan variabel tgl_awal dan tgl_akhir di sini
         return Excel::download(new RK2Export($results, $tgl_awal, $tgl_akhir), "Laporan_RK2_{$tgl_awal}_sd_{$tgl_akhir}.xlsx");
     }
+
+    public function perJenis(Request $request)
+    {
+        // Mengambil range tanggal dari request atau default tahun berjalan
+        $tgl_awal = $request->input('tgl_awal', date('Y-01-01'));
+        $tgl_akhir = $request->input('tgl_akhir', date('Y-12-31'));
+
+        // Memanggil Service yang sudah kita buat sebelumnya
+        $results = $this->bandingService->getRekapJenisPerkara($tgl_awal, $tgl_akhir);
+
+        return view('laporan.banding_jenis', compact('results', 'tgl_awal', 'tgl_akhir'));
+    }
+
+    public function exportJenis(Request $request)
+    {
+        $tgl_awal = $request->input('tgl_awal');
+        $tgl_akhir = $request->input('tgl_akhir');
+
+        // Pastikan Bapak sudah membuat file JenisPerkaraExport di folder Exports
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\JenisPerkaraExport($tgl_awal, $tgl_akhir),
+            "rekap_jenis_perkara_{$tgl_awal}_sd_{$tgl_akhir}.xlsx"
+        );
+    }
 }

@@ -36,9 +36,8 @@ class LaporanKasasiServiceL10
     protected function getDataSatker($database, $namaSatker, $nomorUrut, $tahun, $bulan): Collection
     {
         try {
-            // PERBAIKAN: Tambahkan pk.perkara_id ke dalam SELECT
             $sql = "SELECT pk.perkara_id, pb.nomor_perkara_pn, pb.nomor_perkara_banding, pk.nomor_perkara_kasasi,
-                           pk.tanggal_pendaftaran_kasasi, pk.amar_putusan_kasasi, pk.putusan_kasasi,
+                           pk.tanggal_pendaftaran_kasasi, pk.status_putusan_kasasi_text, pk.amar_putusan_kasasi, pk.putusan_kasasi,
                            pb.hakim1_banding, p.jenis_perkara_nama, ? as nomor_urut, ? as pengadilan_agama
                     FROM {$database}.perkara_kasasi pk
                     INNER JOIN {$database}.perkara_banding pb ON pk.perkara_id = pb.perkara_id
@@ -68,22 +67,24 @@ class LaporanKasasiServiceL10
 
                 if (!empty($cleanAmar)) {
                     if (Str::contains($lowerAmar, ['menolak', 'tolak'])) {
-                        $statusLabel = "MENOLAK KASASI";
+                        $statusLabel = "DITOLAK";
                         $statusColor = "success";
                     } elseif (Str::contains($lowerAmar, ['mengabulkan', 'kabul'])) {
-                        $statusLabel = "MENGABULKAN KASASI";
+                        $statusLabel = "DIBATALKAN";
                         $statusColor = "danger";
+                    } elseif (Str::contains($lowerAmar, ['tidak dapat diterima', 'kabul'])) {
+                        $statusLabel = "TIDAK DAPAT DITERIMA";
+                        $statusColor = "primary";
                     } else {
-                        $statusLabel = "SUDAH PUTUS";
+                        $statusLabel = "TIDAK TERDEFINISIKAN";
                         $statusColor = "info";
                     }
                 }
 
                 return (object) [
-                    // PERBAIKAN: Gunakan database asal dan perkara_id untuk Unique ID agar tidak bentrok
                     'unique_id' => $database . '_' . $item->perkara_id,
-                    'perkara_id' => $item->perkara_id, // Kolom identitas utama
-                    'nama_db' => $database,           // Identitas database asal (untuk DB Lokal)
+                    'perkara_id' => $item->perkara_id,
+                    'nama_db' => $database,
                     'nomor_urut' => $item->nomor_urut,
                     'pengadilan_agama' => $item->pengadilan_agama,
                     'no_pa' => $item->nomor_perkara_pn ?? '-',
@@ -93,6 +94,7 @@ class LaporanKasasiServiceL10
                     'tgl_reg_kasasi' => $item->tanggal_pendaftaran_kasasi,
                     'tgl_putusan' => ($item->putusan_kasasi && $item->putusan_kasasi != '0000-00-00') ? $item->putusan_kasasi : null,
                     'amar_full' => $item->amar_putusan_kasasi,
+                    'status_putusan_kasasi_text' => $item->status_putusan_kasasi_text ?? '-',
                     'status_label' => $statusLabel,
                     'status_color' => $statusColor,
                     'kmh' => $item->hakim1_banding ?? '-',

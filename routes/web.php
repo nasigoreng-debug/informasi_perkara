@@ -30,6 +30,17 @@ Route::get('/laporan-utama', function () {
     return view('laporan-utama');
 })->name('laporan-utama');
 
+// Halaman khusus daftar menu Laporan
+Route::get('/administrasi', function () {
+    return view('administrasi');
+})->name('administrasi');
+
+// Halaman khusus error atau under construction untuk fitur Administrasi
+Route::get('/under', function () {
+    return view('errors.under_construction');
+})->name('errors.under_construction');
+
+
 
 // --- 2. MONITORING GROUP (Detail Fitur) ---
 
@@ -44,6 +55,7 @@ Route::controller(LaporanKasasiController::class)->prefix('kasasi')->name('kasas
     Route::get('/', 'index')->name('index');
     Route::get('/detail', 'detail')->name('detail');
     Route::put('/upload-pdf/{perkara_id}', 'uploadPdf')->name('upload');
+    Route::get('/export', 'export')->name('export');
 });
 
 // Surat Masuk
@@ -96,4 +108,7 @@ Route::prefix('laporan/banding')->name('laporan.banding.')->group(function () {
     Route::get('/putus', [LaporanBandingController::class, 'diputus'])->name('putus');
     Route::get('/putus/detail', [LaporanBandingController::class, 'detailPutus'])->name('putus.detail');
     Route::get('/putus/export', [LaporanBandingController::class, 'exportRK2'])->name('putus.export');
+
+    Route::get('/jenis-perkara', [LaporanBandingController::class, 'perJenis'])->name('jenis');
+    Route::get('/jenis-perkara/export', [LaporanBandingController::class, 'exportJenis'])->name('jenis.export');
 });
