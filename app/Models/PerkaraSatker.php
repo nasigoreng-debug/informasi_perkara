@@ -14,8 +14,8 @@ class PerkaraSatker extends Model
     public static function konekKe($koneksi, $tabel = 'perkara')
     {
         $instance = new static;
-        $instance->setConnection($koneksi); // Pindah pintu pangkalan data
-        $instance->setTable($tabel);        // Pindah tabel
+        $instance->setConnection($koneksi); 
+        $instance->setTable($tabel);        
         return $instance->newQuery();
     }
 }

@@ -2,220 +2,227 @@
 
 @section('title', "Detail $jenis - " . ($satker == 'ALL' ? 'Global' : "PA $satker"))
 
-@push('styles')
+@section('content')
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 <style>
-    body {
-        background-color: #f4f7fa;
-        /* Mengganti font ke Sans-Serif Standar Modern */
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        color: #2d3436;
-        line-height: 1.6;
+    body { 
+        font-family: 'Plus Jakarta Sans', sans-serif; 
+        background-color: #f4f7fa; 
     }
-
-    .page-header {
-        background: linear-gradient(135deg, #1a2a6c 0%, #2a4858 100%);
-        padding: 2.2rem 2.5rem;
+    
+    .page-heading { padding: 2rem 0; }
+    
+    /* Card Luxury DNA */
+    .card-luxury {
+        background: #ffffff;
+        border: none;
         border-radius: 20px;
-        color: white;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(26, 42, 108, 0.15);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        overflow: hidden;
     }
 
-    .table-container {
-        background: white;
-        border-radius: 25px;
-        padding: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
-    }
-
-    .custom-table thead th {
-        background-color: #f8fafc;
-        color: #64748b;
-        font-weight: 700;
+    /* Tabel Detail Presisi */
+    .table-luxury thead th {
+        background: #f8fafc;
         text-transform: uppercase;
         font-size: 0.75rem;
         letter-spacing: 0.05em;
+        font-weight: 800;
+        color: #64748b;
         padding: 1.2rem;
-        border-bottom: 2px solid #edf2f7;
+        border-bottom: 2px solid #f1f5f9;
     }
 
-    .age-badge {
-        display: inline-flex;
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-weight: 700;
+    .table-luxury tbody td {
+        padding: 1.2rem;
+        vertical-align: middle;
+        color: #334155;
+        border-bottom: 1px solid #f1f5f9;
         font-size: 0.85rem;
     }
 
-    .bg-green {
-        background-color: #d1fae5;
-        color: #065f46;
-        border: 1px solid #10b981;
+    /* Tombol Kembali Melingkar DNA */
+    .btn-back {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #4f46e5;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: all 0.3s;
+        text-decoration: none !important;
     }
 
-    .bg-yellow {
-        background-color: #fef3c7;
-        color: #92400e;
-        border: 1px solid #f59e0b;
+    .btn-back:hover {
+        background: #4f46e5;
+        color: white;
+        transform: translateX(-5px);
     }
 
-    .bg-red {
-        background-color: #fee2e2;
-        color: #991b1b;
-        border: 1px solid #ef4444;
-    }
-
-    /* Form control styling agar lebih senada */
-    #tableSearch {
+    /* DNA Age Badge Luxury */
+    .age-badge {
+        display: inline-flex;
+        padding: 6px 14px;
         border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    .bg-soft-green { background-color: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
+    .bg-soft-yellow { background-color: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
+    .bg-soft-red { background-color: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6; }
+
+    /* Badge Status DNA */
+    .badge-status {
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.7rem;
+    }
+
+    /* Custom Search Field */
+    .search-field {
+        border-radius: 12px;
         border: 1px solid #e2e8f0;
         padding: 0.5rem 1rem;
-    }
-
-    .print-only {
-        display: none;
+        background: #fbfcfe;
+        font-weight: 500;
     }
 
     @media print {
-
-        .navbar,
-        .btn,
-        .search-box,
-        .back-btn {
-            display: none !important;
-        }
-
-        .page-header {
-            background: none !important;
-            color: black !important;
-            border-bottom: 2px solid black !important;
-            border-radius: 0 !important;
-            padding: 1rem 0 !important;
-        }
-
-        th,
-        td {
-            border: 1px solid #ccc !important;
-            font-size: 8pt !important;
-        }
-
-        .print-only {
-            display: block !important;
-            margin-top: 30px;
-            text-align: right;
-            font-size: 10pt;
-        }
+        .btn-back, .btn, .search-box, .breadcrumb { display: none !important; }
+        .card-luxury { box-shadow: none; border: 1px solid #eee; }
+        body { background: white; }
     }
 </style>
-@endpush
 
-@section('content')
-<div class="container-fluid py-4 px-xl-5">
-    <div class="page-header d-flex justify-content-between align-items-center animate__animated animate__fadeIn">
-        <div>
-            <h3 class="mb-1 text-uppercase fw-bold" style="letter-spacing: -0.5px;">Rincian Perkara: {{ str_replace(['_', 'TOTAL '], ' ', $jenis) }}</h3>
-            <p class="mb-0 opacity-90 small">
-                Satker: <b>{{ $satker == 'ALL' ? 'SELURUH SATKER' : 'PA ' . $satker }}</b> |
-                Periode: <b>{{ date('d/m/Y', strtotime($tglAwal)) }} s/d {{ date('d/m/Y', strtotime($tglAkhir)) }}</b>
-            </p>
-        </div>
-        <div class="back-btn">
-            <a href="{{ route('laporan.eksekusi.index', ['tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir]) }}" class="btn btn-light fw-bold px-4 rounded-pill shadow-sm">
-                <i class="bi bi-arrow-left me-1"></i> KEMBALI
+<div class="container-fluid px-4">
+    <div class="page-heading d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <a href="{{ route('laporan.eksekusi.index', ['tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir]) }}" class="btn-back me-3 shadow-sm" title="Kembali ke Monitoring">
+                <i class="bi bi-arrow-left"></i>
             </a>
+            <div>
+                <h1 class="h3 fw-800 mb-1" style="color: #1e293b;">Rincian {{ str_replace(['_', 'TOTAL '], ' ', $jenis) }}</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
+                        <li class="breadcrumb-item"><a href="{{ url('laporan-utama') }}" class="text-decoration-none text-muted">Panel</a></li>
+                        <li class="breadcrumb-item text-muted text-uppercase fw-bold">{{ $satker == 'ALL' ? 'SELURUH SATKER' : 'PA ' . $satker }}</li>
+                        <li class="breadcrumb-item active fw-bold text-primary">EKSEKUSI</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <div class="text-end me-3 d-none d-md-block">
+                <div class="small fw-bold text-muted text-uppercase mb-0">Jumlah Data</div>
+                <div class="h5 fw-800 text-primary mb-0">{{ count($data) }} Perkara</div>
+            </div>
+            <button onclick="window.print()" class="btn btn-white border shadow-sm fw-bold px-4 py-2 rounded-pill bg-white">
+                <i class="bi bi-printer me-2"></i> Cetak
+            </button>
         </div>
     </div>
 
-    <div class="table-container border-0 shadow-sm animate__animated animate__fadeInUp">
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <h5 class="fw-bold mb-0 text-dark">Daftar Rincian Perkara</h5>
-            <div class="d-flex gap-2 search-box">
-                <input type="text" id="tableSearch" class="form-control form-control-sm shadow-sm" placeholder="Cari data..." style="width: 250px;">
-                <button onclick="exportToExcel('detailTable', 'Detail_{{ $satker }}')" class="btn btn-success btn-sm fw-bold px-3 rounded-pill">
-                    <i class="bi bi-file-earmark-excel me-1"></i> Excel
-                </button>
-                <button onclick="window.print()" class="btn btn-outline-dark btn-sm fw-bold px-3 rounded-pill">
-                    <i class="bi bi-printer me-1"></i> Cetak
+    <div class="card card-luxury border-0">
+        <div class="p-4 d-flex justify-content-between align-items-center border-bottom bg-white search-box">
+            <h5 class="fw-800 mb-0">Daftar Rincian Perkara</h5>
+            <div class="d-flex gap-2">
+                <input type="text" id="tableSearch" class="form-control search-field" placeholder="Cari nomor perkara..." style="width: 250px;">
+                <button onclick="exportToExcel('detailTable', 'Detail_Eksekusi_{{ $satker }}')" class="btn btn-success fw-bold px-4 rounded-pill shadow-sm">
+                    <i class="bi bi-file-earmark-excel me-2"></i> Excel
                 </button>
             </div>
         </div>
-
+        
         <div class="table-responsive">
-            <table class="table custom-table align-middle text-center mb-0" id="detailTable">
+            <table class="table table-luxury align-middle text-center mb-0" id="detailTable">
                 <thead>
                     <tr>
-                        <th>NO</th>
+                        <th width="50">NO</th>
                         @if($satker == 'ALL') <th>SATKER</th> @endif
                         <th class="text-start">NO. REGISTER EKSEKUSI</th>
-                        <th class="text-start">NO. PERKARA PA</th>
+                        <th class="text-start">NO. PERKARA ASAL</th>
                         <th>JENIS</th>
                         <th>TGL PERMOHONAN</th>
-                        <th>TGL SELESAI</th>
+                        <th>STATUS / SELESAI</th>
                         <th>LAMA PROSES</th>
-                        <th class="text-start" width="20%">KETERANGAN</th>
+                        <th class="text-start" width="15%">KETERANGAN</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($data as $index => $row)
                     @php
-                    $isValid = !empty($row->tanggal_permohonan) && substr($row->tanggal_permohonan, 0, 4) != '0000';
-                    $usiaText = '-'; $colorClass = '';
-                    if ($isValid) {
-                    $start = \Carbon\Carbon::parse($row->tanggal_permohonan);
-                    $end = (!empty($row->tanggal_selesai) && substr($row->tanggal_selesai, 0, 4) != '0000') ? \Carbon\Carbon::parse($row->tanggal_selesai) : \Carbon\Carbon::now();
-                    $days = $start->diffInDays($end);
-                    $diff = $start->diff($end);
+                        $isValid = !empty($row->tanggal_permohonan) && substr($row->tanggal_permohonan, 0, 4) != '0000';
+                        $usiaText = '-'; $colorClass = '';
+                        if ($isValid) {
+                            $start = \Carbon\Carbon::parse($row->tanggal_permohonan);
+                            $end = (!empty($row->tanggal_selesai) && substr($row->tanggal_selesai, 0, 4) != '0000') ? \Carbon\Carbon::parse($row->tanggal_selesai) : \Carbon\Carbon::now();
+                            $days = $start->diffInDays($end);
+                            $diff = $start->diff($end);
 
-                    if ($days <= 155) $colorClass='bg-green' ;
-                        elseif ($days <=365) $colorClass='bg-yellow' ;
-                        else $colorClass='bg-red' ;
+                            if ($days <= 180) $colorClass='bg-soft-green' ;
+                            elseif ($days <= 365) $colorClass='bg-soft-yellow' ;
+                            else $colorClass='bg-soft-red' ;
 
-                        $p=[];
-                        if ($diff->y > 0) $p[] = "{$diff->y} Tahun";
-                        if ($diff->m > 0) $p[] = "{$diff->m} Bulan";
-                        if ($diff->d > 0) $p[] = "{$diff->d} Hari";
-                        $usiaText = count($p) > 0 ? implode(', ', $p) : '0 Hari';
+                            $p=[];
+                            if ($diff->y > 0) $p[] = "{$diff->y} Thn";
+                            if ($diff->m > 0) $p[] = "{$diff->m} Bln";
+                            if ($diff->d > 0) $p[] = "{$diff->d} Hr";
+                            $usiaText = count($p) > 0 ? implode(', ', $p) : '0 Hari';
                         }
-                        @endphp
-                        <tr>
-                            <td class="small text-muted">{{ $index + 1 }}</td>
-                            @if($satker == 'ALL') <td class="fw-bold">{{ $row->satker_nama }}</td> @endif
-                            <td class="text-start fw-bold text-primary">{{ $row->nomor_eksekusi ?? '-' }}</td>
-                            <td class="text-start small">{{ $row->nomor_perkara_asal ?? '-' }}</td>
-                            <td><span class="badge bg-light text-dark border px-2 fw-normal">{{ $row->jenis_eksekusi }}</span></td>
-                            <td class="small">{{ $isValid ? date('d/m/Y', strtotime($row->tanggal_permohonan)) : '-' }}</td>
-                            <td>
-                                @if(!empty($row->tanggal_selesai) && substr($row->tanggal_selesai, 0, 4) != '0000')
-                                <span class="badge bg-success" style="font-weight: 500;">{{ date('d/m/Y', strtotime($row->tanggal_selesai)) }}</span>
-                                @else
-                                <span class="badge bg-warning text-dark" style="font-weight: 500;">PROSES</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($usiaText != '-')
+                    @endphp
+                    <tr>
+                        <td class="small fw-bold text-muted">{{ $index + 1 }}</td>
+                        @if($satker == 'ALL') <td class="fw-800 text-uppercase" style="font-size: 0.75rem;">{{ $row->satker_nama }}</td> @endif
+                        <td class="text-start fw-800" style="color: #4f46e5;">{{ $row->nomor_eksekusi ?? '-' }}</td>
+                        <td class="text-start fw-bold text-dark small">{{ $row->nomor_perkara_asal ?? '-' }}</td>
+                        <td><span class="badge bg-light text-dark border fw-bold text-uppercase" style="font-size: 0.65rem;">{{ $row->jenis_eksekusi }}</span></td>
+                        <td class="fw-medium">{{ $isValid ? date('d/m/Y', strtotime($row->tanggal_permohonan)) : '-' }}</td>
+                        <td>
+                            @if(!empty($row->tanggal_selesai) && substr($row->tanggal_selesai, 0, 4) != '0000')
+                                <span class="badge bg-success text-white fw-bold" style="padding: 6px 12px; border-radius: 8px;">
+                                    <i class="bi bi-check2-circle me-1"></i> {{ date('d/m/Y', strtotime($row->tanggal_selesai)) }}
+                                </span>
+                            @else
+                                <span class="badge bg-warning text-dark fw-bold" style="padding: 6px 12px; border-radius: 8px;">
+                                    <i class="bi bi-clock me-1"></i> PROSES
+                                </span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($usiaText != '-')
                                 <div class="age-badge {{ $colorClass }}">{{ $usiaText }}</div>
-                                @else
-                                -
-                                @endif
-                            </td>
-                            <td class="text-start">
-                                <div style="font-size: 0.8rem; max-height: 50px; overflow-y: auto;">{{ $row->keterangan ?? '-' }}</div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="10" class="py-5 text-muted">Data rincian tidak ditemukan.</td>
-                        </tr>
-                        @endforelse
+                            @else
+                                <span class="text-muted opacity-50">-</span>
+                            @endif
+                        </td>
+                        <td class="text-start">
+                            <div class="text-muted" style="font-size: 0.75rem; max-height: 50px; overflow-y: auto; line-height: 1.4;">
+                                {{ $row->keterangan ?? '-' }}
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="10" class="py-5">
+                            <div class="opacity-25">
+                                <i class="bi bi-folder2-open h1"></i>
+                                <h6 class="fw-bold mt-2">Data rincian tidak ditemukan.</h6>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
-
-    <div class="print-only">
-        <p>Bandung, {{ date('d F Y') }}</p><br><br><br>
-        <p><b>__________________________</b><br>Panitera Muda Hukum</p>
     </div>
 </div>
 
@@ -232,7 +239,6 @@
     // Excel Export
     function exportToExcel(tableID, filename = '') {
         let tableSelect = document.getElementById(tableID);
-        // Menghapus icon dan elemen HTML tertentu saat export agar bersih
         let tableHTML = tableSelect.outerHTML.replace(/<a[^>]*>|<\/a>|<i[^>]*>|<\/i>|<span[^>]*>|<\/span>/g, "");
         let template = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -246,14 +252,14 @@
                 </style>
             </head>
             <body>
-                <h2 style="text-align:center">PERMOHONAN PERKARA EKSEKUSI <br> PENGADILAN AGAMA {{ $satker }} <br> Periode <b>{{ date('d-m-Y', strtotime($tglAwal)) }} s.d {{ date('d-m-Y', strtotime($tglAkhir)) }}</b></h2>
+                <h2 style="text-align:center">RINCIAN PERKARA EKSEKUSI <br> {{ $satker == 'ALL' ? 'SELURUH SATKER' : 'PA ' . $satker }} <br> Periode {{ date('d-m-Y', strtotime($tglAwal)) }} s.d {{ date('d-m-Y', strtotime($tglAkhir)) }}</h2>
                 ${tableHTML}
             </body>
             </html>`;
 
         let downloadLink = document.createElement("a");
         downloadLink.href = 'data:application/vnd.ms-excel,' + encodeURIComponent(template);
-        downloadLink.download = filename + '.xls';
+        downloadLink.download = filename + '_' + new Date().getTime() + '.xls';
         downloadLink.click();
     }
 </script>

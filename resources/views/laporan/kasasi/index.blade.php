@@ -98,7 +98,7 @@
     .print-only { display: none; }
 </style>
 
-<div class="container-fluid px-4 py-4">
+<div class="container px-4 py-4">
     {{-- Notifikasi --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">

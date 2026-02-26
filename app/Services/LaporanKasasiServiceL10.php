@@ -31,40 +31,56 @@ class LaporanKasasiServiceL10
     }
 
     /**
-     * Query Detail per Satker
+     * Query Detail per Satker menggunakan Query Builder
      */
     protected function getDataSatker($database, $namaSatker, $nomorUrut, $tahun, $bulan): Collection
     {
         try {
-            $sql = "SELECT pk.perkara_id, pb.nomor_perkara_pn, pb.nomor_perkara_banding, pk.nomor_perkara_kasasi,
-                           pk.tanggal_pendaftaran_kasasi, pk.status_putusan_kasasi_text, pk.amar_putusan_kasasi, pk.putusan_kasasi,
-                           pb.hakim1_banding, p.jenis_perkara_nama, ? as nomor_urut, ? as pengadilan_agama
-                    FROM {$database}.perkara_kasasi pk
-                    INNER JOIN {$database}.perkara_banding pb ON pk.perkara_id = pb.perkara_id
-                    INNER JOIN {$database}.perkara p ON pk.perkara_id = p.perkara_id
-                    WHERE 1=1";
+            // Menggunakan Query Builder untuk keamanan dan kemudahan pengelolaan
+            $query = DB::connection($database)->table("{$database}.perkara_kasasi as pk")
+                ->join("{$database}.perkara_banding as pb", 'pk.perkara_id', '=', 'pb.perkara_id')
+                ->join("{$database}.perkara as p", 'pk.perkara_id', '=', 'p.perkara_id')
+                ->select([
+                    'pk.perkara_id', 
+                    'pb.nomor_perkara_pn', 
+                    'pb.nomor_perkara_banding', 
+                    'pk.nomor_perkara_kasasi',
+                    'pk.tanggal_pendaftaran_kasasi', 
+                    'pk.status_putusan_kasasi_text', 
+                    'pk.amar_putusan_kasasi', 
+                    'pk.putusan_kasasi',
+                    'pb.hakim1_banding', 
+                    'p.jenis_perkara_nama',
+                    DB::raw("? as nomor_urut"),
+                    DB::raw("? as pengadilan_agama")
+                ])
+                ->addBinding([$nomorUrut, $namaSatker], 'select');
 
-            $params = [$nomorUrut, $namaSatker];
-
+            // Filter Tahun secara dinamis
             if ($tahun) {
-                $sql .= " AND (YEAR(pk.tanggal_pendaftaran_kasasi) = ? OR RIGHT(TRIM(pk.nomor_perkara_kasasi), 4) = ?)";
-                $params[] = $tahun;
-                $params[] = $tahun;
+                $query->where(function($q) use ($tahun) {
+                    $q->whereYear('pk.tanggal_pendaftaran_kasasi', $tahun)
+                      ->orWhereRaw("RIGHT(TRIM(pk.nomor_perkara_kasasi), 4) = ?", [$tahun]);
+                });
             }
 
+            // Filter Bulan secara dinamis
             if ($bulan) {
-                $sql .= " AND (MONTH(pk.tanggal_pendaftaran_kasasi) = ? OR pk.tanggal_pendaftaran_kasasi IS NULL)";
-                $params[] = $bulan;
+                $query->where(function($q) use ($bulan) {
+                    $q->whereMonth('pk.tanggal_pendaftaran_kasasi', $bulan)
+                      ->orWhereNull('pk.tanggal_pendaftaran_kasasi');
+                });
             }
 
-            $results = DB::connection($database)->select($sql, $params);
+            $results = $query->get();
 
-            return collect($results)->map(function ($item, $key) use ($nomorUrut, $database) {
+            return collect($results)->map(function ($item) use ($database) {
                 $cleanAmar = strip_tags($item->amar_putusan_kasasi ?? '');
                 $lowerAmar = strtolower($cleanAmar);
                 $statusColor = "secondary";
                 $statusLabel = "PROSES";
 
+                // Logika penentuan status berdasarkan amar putusan
                 if (!empty($cleanAmar)) {
                     if (Str::contains($lowerAmar, ['menolak', 'tolak'])) {
                         $statusLabel = "DITOLAK";
@@ -106,7 +122,7 @@ class LaporanKasasiServiceL10
     }
 
     /**
-     * MENGAMBIL LIST TAHUN DARI NOMOR PERKARA KASASI (DINAMIS)
+     * Mengambil daftar tahun yang tersedia dari nomor perkara kasasi
      */
     public function getAvailableYears(): array
     {
@@ -115,14 +131,12 @@ class LaporanKasasiServiceL10
 
         foreach (array_keys(SatkerConfig::SATKERS) as $db) {
             try {
-                // Ambil 4 karakter terakhir dari nomor perkara kasasi yang isinya angka
-                $res = DB::connection($db)->select("
-                    SELECT DISTINCT RIGHT(TRIM(nomor_perkara_kasasi), 4) as tahun 
-                    FROM perkara_kasasi 
-                    WHERE nomor_perkara_kasasi IS NOT NULL 
-                    AND nomor_perkara_kasasi != ''
-                    AND RIGHT(TRIM(nomor_perkara_kasasi), 4) REGEXP '^[0-9]{4}$'
-                ");
+                $res = DB::connection($db)->table('perkara_kasasi')
+                    ->selectRaw("DISTINCT RIGHT(TRIM(nomor_perkara_kasasi), 4) as tahun")
+                    ->whereNotNull('nomor_perkara_kasasi')
+                    ->where('nomor_perkara_kasasi', '!=', '')
+                    ->whereRaw("RIGHT(TRIM(nomor_perkara_kasasi), 4) REGEXP '^[0-9]{4}$'")
+                    ->get();
 
                 foreach ($res as $row) {
                     $years->push((int) $row->tahun);
@@ -132,10 +146,7 @@ class LaporanKasasiServiceL10
             }
         }
 
-        // Masukkan tahun sekarang sebagai opsi wajib
         $years->push($currentYear);
-
-        // Hapus duplikat, urutkan dari tahun terbaru ke terlama
         return $years->unique()->sortDesc()->values()->toArray();
     }
 

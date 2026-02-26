@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\LaporanPerkaraSatkerService; // Pastikan ini sesuai dengan nama file service Anda
 use Illuminate\Support\Facades\DB;
 use App\Exports\LaporanPerkaraExport;
 use App\Exports\LaporanPerkaraDiputusExport;
@@ -12,6 +13,16 @@ use Illuminate\Support\Facades\Log;
 
 class LaporanPerkaraController extends Controller
 {
+    protected $laporanService;
+
+    /**
+     * Konstruktor untuk Inject Service
+     */
+    public function __construct(LaporanPerkaraSatkerService $laporanService)
+    {
+        $this->laporanService = $laporanService;
+    }
+
     private $jenisPerkara = [
         'iz' => 'Izin Poligami',
         'pp' => 'Pencegahan Perkawinan',
@@ -62,7 +73,7 @@ class LaporanPerkaraController extends Controller
     public function index(Request $request)
     {
         $res = $this->fetch($request);
-        return view('laporan.perkara-diterima', array_merge($res, ['jenisPerkara' => $this->jenisPerkara]));
+        return view('laporan.perkara_diterima', array_merge($res, ['jenisPerkara' => $this->jenisPerkara]));
     }
 
     /**
@@ -71,10 +82,23 @@ class LaporanPerkaraController extends Controller
     public function putus(Request $request)
     {
         $res = $this->fetchPutus($request);
-        return view('laporan.perkara-putus', array_merge($res, [
+        return view('laporan.perkara_putus', array_merge($res, [
             'jenisPerkara' => $this->jenisPerkara,
             'statusPutusan' => $this->statusPutusan
         ]));
+    }
+
+    /**
+     * Laporan Perkara Putusan Sela
+     */
+    public function PutusanSela(Request $request)
+    {
+        $tgl_awal  = $request->input('tgl_awal', date('Y') . '-01-01');
+        $tgl_akhir = $request->input('tgl_akhir', date('Y') . '-12-31');
+
+        $data = $this->laporanService->getPutusanSelaSemuaSatker($tgl_awal, $tgl_akhir);
+
+        return view('laporan.putusan_sela', compact('data', 'tgl_awal', 'tgl_akhir'));
     }
 
     /**
@@ -192,7 +216,6 @@ class LaporanPerkaraController extends Controller
 
         $laporan = [];
 
-        // Inisialisasi totals
         $totals = array_fill_keys(array_keys($this->jenisPerkara), 0);
         $totalsStatus = [
             'dicabut' => 0,
@@ -208,21 +231,15 @@ class LaporanPerkaraController extends Controller
 
         foreach (SatkerConfig::SATKERS as $koneksi => $namaSatker) {
             try {
-                // ========== 1. AMBIL DATA SISA TAHUN LALU (REVISI) ==========
                 $sisaLalu = DB::connection($koneksi)->table('perkara as p')
-                    // Gunakan leftJoin agar perkara yang belum putus tetap terhitung
                     ->leftJoin('perkara_putusan as pu', 'p.perkara_id', '=', 'pu.perkara_id')
-                    // Perkara yang daftar sebelum tahun ini
                     ->whereYear('p.tanggal_pendaftaran', '<', $y)
                     ->where(function ($q) use ($y) {
-                        // Belum putus (NULL) 
-                        // ATAU putus pada tahun ini atau setelahnya (masuk sisa tahun lalu)
                         $q->whereNull('pu.tanggal_putusan')
                             ->orWhereYear('pu.tanggal_putusan', '>=', $y);
                     })
                     ->count(DB::raw('DISTINCT p.perkara_id'));
 
-                // ========== 2. AMBIL DATA DITERIMA ==========
                 $queryDiterima = DB::connection($koneksi)->table('perkara as p')
                     ->whereYear('p.tanggal_pendaftaran', $y);
 
@@ -235,7 +252,6 @@ class LaporanPerkaraController extends Controller
 
                 $diterima = $queryDiterima->count();
 
-                // ========== 3. AMBIL DATA DIPUTUS DETAIL ==========
                 $queryPutus = DB::connection($koneksi)->table('perkara as p')
                     ->join('perkara_putusan as pu', 'p.perkara_id', '=', 'pu.perkara_id')
                     ->whereYear('pu.tanggal_putusan', $y);
@@ -247,13 +263,11 @@ class LaporanPerkaraController extends Controller
                     $queryPutus->whereBetween(DB::raw('MONTH(pu.tanggal_putusan)'), [$range[$q][0], $range[$q][1]]);
                 }
 
-                // Buat SELECT untuk jenis perkara (hanya yang dikabulkan)
                 $selects = ["COUNT(DISTINCT p.perkara_id) as jml"];
                 foreach ($this->jenisPerkara as $key => $nama) {
                     $selects[] = "COUNT(CASE WHEN p.jenis_perkara_nama = '$nama' AND pu.status_putusan_id = 62 THEN 1 END) AS $key";
                 }
 
-                // Tambahkan SELECT untuk status putusan
                 $selects[] = "COUNT(CASE WHEN pu.status_putusan_id = 67 THEN 1 END) AS dicabut";
                 $selects[] = "COUNT(CASE WHEN pu.status_putusan_id = 63 THEN 1 END) AS ditolak";
                 $selects[] = "COUNT(CASE WHEN pu.status_putusan_id = 62 THEN 1 END) AS dikabulkan";
@@ -268,7 +282,6 @@ class LaporanPerkaraController extends Controller
                 $sisaAkhir = $beban - $totalDiputus;
                 $persentase = ($totalDiputus > 0) ? round(($data->dikabulkan / $totalDiputus) * 100, 2) : 0;
 
-                // Buat row data
                 $row = [
                     'no_urut' => SatkerConfig::getNomorUrut($koneksi),
                     'satker' => strtoupper($namaSatker),
@@ -286,14 +299,12 @@ class LaporanPerkaraController extends Controller
                     'sisa' => $sisaAkhir
                 ];
 
-                // Tambahkan data jenis perkara
                 foreach ($this->jenisPerkara as $key => $nama) {
                     $val = $data->$key ?? 0;
                     $row[$key] = $val;
                     $totals[$key] += $val;
                 }
 
-                // Akumulasi totals
                 $totalsStatus['dicabut'] += ($data->dicabut ?? 0);
                 $totalsStatus['ditolak'] += ($data->ditolak ?? 0);
                 $totalsStatus['dikabulkan'] += ($data->dikabulkan ?? 0);
@@ -308,7 +319,6 @@ class LaporanPerkaraController extends Controller
                 $laporan[] = (object) $row;
             } catch (\Exception $e) {
                 Log::error("Error fetch putus {$koneksi}: " . $e->getMessage());
-                // Jika error, buat row dengan nilai 0
                 $row = [
                     'no_urut' => SatkerConfig::getNomorUrut($koneksi),
                     'satker' => strtoupper($namaSatker),
@@ -333,15 +343,12 @@ class LaporanPerkaraController extends Controller
             }
         }
 
-        // Urutkan berdasarkan no_urut
         usort($laporan, fn($a, $b) => $a->no_urut <=> $b->no_urut);
 
-        // Hitung total beban dan sisa
         $totalBeban = $grandTotalSisaLalu + $grandTotalDiterima;
         $totalSisaAkhir = $totalBeban - $grandTotalJml;
         $totalPersentase = ($grandTotalJml > 0) ? round(($totalsStatus['dikabulkan'] / $grandTotalJml) * 100, 2) : 0;
 
-        // Buat footer TOTAL
         $footer = [
             'no_urut' => 'TOTAL',
             'satker' => 'JUMLAH KESELURUHAN',
@@ -359,7 +366,6 @@ class LaporanPerkaraController extends Controller
             'sisa' => $totalSisaAkhir
         ];
 
-        // Tambahkan totals jenis perkara ke footer
         foreach ($totals as $key => $val) {
             $footer[$key] = $val;
         }
@@ -372,5 +378,25 @@ class LaporanPerkaraController extends Controller
             'month' => $m,
             'quarter' => $q,
         ];
+    }
+
+    public function exportPutusanSela(Request $request)
+    {
+        // Gunakan default yang sama dengan index agar data tidak kosong
+        $tgl_awal  = $request->get('tgl_awal', '2026-01-01');
+        $tgl_akhir = $request->get('tgl_akhir', '2026-12-31');
+
+        // Ambil data dari service
+        $data = $this->laporanService->getPutusanSelaSemuaSatker($tgl_awal, $tgl_akhir);
+
+        // Cek jika data kosong, kembalikan dengan pesan error agar tidak download file zonk
+        if ($data->isEmpty()) {
+            return back()->with('error', 'Tidak ada data untuk diexport pada periode ini.');
+        }
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\PutusanSelaExport($data),
+            'Laporan_Putusan_Sela.xlsx'
+        );
     }
 }

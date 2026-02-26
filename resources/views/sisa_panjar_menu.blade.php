@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Monitoring | PTA Bandung</title>
+    <title>Monitoring Sisa Panjar | PTA Bandung</title>
 
     <link rel="shortcut icon" href="{{ asset('/favicon/favicon.ico') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -24,7 +24,7 @@
         }
 
         .hero-header {
-            background: linear-gradient(135deg, #1a2a6c 0%, #2a4858 100%);
+            background: linear-gradient(135deg, #b22222 0%, #8b0000 100%);
             padding: 60px 0 100px;
             color: white;
             border-bottom-left-radius: 50px;
@@ -88,79 +88,48 @@
     <header class="hero-header text-center">
         <div class="container px-4">
             <a href="{{ route('welcome') }}" class="btn btn-sm btn-outline-light rounded-pill mb-3 px-3">
-                <i class="fas fa-arrow-left me-2"></i> Kembali ke Awal
+                <i class="fas fa-arrow-left me-2"></i> Kembali ke Dashboard
             </a>
-            <h1 class="fw-bold animate__animated animate__fadeInDown">Panel Monitoring</h1>
+            <h1 class="fw-bold animate__animated animate__fadeInDown">Sisa Panjar Perkara</h1>
             <p class="opacity-75 mx-auto mb-0" style="max-width: 600px;">
-                Pantau data operasional dan administrasi perkara secara real-time
+                Monitoring sisa panjar biaya perkara tingkat Banding, Kasasi, dan PK yang sudah putus dan 6 bulan sejak pemberitahuan putusan belum PSP/Setor ke kas negara.
             </p>
         </div>
     </header>
 
     <main class="main-container container px-4">
         <div class="row g-4 justify-content-center">
-            
+
             <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp">
-                <a href="{{ route('kasasi.index') }}" class="menu-card">
+                <a href="{{ route('sisa.banding') }}" class="menu-card border-top border-primary border-4">
                     <div class="icon-box bg-primary bg-opacity-10 text-primary">
-                        <i class="fas fa-gavel"></i>
+                        <i class="fas fa-balance-scale"></i>
                     </div>
-                    <h5 class="card-title text-dark">Monitoring Kasasi</h5>
-                    <p class="text-muted small mb-4">Cek status pengajuan dan proses perkara tingkat Kasasi secara transparan.</p>
+                    <h5 class="card-title text-dark">Sisa Panjar Banding</h5>
+                    <p class="text-muted small mb-4">Monitoring sisa panjar perkara tingkat Banding di wilayah PTA Bandung.</p>
                     <div class="btn btn-outline-primary btn-sm rounded-pill w-100 mt-auto fw-bold">Buka Layanan</div>
                 </a>
             </div>
 
             <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
-                <a href="{{ route('laporan.eksekusi.index') }}" class="menu-card">
-                    <div class="icon-box bg-info bg-opacity-10 text-info">
-                        <i class="fas fa-file-signature"></i>
-                    </div>
-                    <h5 class="card-title text-dark">Monitoring Eksekusi</h5>
-                    <p class="text-muted small mb-4">Rekapitulasi data penyelesaian perkara eksekusi Satker se-Jawa Barat.</p>
-                    <div class="btn btn-outline-info btn-sm rounded-pill w-100 mt-auto fw-bold">Buka Layanan</div>
-                </a>
-            </div>
-
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-                <a href="{{ route('sidang.index') }}" class="menu-card">
+                <a href="{{ route('sisa.kasasi') }}" class="menu-card border-top border-success border-4">
                     <div class="icon-box bg-success bg-opacity-10 text-success">
-                        <i class="fas fa-calendar-alt"></i>
+                        <i class="fas fa-gavel"></i>
                     </div>
-                    <h5 class="card-title text-dark">Jadwal Sidang</h5>
-                    <p class="text-muted small mb-4">Informasi agenda persidangan harian di wilayah hukum PTA Bandung.</p>
+                    <h5 class="card-title text-dark">Sisa Panjar Kasasi</h5>
+                    <p class="text-muted small mb-4">Pantau data sisa panjar biaya perkara tingkat Kasasi secara real-time.</p>
                     <div class="btn btn-outline-success btn-sm rounded-pill w-100 mt-auto fw-bold">Buka Layanan</div>
                 </a>
             </div>
 
             <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-                <a href="{{ route('sisa.panjar.menu') }}" class="menu-card"> <div class="icon-box bg-danger bg-opacity-10 text-danger">
+                <a href="{{ route('sisa.pk') }}" class="menu-card border-top border-danger border-4">
+                    <div class="icon-box bg-danger bg-opacity-10 text-danger">
                         <i class="fas fa-wallet"></i>
                     </div>
-                    <h5 class="card-title text-dark">Sisa Panjar Perkara</h5>
-                    <p class="text-muted small mb-4">Pantau transparansi pengelolaan sisa panjar biaya perkara di wilayah PTA.</p>
+                    <h5 class="card-title text-dark">Sisa Panjar PK</h5>
+                    <p class="text-muted small mb-4">Informasi sisa panjar biaya perkara Peninjauan Kembali (PK) se-Jawa Barat.</p>
                     <div class="btn btn-outline-danger btn-sm rounded-pill w-100 mt-auto fw-bold">Buka Layanan</div>
-                </a>
-            </div>
-
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
-                <a href="#" class="menu-card"> <div class="icon-box bg-warning bg-opacity-10 text-warning">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <h5 class="card-title text-dark">Court Calendar</h5>
-                    <p class="text-muted small mb-4">Pantau kepatuhan pengisian Court Calendar pada aplikasi SIPP Satker.</p>
-                    <div class="btn btn-outline-warning btn-sm rounded-pill w-100 mt-auto fw-bold text-dark">Buka Layanan</div>
-                </a>
-            </div>
-
-            
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
-                <a href="#" class="menu-card"> <div class="icon-box bg-warning bg-opacity-10 text-warning">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <h5 class="card-title text-dark">Penerbitan Akta Cerai</h5>
-                    <p class="text-muted small mb-4">Pantau kepatuhan penerbitan akta cerai di wilayah PTA Bandung.</p>
-                    <div class="btn btn-outline-warning btn-sm rounded-pill w-100 mt-auto fw-bold text-dark">Buka Layanan</div>
                 </a>
             </div>
 
@@ -168,7 +137,7 @@
     </main>
 
     <footer class="text-center">
-        <p>&copy; {{ date('Y') }} Pengadilan Tinggi Agama Bandung</p>
+        <p>&copy; {{ date('Y') }} Pengadilan Tinggi Agama Bandung | Sistem Statistik Perkara</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -14,7 +14,8 @@
     <style>
         :root {
             --primary-dark: #1a2a6c;
-            --bg-light: #f4f7fa;
+            --bg-light: #f0f4f8;
+            --indigo-mewah: #4f46e5;
         }
 
         body {
@@ -25,92 +26,112 @@
 
         .hero-header {
             background: linear-gradient(135deg, var(--primary-dark) 0%, #2a4858 100%);
-            padding: 60px 0 100px;
+            padding: 80px 0 120px;
             color: white;
-            border-bottom-left-radius: 50px;
-            border-bottom-right-radius: 50px;
+            border-bottom-left-radius: 60px;
+            border-bottom-right-radius: 60px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
         .main-container {
-            margin-top: -60px;
-            padding-bottom: 80px;
+            margin-top: -80px;
+            padding-bottom: 100px;
         }
 
-        /* Perbaikan lebar kartu agar pas untuk 5 kolom */
-        .custom-col-5 {
-            flex: 0 0 auto;
-            width: 20%;
-            /* 100% dibagi 5 */
+        /* Grid 3 Kolom agar Kartu Besar & Mantap */
+        .luxury-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
         }
 
-        @media (max-width: 1200px) {
-            .custom-col-5 {
-                width: 33.33%;
-                /* Jadi 3 kolom di layar sedang */
-            }
+        @media (max-width: 992px) {
+            .luxury-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
-        @media (max-width: 768px) {
-            .custom-col-5 {
-                width: 50%;
-                /* Jadi 2 kolom di layar kecil */
-            }
+        @media (max-width: 600px) {
+            .luxury-grid { grid-template-columns: 1fr; }
         }
 
         .menu-card {
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             background: white;
             transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             text-decoration: none !important;
-            padding: 30px 20px;
-            /* Sedikit dirampingkan agar pas */
+            padding: 40px 30px;
             height: 100%;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: transparent;
+            transition: 0.3s;
         }
 
         .menu-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            transform: translateY(-12px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-card:hover::before {
+            background: currentColor;
         }
 
         .icon-box {
-            width: 70px;
-            height: 70px;
-            border-radius: 20px;
+            width: 90px;
+            height: 90px;
+            border-radius: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
-            font-size: 2.2rem;
+            margin-bottom: 25px;
+            font-size: 2.8rem;
+            transition: 0.3s;
+        }
+
+        .menu-card:hover .icon-box {
+            transform: scale(1.1) rotate(5deg);
         }
 
         .card-title {
-            font-size: 1rem;
-            /* Ukuran font disesuaikan agar tidak pecah */
-            font-weight: 700;
-            margin-bottom: 10px;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 25px;
         }
 
         .badge-custom {
-            font-size: 0.75rem;
-            padding: 5px 12px;
+            font-size: 0.8rem;
+            padding: 6px 16px;
             border-radius: 50px;
             margin-bottom: 15px;
             font-weight: 800;
+            letter-spacing: 1px;
         }
 
-        footer {
-            padding: 30px 0;
-            color: #636e72;
-            font-size: 0.9rem;
+        .btn-action {
+            font-weight: 700;
+            padding: 10px 25px;
+            border-radius: 15px;
+            transition: 0.3s;
+            width: 100%;
         }
     </style>
 </head>
@@ -118,86 +139,94 @@
 <body>
     <header class="hero-header text-center">
         <div class="container px-4">
-            <a href="{{ route('welcome') }}" class="btn btn-sm btn-outline-light rounded-pill mb-3 px-3">
-                <i class="fas fa-arrow-left me-2"></i> Kembali ke Portal
+            <a href="{{ route('welcome') }}" class="btn btn-outline-light rounded-pill mb-4 px-4 shadow-sm">
+                <i class="fas fa-arrow-left me-2"></i> Kembali ke Portal Utama
             </a>
-            <h1 class="fw-bold animate__animated animate__fadeInDown">Panel Laporan Perkara</h1>
-            <p class="opacity-75 mx-auto mb-0" style="max-width: 600px;">
-                Rekapitulasi data statistik perkara secara berkala (RK1 s.d RK4)
+            <h1 class="display-4 fw-800 animate__animated animate__fadeInDown">Laporan Perkara</h1>
+            <p class="fs-5 opacity-75 mx-auto mb-0" style="max-width: 700px;">
+                Akses cepat rekapitulasi data statistik perkara (RK1 - RK4) dan Laporan Putusan Sela secara real-time.
             </p>
         </div>
     </header>
 
-    <main class="main-container container-fluid px-5">
-        <div class="row g-4 justify-content-center">
+    <main class="main-container container">
+        <div class="luxury-grid">
 
             {{-- RK1 --}}
-            <div class="custom-col-5 animate__animated animate__fadeInUp">
-                <a href="{{ route('laporan.banding.diterima') }}" class="menu-card">
-                    <div class="icon-box bg-primary bg-opacity-10 text-primary">
+            <div class="animate__animated animate__fadeInUp">
+                <a href="{{ route('laporan.banding.diterima') }}" class="menu-card text-primary">
+                    <div class="icon-box bg-primary bg-opacity-10">
                         <i class="fas fa-file-import"></i>
                     </div>
                     <span class="badge-custom bg-primary text-white">RK1</span>
-                    <h5 class="card-title text-dark">Perkara Diterima Banding</h5>
-                    <p class="text-muted small mb-4">Statistik perkara banding yang masuk.</p>
-                    {{-- SERAGAM: btn-outline-primary --}}
-                    <div class="btn btn-outline-primary btn-sm w-100 rounded-pill mt-auto">Lihat Laporan</div>
+                    <h5 class="card-title">Perkara Diterima Banding</h5>
+                    <p class="card-desc">Monitoring statistik harian perkara banding yang masuk ke sistem.</p>
+                    <div class="btn-action btn btn-outline-primary mt-auto">Buka Laporan</div>
                 </a>
             </div>
 
             {{-- RK2 --}}
-            <div class="custom-col-5 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
-                <a href="{{ route('laporan.banding.putus') }}" class="menu-card">
-                    <div class="icon-box bg-info bg-opacity-10 text-info">
+            <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+                <a href="{{ route('laporan.banding.putus') }}" class="menu-card text-info">
+                    <div class="icon-box bg-info bg-opacity-10">
                         <i class="fas fa-gavel"></i>
                     </div>
                     <span class="badge-custom bg-info text-white">RK2</span>
-                    <h5 class="card-title text-dark">Perkara Diputus Banding</h5>
-                    <p class="text-muted small mb-4">Statistik perkara banding yang diputus.</p>
-                    {{-- SERAGAM: btn-outline-info --}}
-                    <div class="btn btn-outline-info btn-sm w-100 rounded-pill mt-auto">Lihat Laporan</div>
+                    <h5 class="card-title">Perkara Diputus Banding</h5>
+                    <p class="card-desc">Data rekapitulasi perkara banding yang telah selesai diputus.</p>
+                    <div class="btn-action btn btn-outline-info mt-auto">Buka Laporan</div>
                 </a>
             </div>
 
             {{-- RK3 --}}
-            <div class="custom-col-5 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-                <a href="{{ route('laporan.index') }}" class="menu-card">
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning">
+            <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                <a href="{{ route('laporan.index') }}" class="menu-card text-warning">
+                    <div class="icon-box bg-warning bg-opacity-10">
                         <i class="fas fa-folder-plus"></i>
                     </div>
                     <span class="badge-custom bg-warning text-dark">RK3</span>
-                    <h5 class="card-title text-dark">Perkara Diterima Satker</h5>
-                    <p class="text-muted small mb-4">Statistik perkara diterima oleh PA.</p>
-                    {{-- SERAGAM: btn-outline-warning --}}
-                    <div class="btn btn-outline-warning btn-sm w-100 rounded-pill mt-auto">Lihat Laporan</div>
+                    <h5 class="card-title">Perkara Diterima Satker</h5>
+                    <p class="card-desc">Statistik penerimaan perkara pada Pengadilan Agama (Satker).</p>
+                    <div class="btn-action btn btn-outline-warning mt-auto">Buka Laporan</div>
                 </a>
             </div>
 
             {{-- RK4 --}}
-            <div class="custom-col-5 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
-                <a href="{{ route('laporan-putus.index') }}" class="menu-card">
-                    <div class="icon-box bg-danger bg-opacity-10 text-danger">
+            <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+                <a href="{{ route('laporan-putus.index') }}" class="menu-card text-danger">
+                    <div class="icon-box bg-danger bg-opacity-10">
                         <i class="fas fa-balance-scale"></i>
                     </div>
                     <span class="badge-custom bg-danger text-white">RK4</span>
-                    <h5 class="card-title text-dark">Perkara Diputus Satker</h5>
-                    <p class="text-muted small mb-4">Statistik perkara diputus oleh PA.</p>
-                    {{-- SERAGAM: btn-outline-danger --}}
-                    <div class="btn btn-outline-danger btn-sm w-100 rounded-pill mt-auto">Lihat Laporan</div>
+                    <h5 class="card-title">Perkara Diputus Satker</h5>
+                    <p class="card-desc">Laporan perkara yang telah diputus oleh Pengadilan Agama.</p>
+                    <div class="btn-action btn btn-outline-danger mt-auto">Buka Laporan</div>
                 </a>
             </div>
 
             {{-- JENIS PERKARA --}}
-            <div class="custom-col-5 animate__animated animate__fadeInUp" style="animation-delay: 0.15s">
-                <a href="{{ route('laporan.banding.jenis') }}" class="menu-card">
-                    <div class="icon-box bg-success bg-opacity-10 text-success">
+            <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+                <a href="{{ route('laporan.banding.jenis') }}" class="menu-card text-success">
+                    <div class="icon-box bg-success bg-opacity-10">
                         <i class="fas fa-list-ul"></i>
                     </div>
-                    <span class="badge-custom bg-success text-white">JENIS</span>
-                    <h5 class="card-title text-dark">Rekap Jenis Perkara</h5>
-                    <p class="text-muted small mb-4">Statistik berdasarkan klasifikasi jenis.</p>
-                    {{-- SERAGAM: btn-outline-success --}}
-                    <div class="btn btn-outline-success btn-sm w-100 rounded-pill mt-auto">Lihat Laporan</div>
+                    <span class="badge-custom bg-success text-white">STATISTIK</span>
+                    <h5 class="card-title">Rekap Jenis Perkara</h5>
+                    <p class="card-desc">Klasifikasi statistik perkara berdasarkan jenis sengketa.</p>
+                    <div class="btn-action btn btn-outline-success mt-auto">Buka Laporan</div>
+                </a>
+            </div>
+
+            {{-- PUTUSAN SELA --}}
+            <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
+                <a href="{{ route('laporan-putus.putusan.sela') }}" class="menu-card" style="color: var(--indigo-mewah);">
+                    <div class="icon-box" style="background: rgba(79, 70, 229, 0.1);">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <span class="badge-custom" style="background: var(--indigo-mewah); color: white;">KHUSUS</span>
+                    <h5 class="card-title">Laporan Putusan Sela</h5>
+                    <p class="card-desc">Daftar perkara banding yang memiliki putusan sela/provisi.</p>
+                    <div class="btn-action btn btn-outline-indigo mt-auto" style="border-color: var(--indigo-mewah); color: var(--indigo-mewah);">Buka Laporan</div>
                 </a>
             </div>
 
@@ -205,8 +234,9 @@
     </main>
 
     <footer class="text-center">
-        <div class="container">
-            <p class="mb-0 opacity-50">&copy; {{ date('Y') }} Pengadilan Tinggi Agama Bandung</p>
+        <div class="container border-top pt-4">
+            <p class="mb-0 fw-bold opacity-50">&copy; {{ date('Y') }} Pengadilan Tinggi Agama Bandung</p>
+            <small class="text-muted">Sistem Informasi Laporan Perkara Terintegrasi</small>
         </div>
     </footer>
 

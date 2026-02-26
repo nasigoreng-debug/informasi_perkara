@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid py-4 fade-in">
+<div class="container py-4 fade-in">
     <div class="card modern-card border-0">
         <div class="card-header header-gradient py-3 d-flex justify-content-between align-items-center border-0">
             <div class="d-flex align-items-center">
@@ -40,8 +40,8 @@
                                 <i class="fas fa-filter"></i> <span class="d-none d-lg-inline ml-1">Filter</span>
                             </button>
 
-                            <a href="{{ route('surat.cetak', request()->query()) }}" target="_blank" class="btn btn-danger btn-sm font-weight-bold" title="Cetak PDF">
-                                <i class="fas fa-file-pdf"></i> <span class="d-none d-lg-inline ml-1">PDF</span>
+                            <a href="{{ route('surat.exportExcel', request()->query()) }}" target="_blank" class="btn btn-success btn-sm font-weight-bold" title="Cetak Excel">
+                                <i class="fas fa-file-excel"></i> <span class="d-none d-lg-inline ml-1">Excel</span>
                             </a>
 
                             <a href="{{ route('surat.dashboard') }}" class="btn btn-info btn-sm font-weight-bold text-white" title="Ke Dashboard">

@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use App\Exports\SuratMasukExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class SuratMasukController extends Controller
@@ -293,6 +295,26 @@ class SuratMasukController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * FUNGSI EXPORT EXCEL (TAMBAHAN BARU)
+     */
+    public function exportExcel(Request $request)
+    {
+        try {
+            $fromDate = $request->from_date;
+            $toDate = $request->to_date;
+
+            $fileName = 'Laporan_Arsip_Surat_' . date('Ymd_His') . '.xlsx';
+
+            return Excel::download(new SuratMasukExport($fromDate, $toDate), $fileName);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'Error 500 - Gagal Export Excel',
+                'pesan' => $e->getMessage()
             ], 500);
         }
     }

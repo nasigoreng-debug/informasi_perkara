@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid py-4 fade-in">
+<div class="container py-4 fade-in">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="font-weight-bold text-dark m-0">Dashboard Arsip Surat</h4>
         <span class="badge badge-white shadow-sm px-3 py-2 rounded-pill text-primary border">

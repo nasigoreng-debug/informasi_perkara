@@ -7,6 +7,8 @@ use App\Http\Controllers\LaporanPerkaraController;
 use App\Http\Controllers\RekapEksekusiController;
 use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\LaporanBandingController;
+use App\Http\Controllers\SisaPanjarController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +42,11 @@ Route::get('/under', function () {
     return view('errors.under_construction');
 })->name('errors.under_construction');
 
+// Halaman khusus daftar menu Sisa Panjar
+Route::get('/sisa-panjar', function () {
+    return view('sisa_panjar_menu');
+})->name('sisa.panjar.menu');
+
 
 
 // --- 2. MONITORING GROUP (Detail Fitur) ---
@@ -69,6 +76,7 @@ Route::controller(SuratMasukController::class)->prefix('surat-masuk')->name('sur
     Route::delete('/delete/{id}', 'destroy')->name('destroy');
     Route::get('/download/{id}', 'download')->name('download');
     Route::get('/cetak', 'printPDF')->name('cetak');
+    Route::get('/export-excel', 'exportExcel')->name('exportExcel');
 });
 
 
@@ -85,6 +93,9 @@ Route::controller(LaporanPerkaraController::class)->group(function () {
     Route::prefix('laporan-perkara-putus')->name('laporan-putus.')->group(function () {
         Route::get('/', 'putus')->name('index');
         Route::get('/export', 'exportPutus')->name('export');
+        // Grouping jika diperlukan, atau langsung seperti ini:
+        Route::get('/putusan-sela', 'PutusanSela')->name('putusan.sela');
+        Route::get('/putusan-sela/export', 'exportPutusanSela')->name('putusan.sela.export');
     });
 });
 
@@ -111,4 +122,10 @@ Route::prefix('laporan/banding')->name('laporan.banding.')->group(function () {
 
     Route::get('/jenis-perkara', [LaporanBandingController::class, 'perJenis'])->name('jenis');
     Route::get('/jenis-perkara/export', [LaporanBandingController::class, 'exportJenis'])->name('jenis.export');
+});
+
+Route::prefix('sisa-panjar')->group(function () {
+    Route::get('/banding', [SisaPanjarController::class, 'SisaPanjarBanding'])->name('sisa.banding');
+    Route::get('/kasasi', [SisaPanjarController::class, 'SisaPanjarKasasi'])->name('sisa.kasasi');
+    Route::get('/pk', [SisaPanjarController::class, 'SisaPanjarPK'])->name('sisa.pk');
 });
