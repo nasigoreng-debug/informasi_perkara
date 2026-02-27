@@ -1,32 +1,44 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\SidangController;
-use App\Http\Controllers\LaporanKasasiController;
-use App\Http\Controllers\LaporanPerkaraController;
-use App\Http\Controllers\RekapEksekusiController;
-use App\Http\Controllers\SuratMasukController;
-use App\Http\Controllers\LaporanBandingController;
-use App\Http\Controllers\SisaPanjarController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\{
+    AuthController,
+    DashboardController,
+    SidangController,
+    LaporanKasasiController,
+    LaporanPerkaraController,
+    RekapEksekusiController,
+    SuratMasukController,
+    LaporanBandingController,
+    SisaPanjarController,
+    UserController,
+    CourtCalendarController
+};
 
 /*
 |--------------------------------------------------------------------------
 | SISTEM INFORMASI PERKARA - PTA BANDUNG
 |--------------------------------------------------------------------------
+| Pengelolaan Route Aplikasi PH-Connection.
+| Semua route dikelompokkan berdasarkan fungsinya untuk memudahkan maintenance.
 */
 
-// 1. OTENTIKASI
+// ==========================================
+// 1. OTENTIKASI (LOGIN & LOGOUT)
+// ==========================================
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// 2. AREA TERPROTEKSI (MEMERLUKAN LOGIN)
+// ==========================================
+// 2. AREA PRIVAT (Hanya User Terautentikasi)
+// ==========================================
 Route::middleware(['auth'])->group(function () {
 
-    // LANDING & NAVIGATION
+    /**
+     * LANDING PAGES & NAVIGASI UTAMA
+     * Menu utama untuk mengarahkan pengguna ke sub-sub modul.
+     */
     Route::get('/', function () {
         return view('welcome');
     })->name('welcome');
@@ -45,14 +57,30 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/under', function () {
         return view('errors.under_construction');
     })->name('errors.under_construction');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // MODUL: MONITORING JADWAL SIDANG
+    /**
+     * MODUL: MONITORING JADWAL SIDANG
+     * Menampilkan jadwal sidang harian se-wilayah PTA Bandung.
+     */
     Route::controller(SidangController::class)->prefix('jadwal-sidang')->name('sidang.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/public', 'index_public')->name('index_public');
     });
 
-    // MODUL: LAPORAN KASASI
+    /**
+     * MODUL: MONITORING COURT CALENDAR
+     * Memantau kepatuhan input rencana sidang (Court Calendar) pada aplikasi SIPP.
+     */
+    Route::controller(CourtCalendarController::class)->prefix('court-calendar')->name('court-calendar')->group(function () {
+        Route::get('/', 'index'); // route('court-calendar') -> Halaman Rekap
+        Route::get('/detail/{satker}', 'detail')->name('.detail'); // route('court-calendar.detail') -> Halaman Detail Per Satker
+    });
+
+    /**
+     * MODUL: LAPORAN KASASI
+     * Monitoring berkas kasasi dan pengiriman dokumen PDF.
+     */
     Route::controller(LaporanKasasiController::class)->prefix('kasasi')->name('kasasi.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/detail', 'detail')->name('detail');
@@ -60,7 +88,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export', 'export')->name('export');
     });
 
-    // MODUL: SURAT MASUK
+    /**
+     * MODUL: SURAT MASUK (PERSURATAN)
+     * Manajemen arsip surat masuk digital di lingkungan kepaniteraan.
+     */
     Route::controller(SuratMasukController::class)->prefix('surat-masuk')->name('surat.')->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/', 'index')->name('index');
@@ -74,7 +105,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export-excel', 'exportExcel')->name('exportExcel');
     });
 
-    // MODUL: LAPORAN PERKARA
+    /**
+     * MODUL: LAPORAN PERKARA & PUTUSAN
+     * Statistik jumlah perkara masuk, putus, dan putusan sela.
+     */
     Route::controller(LaporanPerkaraController::class)->group(function () {
         Route::prefix('laporan-perkara')->name('laporan.')->group(function () {
             Route::get('/', 'index')->name('index');
@@ -88,37 +122,46 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    // MODUL: REKAP EKSEKUSI
+    /**
+     * MODUL: REKAP EKSEKUSI
+     * Monitoring perkara permohonan eksekusi yang sedang berjalan.
+     */
     Route::controller(RekapEksekusiController::class)->prefix('eksekusi')->name('laporan.eksekusi.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/export', 'export')->name('export');
         Route::get('/detail', 'detail')->name('detail');
     });
 
-    // MODUL: LAPORAN BANDING
-    Route::prefix('laporan/banding')->name('laporan.banding.')->group(function () {
-        Route::get('/diterima', [LaporanBandingController::class, 'diterima'])->name('diterima');
-        Route::get('/detail', [LaporanBandingController::class, 'detail'])->name('detail');
-        Route::get('/diterima/export', [LaporanBandingController::class, 'exportRK1'])->name('diterima.export');
-        Route::get('/putus', [LaporanBandingController::class, 'diputus'])->name('putus');
-        Route::get('/putus/detail', [LaporanBandingController::class, 'detailPutus'])->name('putus.detail');
-        Route::get('/putus/export', [LaporanBandingController::class, 'exportRK2'])->name('putus.export');
-        Route::get('/jenis-perkara', [LaporanBandingController::class, 'perJenis'])->name('jenis');
-        Route::get('/jenis-perkara/export', [LaporanBandingController::class, 'exportJenis'])->name('jenis.export');
+    /**
+     * MODUL: LAPORAN BANDING (RK-1 & RK-2)
+     * Data perkara banding yang diterima dan diputus oleh PTA Bandung.
+     */
+    Route::controller(LaporanBandingController::class)->prefix('laporan/banding')->name('laporan.banding.')->group(function () {
+        Route::get('/diterima', 'diterima')->name('diterima');
+        Route::get('/detail', 'detail')->name('detail');
+        Route::get('/diterima/export', 'exportRK1')->name('diterima.export');
+        Route::get('/putus', 'diputus')->name('putus');
+        Route::get('/putus/detail', 'detailPutus')->name('putus.detail');
+        Route::get('/putus/export', 'exportRK2')->name('putus.export');
+        Route::get('/jenis-perkara', 'perJenis')->name('jenis');
+        Route::get('/jenis-perkara/export', 'exportJenis')->name('jenis.export');
     });
 
-    // MODUL: SISA PANJAR
-    Route::prefix('sisa-panjar')->group(function () {
-        Route::get('/pertama', [SisaPanjarController::class, 'SisaPanjarPertama'])->name('sisa.pertama');
-        Route::get('/banding', [SisaPanjarController::class, 'SisaPanjarBanding'])->name('sisa.banding');
-        Route::get('/kasasi', [SisaPanjarController::class, 'SisaPanjarKasasi'])->name('sisa.kasasi');
-        Route::get('/pk', [SisaPanjarController::class, 'SisaPanjarPK'])->name('sisa.pk');
+    /**
+     * MODUL: SISA PANJAR BIAYA PERKARA
+     * Monitoring sisa biaya perkara yang belum dikembalikan ke pihak (lebih dari 6 bulan).
+     */
+    Route::controller(SisaPanjarController::class)->prefix('sisa-panjar')->name('sisa.')->group(function () {
+        Route::get('/pertama', 'SisaPanjarPertama')->name('pertama');
+        Route::get('/banding', 'SisaPanjarBanding')->name('banding');
+        Route::get('/kasasi', 'SisaPanjarKasasi')->name('kasasi');
+        Route::get('/pk', 'SisaPanjarPK')->name('pk');
     });
 
-    // =========================================================================
-    // MODUL KHUSUS ADMINISTRATOR (Sesuai Aturan Bapak)
-    // =========================================================================
-    // PERBAIKAN: Hapus baris 'resource' ganda dan gunakan controller tunggal yang bersih
+    /**
+     * MODUL: ADMINISTRASI USER & LOG AKTIVITAS
+     * Manajemen hak akses pengguna dan pencatatan log sistem.
+     */
     Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/create', 'create')->name('create');
@@ -130,7 +173,5 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/activity-log', function () {
         return view('activity_log');
-    })->name('activity.log')->middleware('auth');
-
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    })->name('activity.log');
 });

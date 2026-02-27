@@ -145,7 +145,7 @@
 
         {{-- 5. COURT CALENDAR --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.25s">
-            <a href="#" class="menu-card">
+            <a href="{{ route('court-calendar') }}" class="menu-card">
                 <div class="icon-box bg-warning bg-opacity-10 text-warning">
                     <i class="fas fa-tasks"></i>
                 </div>
