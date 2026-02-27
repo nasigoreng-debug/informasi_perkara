@@ -50,6 +50,7 @@ class RekapEksekusiController extends Controller
 
     /**
      * Detail Perkara - Proteksi & Log
+     * FIXED: Variabel disamakan menjadi $data agar compact() tidak error
      */
     public function detail(Request $request)
     {
@@ -66,8 +67,10 @@ class RekapEksekusiController extends Controller
             }
         }
 
-        $dataDetail = $this->rekapService->getDetailPerkara($satker, $jenis, $tglAwal, $tglAkhir);
+        // Kita simpan hasil ke variabel $data agar cocok dengan fungsi compact('data')
+        $data = $this->rekapService->getDetailPerkara($satker, $jenis, $tglAwal, $tglAkhir);
 
+        // LOG: Catat aktivitas intip detail
         ActivityLog::record('Lihat Detail', 'RekapEksekusi', "Melihat detail {$jenis} Satker: {$satker}");
 
         return view('eksekusi.detail', compact('satker', 'jenis', 'tglAwal', 'tglAkhir', 'data'));
@@ -105,14 +108,8 @@ class RekapEksekusiController extends Controller
 
             return response()->stream(function () use ($data) {
                 $file = fopen('php://output', 'w');
-
-                // Trik Rahasia: Beri tahu Excel untuk pakai koma (sep=,)
                 fputs($file, "sep=,\n");
-
-                // Beri tahu Excel ini adalah format UTF-8 (BOM)
                 fputs($file, "\xEF\xBB\xBF");
-
-                // Header
                 fputcsv($file, ['SATUAN KERJA', 'SISA LALU', 'DITERIMA', 'BEBAN', 'SELESAI', 'RASIO (%)', 'SISA KINI']);
 
                 foreach ($data as $row) {
