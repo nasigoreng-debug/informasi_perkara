@@ -14,11 +14,25 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->string('username')->unique(); // Login pakai username
             $table->string('password');
+
+            // Sesuaikan dengan id satker: integer (11)
+            $table->integer('satker_id')->nullable();
+
+            $table->enum('role', [
+                'Super Admin',
+                'Manager',
+                'Staff',
+                'User 26 PA',
+                'Guest'
+            ])->default('Guest');
+
             $table->rememberToken();
             $table->timestamps();
+
+            // Foreign key sekarang aman karena 'satker' sudah dibuat duluan
+            $table->foreign('satker_id')->references('id')->on('satker')->onDelete('set null');
         });
     }
 

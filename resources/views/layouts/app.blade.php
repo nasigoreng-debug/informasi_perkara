@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sistem Statistik Perkara Pengadilan Agama">
-    <title>@yield('title', 'Panmud Hukum')</title>
+    <title>@yield('title', 'Panmud Hukum | PTA Bandung')</title>
 
     <link rel="shortcut icon" href="{{ asset('/favicon/favicon.ico') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,27 +66,38 @@
             color: #fff !important;
         }
 
+        .user-dropdown .dropdown-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+        }
+
+        .user-dropdown .dropdown-toggle:after { display: none; }
+
+        .user-dropdown .dropdown-menu {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            margin-top: 10px;
+            padding: 10px;
+        }
+
         .header-clock {
             color: #fff;
             text-align: right;
             line-height: 1.2;
+            border-left: 1px solid rgba(255,255,255,0.2);
+            padding-left: 15px;
+            margin-left: 15px;
         }
 
-        .header-clock .time {
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
+        .header-clock .time { font-size: 1.1rem; font-weight: 700; }
+        .header-clock .date { font-size: 0.7rem; opacity: 0.8; }
 
-        .header-clock .date {
-            font-size: 0.7rem;
-            opacity: 0.8;
-        }
-
-        main {
-            flex: 1;
-            /* Padding dikurangi agar hero header landing page bisa menempel ke atas */
-            padding: 0;
-        }
+        main { flex: 1; padding: 0; }
 
         .footer-public {
             background-color: #fff;
@@ -108,8 +119,14 @@
                     <i class="fas fa-balance-scale text-dark fs-6"></i>
                 </div>
                 <div>
-                    PANMUD HUKUM CONNECT
-                    <small>Pengadilan Agama Se-Jawa Barat</small>
+                    PANMUD HUKUM CONNECTION
+                    <small>
+                        @auth
+                            {{ Auth::user()->satker ? Auth::user()->satker->nama : 'PTA BANDUNG (ADMIN)' }}
+                        @else
+                            Pengadilan Agama Se-Jawa Barat
+                        @endauth
+                    </small>
                 </div>
             </a>
 
@@ -120,15 +137,57 @@
             <div class="collapse navbar-collapse" id="publicNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('welcome') ? 'active' : '' }}" href="{{ url('/') }}">
+                        <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">
                             <i class="fas fa-home me-1"></i> Beranda
                         </a>
                     </li>
+                    {{-- Navigasi khusus Admin PTA --}}
+                    @auth
+                        @if(Auth::user()->isAdmin())
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                                <i class="fas fa-users-cog me-1"></i> Manajemen User
+                            </a>
+                        </li>
+                        @endif
+                    @endauth
                 </ul>
 
-                <div class="d-none d-lg-block header-clock">
-                    <div class="time" id="digital-clock">00:00:00</div>
-                    <div class="date" id="current-date"></div>
+                <div class="d-flex align-items-center">
+                    @auth
+                        <div class="dropdown user-dropdown">
+                            <button class="btn dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle fs-5 text-warning"></i>
+                                <div class="text-start d-none d-sm-block">
+                                    <div class="fw-bold" style="font-size: 0.75rem; line-height: 1;">{{ Auth::user()->name }}</div>
+                                    <div style="font-size: 0.65rem; opacity: 0.8;">
+                                        {{-- PERBAIKAN: Gunakan optional() agar jika role kosong tidak error --}}
+                                        {{ optional(Auth::user()->role)->nama_role ?? 'Pengguna' }}
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <li class="px-3 py-2 border-bottom mb-2">
+                                    <span class="d-block small text-muted">Satker:</span>
+                                    <span class="fw-bold small">{{ Auth::user()->nama_singkat ? Auth::user()->nama_singkat->nama : 'PTA BANDUNG' }}</span>
+                                </li>
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2">
+                                            <i class="fas fa-power-off"></i> Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    @endauth
+
+                    <div class="d-none d-lg-block header-clock">
+                        <div class="time" id="digital-clock">00:00:00</div>
+                        <div class="date" id="current-date"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -141,7 +200,7 @@
     <footer class="footer-public mt-auto">
         <div class="container text-center">
             <h6 class="fw-bold text-dark mb-1">PENGADILAN TINGGI AGAMA BANDUNG</h6>
-            <p class="mb-0 small text-muted">&copy; {{ date('Y') }} Sistem Statistik Perkara.</p>
+            <p class="mb-0 small text-muted">&copy; {{ date('Y') }} Sistem Statistik Perkara - Bidang Kepaniteraan Hukum.</p>
         </div>
     </footer>
 
@@ -152,17 +211,9 @@
         function updateClock() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
             });
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            };
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
             const clockEl = document.getElementById('digital-clock');
             const dateEl = document.getElementById('current-date');

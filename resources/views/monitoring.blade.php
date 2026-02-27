@@ -74,6 +74,7 @@
             min-height: 50px;
             display: flex;
             align-items: center;
+            justify-content: center;
         }
 
         footer {
@@ -99,17 +100,21 @@
 
     <main class="main-container container px-4">
         <div class="row g-4 justify-content-center">
-            
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp">
-                <a href="{{ route('kasasi.index') }}" class="menu-card">
+
+            {{-- MENU KASASI (SEMUA USER) --}}
+            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+                <a href="{{ route('laporan.eksekusi.index') }}" class="menu-card">
                     <div class="icon-box bg-primary bg-opacity-10 text-primary">
-                        <i class="fas fa-gavel"></i>
+                        <i class="fas fa-file-signature"></i>
                     </div>
-                    <h5 class="card-title text-dark">Monitoring Kasasi</h5>
-                    <p class="text-muted small mb-4">Cek status pengajuan dan proses perkara tingkat Kasasi secara transparan.</p>
-                    <div class="btn btn-outline-primary btn-sm rounded-pill w-100 mt-auto fw-bold">Buka Layanan</div>
+                    <h5 class="card-title text-dark">Monitoring Permohonan Kasasi</h5>
+                    <p class="text-muted small mb-4">Informasi permohonan perkara kasasi Satker se-Jawa Barat.</p>
+                    <div class="btn btn-outline-primary btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
                 </a>
             </div>
+
+            {{-- MENU KHUSUS ADMIN PTA --}}
+            @if(Auth::user()->satker && Auth::user()->satker->tabel == 'ptabandung')
 
             <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
                 <a href="{{ route('laporan.eksekusi.index') }}" class="menu-card">
@@ -118,51 +123,63 @@
                     </div>
                     <h5 class="card-title text-dark">Monitoring Eksekusi</h5>
                     <p class="text-muted small mb-4">Rekapitulasi data penyelesaian perkara eksekusi Satker se-Jawa Barat.</p>
-                    <div class="btn btn-outline-info btn-sm rounded-pill w-100 mt-auto fw-bold">Buka Layanan</div>
+                    <div class="btn btn-outline-info btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
                 </a>
             </div>
 
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.15s">
                 <a href="{{ route('sidang.index') }}" class="menu-card">
                     <div class="icon-box bg-success bg-opacity-10 text-success">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
                     <h5 class="card-title text-dark">Jadwal Sidang</h5>
                     <p class="text-muted small mb-4">Informasi agenda persidangan harian di wilayah hukum PTA Bandung.</p>
-                    <div class="btn btn-outline-success btn-sm rounded-pill w-100 mt-auto fw-bold">Buka Layanan</div>
+                    <div class="btn btn-outline-success btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
                 </a>
             </div>
 
             <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-                <a href="{{ route('sisa.panjar.menu') }}" class="menu-card"> <div class="icon-box bg-danger bg-opacity-10 text-danger">
+                <a href="{{ route('sisa.panjar.menu') }}" class="menu-card">
+                    <div class="icon-box bg-danger bg-opacity-10 text-danger">
                         <i class="fas fa-wallet"></i>
                     </div>
                     <h5 class="card-title text-dark">Sisa Panjar Perkara</h5>
-                    <p class="text-muted small mb-4">Pantau transparansi pengelolaan sisa panjar biaya perkara di wilayah PTA.</p>
-                    <div class="btn btn-outline-danger btn-sm rounded-pill w-100 mt-auto fw-bold">Buka Layanan</div>
+                    <p class="text-muted small mb-4">Pantau transparansi pengelolaan sisa panjar biaya perkara wilayah PTA.</p>
+                    <div class="btn btn-outline-danger btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
                 </a>
             </div>
 
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
-                <a href="#" class="menu-card"> <div class="icon-box bg-warning bg-opacity-10 text-warning">
+            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.25s">
+                <a href="#" class="menu-card">
+                    <div class="icon-box bg-warning bg-opacity-10 text-warning">
                         <i class="fas fa-tasks"></i>
                     </div>
                     <h5 class="card-title text-dark">Court Calendar</h5>
                     <p class="text-muted small mb-4">Pantau kepatuhan pengisian Court Calendar pada aplikasi SIPP Satker.</p>
-                    <div class="btn btn-outline-warning btn-sm rounded-pill w-100 mt-auto fw-bold text-dark">Buka Layanan</div>
+                    <div class="btn btn-outline-warning btn-sm rounded-pill w-100 mt-auto fw-bold text-dark">Lihat</div>
                 </a>
             </div>
 
-            
             <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
-                <a href="#" class="menu-card"> <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                <a href="#" class="menu-card">
+                    <div class="icon-box bg-warning bg-opacity-10 text-warning">
                         <i class="fas fa-tasks"></i>
                     </div>
                     <h5 class="card-title text-dark">Penerbitan Akta Cerai</h5>
                     <p class="text-muted small mb-4">Pantau kepatuhan penerbitan akta cerai di wilayah PTA Bandung.</p>
-                    <div class="btn btn-outline-warning btn-sm rounded-pill w-100 mt-auto fw-bold text-dark">Buka Layanan</div>
+                    <div class="btn btn-outline-warning btn-sm rounded-pill w-100 mt-auto fw-bold text-dark">Lihat</div>
                 </a>
             </div>
+
+            @else
+            {{-- PESAN UNTUK SATKER DAERAH --}}
+            <div class="col-12 animate__animated animate__fadeIn">
+                <div class="alert alert-light border-0 shadow-sm p-4 rounded-4 text-center">
+                    <i class="fas fa-info-circle text-info fs-3 mb-2"></i>
+                    <p class="mb-0 text-muted">Akses Monitoring Eksekusi, Jadwal Sidang, dan Sisa Panjar hanya tersedia bagi Admin PTA Bandung.</p>
+                </div>
+            </div>
+            @endif
 
         </div>
     </main>

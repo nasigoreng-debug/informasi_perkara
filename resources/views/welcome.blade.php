@@ -32,6 +32,54 @@
             color: #2d3436;
         }
 
+        /* Nav Bar / Top Profile */
+        .user-nav {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-info-text {
+            color: white;
+            text-align: right;
+            line-height: 1.2;
+        }
+
+        .user-info-text small {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .logout-btn {
+            background: rgba(255, 50, 50, 0.2);
+            color: #ffbaba;
+            border: 1px solid rgba(255, 50, 50, 0.3);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #ff4757;
+            color: white;
+            transform: scale(1.1);
+        }
+
         .hero-header {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
             padding: 100px 0 160px;
@@ -59,7 +107,6 @@
             align-items: center;
             text-align: center;
             padding: 50px 30px;
-            /* Padding disesuaikan untuk 3 kolom */
             height: 100%;
             box-shadow: var(--card-shadow);
             position: relative;
@@ -81,21 +128,12 @@
             transition: all 0.3s;
         }
 
-        .card-monitoring::before {
-            background: #0d6efd;
-        }
-
-        .card-laporan::before {
-            background: #ffc107;
-        }
-
-        .card-administrasi::before {
-            background: #198754;
-        }
+        .card-monitoring::before { background: #0d6efd; }
+        .card-laporan::before { background: #ffc107; }
+        .card-administrasi::before { background: #198754; }
 
         .icon-box {
             width: 100px;
-            /* Ukuran icon box sedikit dikecilkan agar muat 3 kolom */
             height: 100px;
             border-radius: 30px;
             display: flex;
@@ -111,19 +149,17 @@
         }
 
         .card-title {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 800;
             color: var(--primary-dark);
             margin-bottom: 15px;
         }
 
         .card-desc {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #636e72;
-            max-width: 280px;
             line-height: 1.6;
             min-height: 72px;
-            /* Menjaga tinggi deskripsi agar tombol sejajar */
         }
 
         .badge-online {
@@ -146,14 +182,35 @@
 <body>
 
     <header class="hero-header text-center">
+        {{-- USER NAVIGATION --}}
+        <div class="user-nav animate__animated animate__fadeInRight">
+            <div class="user-info-text d-none d-sm-block">
+                <span class="fw-bold">{{ Auth::user()->name }}</span>
+                <small>
+                    {{ Auth::user()->satker ? Auth::user()->satker->nama : 'PTA BANDUNG (ADMIN)' }}
+                </small>
+            </div>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="logout-btn" title="Keluar Sistem">
+                    <i class="fas fa-power-off"></i>
+                </button>
+            </form>
+        </div>
+
         <div class="container px-4">
             <div class="animate__animated animate__fadeInDown">
                 <span class="badge-online mb-3 d-inline-block text-uppercase fw-bold text-white">
-                    <i class="fas fa-shield-alt me-2 text-success"></i> Portal Kepaniteraan Muda Hukum PTA Bandung
+                    <i class="fas fa-shield-alt me-2 text-success"></i>
+                    @if(Auth::user()->satker)
+                        {{ Auth::user()->satker->namapa }}
+                    @else
+                        Wilayah Hukum PTA Bandung
+                    @endif
                 </span>
-                <h1 class="display-4 fw-bold mb-3">Selamat Datang</h1>
+                <h1 class="display-5 fw-bold mb-3">Selamat Datang</h1>
                 <p class="lead opacity-75 mx-auto mb-0" style="max-width: 600px;">
-                    Silakan pilih kategori layanan informasi perkara yang Anda butuhkan
+                    Portal integrasi data informasi perkara untuk mewujudkan transparansi dan akurasi data.
                 </p>
             </div>
         </div>
@@ -162,7 +219,7 @@
     <main class="main-container container px-4">
         <div class="row justify-content-center g-4">
 
-            {{-- MENU MONITORING --}}
+            {{-- MENU MONITORING (Terbuka untuk Semua) --}}
             <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp">
                 <a href="{{ route('monitoring') }}" class="card welcome-card card-monitoring">
                     <div class="icon-box bg-primary bg-opacity-10 text-primary">
@@ -170,45 +227,65 @@
                     </div>
                     <h2 class="card-title text-uppercase">Monitoring</h2>
                     <p class="card-desc">
-                        Monitoring kinerja satuan kerja SeWilayah Pengadilan Tinggi Agama Bandung secara real-time.
+                        Monitoring kinerja satuan kerja secara real-time Se-Wilayah PTA Bandung.
                     </p>
-                    <div class="btn btn-primary w-100 py-3 mt-4 fw-bold rounded-pill">
+                    <div class="btn btn-primary w-100 py-3 mt-4 fw-bold rounded-pill shadow-sm">
                         MASUK MONITORING <i class="fas fa-arrow-right ms-2"></i>
                     </div>
                 </a>
             </div>
 
-            {{-- MENU ADMINISTRASI (TAMBAHAN) --}}
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
-                <a href="{{ route('errors.under_construction') }}" class="card welcome-card card-administrasi">
-                    <div class="icon-box bg-success bg-opacity-10 text-success">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <h2 class="card-title text-uppercase">Administrasi</h2>
-                    <p class="card-desc">
-                        Pengelolaan data administrasi kepaniteraan muda hukum.
-                    </p>
-                    <div class="btn btn-success w-100 py-3 mt-4 fw-bold rounded-pill">
-                        MASUK ADMINISTRASI <i class="fas fa-arrow-right ms-2"></i>
-                    </div>
-                </a>
-            </div>
+            {{-- MENU KHUSUS ADMIN PTA BANDUNG --}}
+            @if(Auth::user()->satker && Auth::user()->satker->tabel == 'ptabandung')
+                
+                {{-- ADMINISTRASI --}}
+                <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+                    <a href="{{ route('errors.under_construction') }}" class="card welcome-card card-administrasi">
+                        <div class="icon-box bg-success bg-opacity-10 text-success">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h2 class="card-title text-uppercase">Administrasi</h2>
+                        <p class="card-desc">
+                            Pengelolaan data administrasi kepaniteraan muda hukum.
+                        </p>
+                        <div class="btn btn-success w-100 py-3 mt-4 fw-bold rounded-pill shadow-sm">
+                            MASUK ADMINISTRASI <i class="fas fa-arrow-right ms-2"></i>
+                        </div>
+                    </a>
+                </div>
 
-            {{-- MENU LAPORAN --}}
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-                <a href="{{ route('laporan-utama') }}" class="card welcome-card card-laporan">
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning">
-                        <i class="fas fa-file-signature"></i>
+                {{-- LAPORAN --}}
+                <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                    <a href="{{ route('laporan-utama') }}" class="card welcome-card card-laporan">
+                        <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                        <h2 class="card-title text-uppercase">Laporan</h2>
+                        <p class="card-desc">
+                            Rekapitulasi laporan perkara diterima dan diputus per periode.
+                        </p>
+                        <div class="btn btn-warning w-100 py-3 mt-4 fw-bold rounded-pill shadow-sm">
+                            MASUK LAPORAN <i class="fas fa-arrow-right ms-2"></i>
+                        </div>
+                    </a>
+                </div>
+
+            @else
+                {{-- TAMPILAN JIKA LOGIN SEBAGAI SATKER DAERAH --}}
+                <div class="col-lg-8 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+                    <div class="alert alert-info border-0 shadow-sm p-4 rounded-5 bg-white border-start border-primary border-5">
+                        <div class="d-flex gap-4 align-items-center">
+                            <i class="fas fa-info-circle fs-1 text-primary"></i>
+                            <div>
+                                <h5 class="fw-bold mb-1">Informasi Akses</h5>
+                                <p class="mb-0 text-muted opacity-75">
+                                    Saat ini Anda masuk sebagai perwakilan Satker. Akses penuh Monitoring Kasasi tersedia di dalam menu Monitoring. Menu Administrasi dan Laporan Utama dikelola oleh PTA Bandung.
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <h2 class="card-title text-uppercase">Laporan</h2>
-                    <p class="card-desc">
-                        Laporan perkara diterima dan diputus.
-                    </p>
-                    <div class="btn btn-warning w-100 py-3 mt-4 fw-bold rounded-pill">
-                        MASUK LAPORAN <i class="fas fa-arrow-right ms-2"></i>
-                    </div>
-                </a>
-            </div>
+                </div>
+            @endif
 
         </div>
     </main>

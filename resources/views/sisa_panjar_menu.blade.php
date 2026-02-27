@@ -101,13 +101,24 @@
         <div class="row g-4 justify-content-center">
 
             <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp">
+                <a href="{{ route('sisa.pertama') }}" class="menu-card border-top border-info border-4">
+                    <div class="icon-box bg-info bg-opacity-10 text-info">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h5 class="card-title text-dark">Sisa Panjar TK.I</h5>
+                    <p class="text-muted small mb-4">Monitoring sisa panjar perkara tingkat pertama di wilayah PTA Bandung.</p>
+                    <div class="btn btn-outline-info btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp">
                 <a href="{{ route('sisa.banding') }}" class="menu-card border-top border-primary border-4">
                     <div class="icon-box bg-primary bg-opacity-10 text-primary">
                         <i class="fas fa-balance-scale"></i>
                     </div>
                     <h5 class="card-title text-dark">Sisa Panjar Banding</h5>
                     <p class="text-muted small mb-4">Monitoring sisa panjar perkara tingkat Banding di wilayah PTA Bandung.</p>
-                    <div class="btn btn-outline-primary btn-sm rounded-pill w-100 mt-auto fw-bold">Buka Layanan</div>
+                    <div class="btn btn-outline-primary btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
                 </a>
             </div>
 
@@ -118,7 +129,7 @@
                     </div>
                     <h5 class="card-title text-dark">Sisa Panjar Kasasi</h5>
                     <p class="text-muted small mb-4">Pantau data sisa panjar biaya perkara tingkat Kasasi secara real-time.</p>
-                    <div class="btn btn-outline-success btn-sm rounded-pill w-100 mt-auto fw-bold">Buka Layanan</div>
+                    <div class="btn btn-outline-success btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
                 </a>
             </div>
 
@@ -129,7 +140,7 @@
                     </div>
                     <h5 class="card-title text-dark">Sisa Panjar PK</h5>
                     <p class="text-muted small mb-4">Informasi sisa panjar biaya perkara Peninjauan Kembali (PK) se-Jawa Barat.</p>
-                    <div class="btn btn-outline-danger btn-sm rounded-pill w-100 mt-auto fw-bold">Buka Layanan</div>
+                    <div class="btn btn-outline-danger btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
                 </a>
             </div>
 

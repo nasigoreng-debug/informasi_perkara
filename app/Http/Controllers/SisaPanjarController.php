@@ -28,6 +28,15 @@ class SisaPanjarController extends Controller
         ]);
     }
 
+    public function SisaPanjarPertama()
+    {
+        $perkara = $this->sisaService->getSisaPanjarData('pertama');
+        return view('sisa_panjar.sisa_panjar_pertama', [
+            'data' => collect($perkara),
+            'label' => 'Tingkat Pertama'
+        ]);
+    }
+
     public function SisaPanjarBanding()
     {
         $perkara = $this->sisaService->getSisaPanjarData('banding');

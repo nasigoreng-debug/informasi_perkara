@@ -41,7 +41,7 @@
                     </tbody>
                     <tfoot class="table-secondary fw-bold text-center">
                         <tr>
-                            <td colspan="3">GRAND TOTAL SELURUH SATKER</td>
+                            <td colspan="3">TOTAL SELURUH SATKER</td>
                             <td class="text-end text-success fs-5">Rp {{ number_format($totalKasasi, 0, ',', '.') }}</td>
                             <td></td>
                         </tr>
@@ -53,7 +53,7 @@
 
     <div id="section-detail-ks" style="display: none;" class="card shadow border-0 border-top border-success border-4 animate__animated animate__fadeInUp">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 text-success fw-bold" id="title-detail-ks">Detail Perkara</h5>
+            <h5 class="mb-0 text-success fw-bold" id="title-detail-ks">Detail Perkara PA</h5>
             <button type="button" class="btn-close" onclick="document.getElementById('section-detail-ks').style.display='none'"></button>
         </div>
         <div class="card-body">
@@ -65,8 +65,8 @@
                             <th>No. Perkara Tk.I</th>
                             <th>No. Perkara Kasasi</th>
                             <th>Tgl Putusan</th>
-                            <th>Tgl Notif</th>
-                            <th>Usia</th>
+                            <th>Tgl PBT</th>
+                            <th>Lama</th>
                             <th>Sisa Saldo</th>
                         </tr>
                     </thead>
@@ -89,7 +89,7 @@
             const list = dataKasasi[satker];
             if (!list) return;
 
-            document.getElementById('title-detail-ks').innerHTML = '<i class="fas fa-university me-2"></i>Detail Kasasi Satker ' + satker;
+            document.getElementById('title-detail-ks').innerHTML = '<i class="fas fa-university me-2"></i>Detail Kasasi PA ' + satker;
             let rows = '';
             list.forEach((item, index) => {
                 rows += `<tr>

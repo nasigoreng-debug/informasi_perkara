@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\KasasiExport;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class LaporanKasasiController extends Controller
@@ -19,21 +19,38 @@ class LaporanKasasiController extends Controller
         $this->kasasiService = $kasasiService;
     }
 
+    /**
+     * Menampilkan daftar laporan kasasi dengan filter otomatis berdasarkan kolom 'tabel'.
+     */
     public function index(Request $request)
     {
+        $user = Auth::user();
         $tahun = (int) $request->input('tahun', date('Y'));
         $bulanInput = $request->input('bulan');
         $bulan = ($bulanInput !== null && $bulanInput !== '') ? (int) $bulanInput : null;
 
-        // 1. Ambil data SIPP dari 26 Satker
-        $data = $this->kasasiService->getLaporanKasasi($tahun, $bulan);
+        // 1. Ambil seluruh data dari Service SIPP
+        $dataRaw = $this->kasasiService->getLaporanKasasi($tahun, $bulan);
+
+        // --- FILTER OTOMATIS BERDASARKAN SATKER ---
+        if ($user->role !== 'Super Admin' && $user->satker) {
+            // Mengambil keyword dari kolom 'tabel' (misal: 'bandung')
+            $keyword = strtolower($user->satker->tabel);
+
+            $data = $dataRaw->filter(function ($item) use ($keyword) {
+                // Mencocokkan keyword dengan nama database di SIPP (misal: 'sipp_bandung')
+                return str_contains(strtolower($item->nama_db), $keyword);
+            });
+        } else {
+            $data = $dataRaw;
+        }
+
         $grandTotal = $this->kasasiService->getGrandTotal($tahun, $bulan);
         $years = $this->kasasiService->getAvailableYears();
 
-        // 2. Ambil data "selipan" PDF dari database lokal db_informasi
+        // 2. Gabungkan data dengan file PDF dari database lokal
         $allDocs = DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')->get();
 
-        // 3. Gabungkan data (Merge)
         $data = $data->map(function ($item) use ($allDocs) {
             $doc = $allDocs->where('perkara_id', $item->perkara_id)
                 ->where('nama_db', $item->nama_db)
@@ -46,92 +63,100 @@ class LaporanKasasiController extends Controller
         return view('laporan.kasasi.index', compact('data', 'years', 'tahun', 'grandTotal', 'bulan'));
     }
 
+    /**
+     * Upload berkas PDF dengan validasi kepemilikan satker.
+     */
     public function uploadPdf(Request $request, $perkara_id)
     {
+        $user = Auth::user();
+        
         $request->validate([
             'file_pdf' => 'required|mimes:pdf|max:10240',
             'nama_db'  => 'required'
         ]);
 
+        // Proteksi: Staff tidak boleh upload ke satker lain
+        if ($user->role !== 'Super Admin' && $user->satker) {
+            $keyword = strtolower($user->satker->tabel);
+            if (!str_contains(strtolower($request->nama_db), $keyword)) {
+                return back()->with('error', 'Akses Ditolak! Anda hanya boleh mengunggah dokumen satker Anda sendiri.');
+            }
+        }
+
         try {
             if (!$request->hasFile('file_pdf')) {
-                return back()->with('error', 'File tidak diterima oleh server.');
+                return back()->with('error', 'File tidak ditemukan.');
             }
 
             $file = $request->file('file_pdf');
+            $nama_db = $request->nama_db;
+            $cleanDbName = preg_replace('/[^A-Za-z0-9\_]/', '', $nama_db);
+            $filename = "kasasi_" . $cleanDbName . "_" . $perkara_id . "_" . time() . ".pdf";
+            $targetPath = storage_path('app/public/putusan_pdf');
 
-            if ($file->isValid()) {
-                $nama_db = $request->nama_db;
-                $cleanDbName = preg_replace('/[^A-Za-z0-9\_]/', '', $nama_db) ?: 'satker';
-                $filename = "kasasi_" . $cleanDbName . "_" . $perkara_id . "_" . time() . ".pdf";
-                $targetPath = storage_path('app/public/putusan_pdf');
+            if (!file_exists($targetPath)) {
+                mkdir($targetPath, 0775, true);
+            }
 
-                if (!file_exists($targetPath)) {
-                    mkdir($targetPath, 0775, true);
-                }
+            // Hapus file lama jika ada untuk menghemat storage
+            $oldData = DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')
+                ->where('perkara_id', $perkara_id)
+                ->where('nama_db', $nama_db)
+                ->first();
 
-                $oldData = DB::connection('db_pm_hukum')
-                    ->table('monitoring_kasasi_docs')
-                    ->where('perkara_id', $perkara_id)
-                    ->where('nama_db', $nama_db)
-                    ->first();
-
-                if ($oldData && !empty($oldData->file_pdf)) {
-                    $oldFilePath = storage_path('app/public/' . $oldData->file_pdf);
-                    if (file_exists($oldFilePath) && is_file($oldFilePath)) {
-                        unlink($oldFilePath);
-                    }
-                }
-
-                $success = $file->move($targetPath, $filename);
-
-                if ($success) {
-                    $dbFilePath = 'putusan_pdf/' . $filename;
-                    DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')->updateOrInsert(
-                        ['perkara_id' => $perkara_id, 'nama_db' => $nama_db],
-                        [
-                            'file_pdf' => $dbFilePath,
-                            'updated_at' => now()
-                        ]
-                    );
-
-                    return back()->with('success', 'Dokumen berhasil diperbarui.');
+            if ($oldData && !empty($oldData->file_pdf)) {
+                $oldFilePath = storage_path('app/public/' . $oldData->file_pdf);
+                if (file_exists($oldFilePath)) {
+                    unlink($oldFilePath);
                 }
             }
+
+            if ($file->move($targetPath, $filename)) {
+                DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')->updateOrInsert(
+                    ['perkara_id' => $perkara_id, 'nama_db' => $nama_db],
+                    [
+                        'file_pdf' => 'putusan_pdf/' . $filename,
+                        'updated_at' => now()
+                    ]
+                );
+                return back()->with('success', 'Dokumen berhasil diunggah.');
+            }
+            
             return back()->with('error', 'Gagal memindahkan file.');
         } catch (\Exception $e) {
             return back()->with('error', 'Kesalahan: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Export Excel dengan filter satker.
+     */
     public function export(Request $request)
     {
+        $user = Auth::user();
         $tahun = (int) $request->input('tahun', date('Y'));
         $bulanInput = $request->input('bulan');
         $bulan = ($bulanInput !== null && $bulanInput !== '') ? (int) $bulanInput : null;
 
-        // Ambil data dari Service
-        $data = $this->kasasiService->getLaporanKasasi($tahun, $bulan);
+        $dataRaw = $this->kasasiService->getLaporanKasasi($tahun, $bulan);
 
-        // Ambil data dokumen lokal
+        if ($user->role !== 'Super Admin' && $user->satker) {
+            $keyword = strtolower($user->satker->tabel);
+            $data = $dataRaw->filter(fn($item) => str_contains(strtolower($item->nama_db), $keyword));
+        } else {
+            $data = $dataRaw;
+        }
+
         $allDocs = DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')->get();
-
-        // Merge Data khusus untuk Excel
         $data = $data->map(function ($item) use ($allDocs) {
-            $doc = $allDocs->where('perkara_id', $item->perkara_id)
-                ->where('nama_db', $item->nama_db)
-                ->first();
-
-            // Status PDF (Local DB)
+            $doc = $allDocs->where('perkara_id', $item->perkara_id)->where('nama_db', $item->nama_db)->first();
             $item->status_pdf_label = $doc ? 'Tersedia' : 'Kosong';
-
-            // Kolom Teks Putusan (SIPP DB)
             $item->hasil_putusan_ma = $item->status_putusan_kasasi_text ?? '-';
-
             return $item;
         });
 
-        $fileName = "monitoring_kasasi_" . $tahun . "_" . ($bulan ?? 'semua_bulan') . ".xlsx";
+        $suffix = $user->satker ? $user->satker->tabel : 'semua';
+        $fileName = "kasasi_" . $suffix . "_" . $tahun . ".xlsx";
 
         return Excel::download(new KasasiExport($data), $fileName);
     }
