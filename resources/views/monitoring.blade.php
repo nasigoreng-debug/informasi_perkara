@@ -1,194 +1,187 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Monitoring | PTA Bandung</title>
+@section('title', 'Panel Monitoring | PTA Bandung')
 
-    <link rel="shortcut icon" href="{{ asset('/favicon/favicon.ico') }}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #1a2a6c;
-            --bg-light: #f4f7fa;
-        }
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<style>
+    :root {
+        --primary-blue: #1a2a6c;
+        --bg-light: #f4f7fa;
+    }
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-light);
-            color: #2d3436;
-        }
+    .hero-header {
+        background: linear-gradient(135deg, #1a2a6c 0%, #2a4858 100%);
+        padding: 50px 0 90px;
+        color: white;
+        border-bottom-left-radius: 50px;
+        border-bottom-right-radius: 50px;
+        margin-top: -20px;
+        /* Menempel ke navbar */
+    }
 
-        .hero-header {
-            background: linear-gradient(135deg, #1a2a6c 0%, #2a4858 100%);
-            padding: 60px 0 100px;
-            color: white;
-            border-bottom-left-radius: 50px;
-            border-bottom-right-radius: 50px;
-        }
+    .main-container {
+        margin-top: -60px;
+        padding-bottom: 80px;
+    }
 
-        .main-container {
-            margin-top: -60px;
-            padding-bottom: 80px;
-        }
+    .menu-card {
+        border: none;
+        border-radius: 25px;
+        background: white;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        text-decoration: none !important;
+        padding: 35px 25px;
+        height: 100%;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
 
-        .menu-card {
-            border: none;
-            border-radius: 25px;
-            background: white;
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            text-decoration: none !important;
-            padding: 40px 25px;
-            height: 100%;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
+    .menu-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+    }
 
-        .menu-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
-        }
+    .icon-box {
+        width: 70px;
+        height: 70px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        font-size: 2rem;
+    }
 
-        .icon-box {
-            width: 75px;
-            height: 75px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            font-size: 2.2rem;
-        }
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2d3436;
+    }
 
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .card-desc {
+        font-size: 0.85rem;
+        color: #636e72;
+        margin-bottom: 20px;
+    }
+</style>
+@endpush
 
-        footer {
-            padding: 30px 0;
-            opacity: 0.6;
-            font-size: 0.85rem;
-        }
-    </style>
-</head>
-
-<body>
-    <header class="hero-header text-center">
-        <div class="container px-4">
-            <a href="{{ route('welcome') }}" class="btn btn-sm btn-outline-light rounded-pill mb-3 px-3">
-                <i class="fas fa-arrow-left me-2"></i> Kembali ke Awal
-            </a>
-            <h1 class="fw-bold animate__animated animate__fadeInDown">Panel Monitoring</h1>
-            <p class="opacity-75 mx-auto mb-0" style="max-width: 600px;">
-                Pantau data operasional dan administrasi perkara secara real-time
+@section('content')
+{{-- HERO HEADER --}}
+<header class="hero-header text-center">
+    <div class="container px-4">
+        <div class="animate__animated animate__fadeInDown">
+            <h1 class="fw-bold mb-2">Panel Monitoring</h1>
+            <p class="opacity-75 mx-auto mb-0" style="max-width: 600px; font-size: 0.95rem;">
+                Pantau data operasional dan administrasi perkara secara real-time wilayah hukum PTA Bandung.
             </p>
         </div>
-    </header>
+    </div>
+</header>
 
-    <main class="main-container container px-4">
-        <div class="row g-4 justify-content-center">
+{{-- MAIN CONTENT --}}
+<main class="main-container container px-4">
+    <div class="row g-4 justify-content-center">
 
-            {{-- MENU KASASI (SEMUA USER) --}}
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
-                <a href="{{ route('laporan.eksekusi.index') }}" class="menu-card">
-                    <div class="icon-box bg-primary bg-opacity-10 text-primary">
-                        <i class="fas fa-file-signature"></i>
-                    </div>
-                    <h5 class="card-title text-dark">Monitoring Permohonan Kasasi</h5>
-                    <p class="text-muted small mb-4">Informasi permohonan perkara kasasi Satker se-Jawa Barat.</p>
-                    <div class="btn btn-outline-primary btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
-                </a>
-            </div>
+        {{-- 1. MONITORING KASASI (SEMUA USER) --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp">
+            <a href="{{ route('kasasi.index') }}" class="menu-card">
+                <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <h5 class="card-title text-uppercase">Monitoring Kasasi</h5>
+                <p class="card-desc">Informasi permohonan perkara kasasi Satker se-Jawa Barat.</p>
+                <div class="btn btn-outline-primary btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+            </a>
+        </div>
 
-            {{-- MENU KHUSUS ADMIN PTA --}}
-            @if(Auth::user()->satker && Auth::user()->satker->tabel == 'ptabandung')
+        {{-- MENU KHUSUS ADMIN & MANAGER PTA --}}
+        @if(Auth::user()->canSeeAllData())
 
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
-                <a href="{{ route('laporan.eksekusi.index') }}" class="menu-card">
-                    <div class="icon-box bg-info bg-opacity-10 text-info">
-                        <i class="fas fa-file-signature"></i>
-                    </div>
-                    <h5 class="card-title text-dark">Monitoring Eksekusi</h5>
-                    <p class="text-muted small mb-4">Rekapitulasi data penyelesaian perkara eksekusi Satker se-Jawa Barat.</p>
-                    <div class="btn btn-outline-info btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
-                </a>
-            </div>
+        {{-- 2. MONITORING EKSEKUSI --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+            <a href="{{ route('laporan.eksekusi.index') }}" class="menu-card">
+                <div class="icon-box bg-info bg-opacity-10 text-info">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <h5 class="card-title text-uppercase">Monitoring Eksekusi</h5>
+                <p class="card-desc">Rekapitulasi data penyelesaian perkara eksekusi Satker se-Jawa Barat.</p>
+                <div class="btn btn-outline-info btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+            </a>
+        </div>
 
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.15s">
-                <a href="{{ route('sidang.index') }}" class="menu-card">
-                    <div class="icon-box bg-success bg-opacity-10 text-success">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <h5 class="card-title text-dark">Jadwal Sidang</h5>
-                    <p class="text-muted small mb-4">Informasi agenda persidangan harian di wilayah hukum PTA Bandung.</p>
-                    <div class="btn btn-outline-success btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
-                </a>
-            </div>
+        {{-- 3. JADWAL SIDANG --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.15s">
+            <a href="{{ route('sidang.index') }}" class="menu-card">
+                <div class="icon-box bg-success bg-opacity-10 text-success">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h5 class="card-title text-uppercase">Jadwal Sidang</h5>
+                <p class="card-desc">Informasi agenda persidangan harian di wilayah hukum PTA Bandung.</p>
+                <div class="btn btn-outline-success btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+            </a>
+        </div>
 
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-                <a href="{{ route('sisa.panjar.menu') }}" class="menu-card">
-                    <div class="icon-box bg-danger bg-opacity-10 text-danger">
-                        <i class="fas fa-wallet"></i>
-                    </div>
-                    <h5 class="card-title text-dark">Sisa Panjar Perkara</h5>
-                    <p class="text-muted small mb-4">Pantau transparansi pengelolaan sisa panjar biaya perkara wilayah PTA.</p>
-                    <div class="btn btn-outline-danger btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat</div>
-                </a>
-            </div>
+        {{-- 4. SISA PANJAR --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+            <a href="{{ route('sisa.panjar.menu') }}" class="menu-card">
+                <div class="icon-box bg-danger bg-opacity-10 text-danger">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <h5 class="card-title text-uppercase">Sisa Panjar</h5>
+                <p class="card-desc">Transparansi pengelolaan sisa panjar biaya perkara wilayah PTA.</p>
+                <div class="btn btn-outline-danger btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+            </a>
+        </div>
 
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.25s">
-                <a href="#" class="menu-card">
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <h5 class="card-title text-dark">Court Calendar</h5>
-                    <p class="text-muted small mb-4">Pantau kepatuhan pengisian Court Calendar pada aplikasi SIPP Satker.</p>
-                    <div class="btn btn-outline-warning btn-sm rounded-pill w-100 mt-auto fw-bold text-dark">Lihat</div>
-                </a>
-            </div>
+        {{-- 5. COURT CALENDAR --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.25s">
+            <a href="#" class="menu-card">
+                <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h5 class="card-title text-uppercase">Court Calendar</h5>
+                <p class="card-desc">Pantau kepatuhan pengisian Court Calendar pada aplikasi SIPP Satker.</p>
+                <div class="btn btn-outline-warning btn-sm rounded-pill w-100 mt-auto fw-bold text-dark">Lihat Detail</div>
+            </a>
+        </div>
 
-            <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
-                <a href="#" class="menu-card">
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <h5 class="card-title text-dark">Penerbitan Akta Cerai</h5>
-                    <p class="text-muted small mb-4">Pantau kepatuhan penerbitan akta cerai di wilayah PTA Bandung.</p>
-                    <div class="btn btn-outline-warning btn-sm rounded-pill w-100 mt-auto fw-bold text-dark">Lihat</div>
-                </a>
-            </div>
+        {{-- 6. AKTA CERAI --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+            <a href="#" class="menu-card">
+                <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h5 class="card-title text-uppercase">Akta Cerai</h5>
+                <p class="card-desc">Pantau kepatuhan penerbitan akta cerai di wilayah PTA Bandung.</p>
+                <div class="btn btn-outline-warning btn-sm rounded-pill w-100 mt-auto fw-bold text-dark">Lihat Detail</div>
+            </a>
+        </div>
 
-            @else
-            {{-- PESAN UNTUK SATKER DAERAH --}}
-            <div class="col-12 animate__animated animate__fadeIn">
-                <div class="alert alert-light border-0 shadow-sm p-4 rounded-4 text-center">
-                    <i class="fas fa-info-circle text-info fs-3 mb-2"></i>
-                    <p class="mb-0 text-muted">Akses Monitoring Eksekusi, Jadwal Sidang, dan Sisa Panjar hanya tersedia bagi Admin PTA Bandung.</p>
+        @else
+        {{-- TAMPILAN JIKA LOGIN SEBAGAI USER BIASA (SATKER DAERAH) --}}
+        <div class="col-12 animate__animated animate__fadeIn" style="animation-delay: 0.4s">
+            <div class="alert alert-light border-0 shadow-sm p-4 rounded-4 text-center">
+                <div class="d-flex flex-column align-items-center">
+                    <i class="fas fa-lock text-muted fs-2 mb-3"></i>
+                    <h6 class="fw-bold text-dark">Akses Terbatas</h6>
+                    <p class="mb-0 text-muted small" style="max-width: 500px;">
+                        Menu monitoring lanjutan (Eksekusi, Sidang, Sisa Panjar) hanya dapat diakses oleh Administrator PTA Bandung.
+                    </p>
                 </div>
             </div>
-            @endif
-
         </div>
-    </main>
+        @endif
 
-    <footer class="text-center">
-        <p>&copy; {{ date('Y') }} Pengadilan Tinggi Agama Bandung</p>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+    </div>
+</main>
+@endsection

@@ -9,6 +9,7 @@ use App\Exports\KasasiExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\ActivityLog; // Tambahkan pemanggilan Model Log
 
 class LaporanKasasiController extends Controller
 {
@@ -20,7 +21,7 @@ class LaporanKasasiController extends Controller
     }
 
     /**
-     * Menampilkan daftar laporan kasasi dengan filter otomatis berdasarkan kolom 'tabel'.
+     * Menampilkan daftar laporan kasasi
      */
     public function index(Request $request)
     {
@@ -33,12 +34,9 @@ class LaporanKasasiController extends Controller
         $dataRaw = $this->kasasiService->getLaporanKasasi($tahun, $bulan);
 
         // --- FILTER OTOMATIS BERDASARKAN SATKER ---
-        if ($user->role !== 'Super Admin' && $user->satker) {
-            // Mengambil keyword dari kolom 'tabel' (misal: 'bandung')
+        if (!$user->isAdmin() && $user->satker) {
             $keyword = strtolower($user->satker->tabel);
-
             $data = $dataRaw->filter(function ($item) use ($keyword) {
-                // Mencocokkan keyword dengan nama database di SIPP (misal: 'sipp_bandung')
                 return str_contains(strtolower($item->nama_db), $keyword);
             });
         } else {
@@ -48,7 +46,7 @@ class LaporanKasasiController extends Controller
         $grandTotal = $this->kasasiService->getGrandTotal($tahun, $bulan);
         $years = $this->kasasiService->getAvailableYears();
 
-        // 2. Gabungkan data dengan file PDF dari database lokal
+        // 2. Gabungkan data dengan file PDF
         $allDocs = DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')->get();
 
         $data = $data->map(function ($item) use ($allDocs) {
@@ -64,19 +62,19 @@ class LaporanKasasiController extends Controller
     }
 
     /**
-     * Upload berkas PDF dengan validasi kepemilikan satker.
+     * Upload berkas PDF dengan pencatatan Log
      */
     public function uploadPdf(Request $request, $perkara_id)
     {
         $user = Auth::user();
-        
+
         $request->validate([
             'file_pdf' => 'required|mimes:pdf|max:10240',
             'nama_db'  => 'required'
         ]);
 
-        // Proteksi: Staff tidak boleh upload ke satker lain
-        if ($user->role !== 'Super Admin' && $user->satker) {
+        // Proteksi satker
+        if (!$user->isAdmin() && $user->satker) {
             $keyword = strtolower($user->satker->tabel);
             if (!str_contains(strtolower($request->nama_db), $keyword)) {
                 return back()->with('error', 'Akses Ditolak! Anda hanya boleh mengunggah dokumen satker Anda sendiri.');
@@ -98,7 +96,7 @@ class LaporanKasasiController extends Controller
                 mkdir($targetPath, 0775, true);
             }
 
-            // Hapus file lama jika ada untuk menghemat storage
+            // Hapus file lama jika ada
             $oldData = DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')
                 ->where('perkara_id', $perkara_id)
                 ->where('nama_db', $nama_db)
@@ -119,9 +117,17 @@ class LaporanKasasiController extends Controller
                         'updated_at' => now()
                     ]
                 );
+
+                // --- CATAT LOG: Upload PDF ---
+                ActivityLog::record(
+                    'Upload PDF Kasasi',
+                    'MonitoringKasasi',
+                    "Berhasil upload PDF untuk Perkara ID: {$perkara_id} di database: {$nama_db}"
+                );
+
                 return back()->with('success', 'Dokumen berhasil diunggah.');
             }
-            
+
             return back()->with('error', 'Gagal memindahkan file.');
         } catch (\Exception $e) {
             return back()->with('error', 'Kesalahan: ' . $e->getMessage());
@@ -129,7 +135,7 @@ class LaporanKasasiController extends Controller
     }
 
     /**
-     * Export Excel dengan filter satker.
+     * Export Excel dengan pencatatan Log
      */
     public function export(Request $request)
     {
@@ -140,7 +146,7 @@ class LaporanKasasiController extends Controller
 
         $dataRaw = $this->kasasiService->getLaporanKasasi($tahun, $bulan);
 
-        if ($user->role !== 'Super Admin' && $user->satker) {
+        if (!$user->isAdmin() && $user->satker) {
             $keyword = strtolower($user->satker->tabel);
             $data = $dataRaw->filter(fn($item) => str_contains(strtolower($item->nama_db), $keyword));
         } else {
@@ -154,6 +160,14 @@ class LaporanKasasiController extends Controller
             $item->hasil_putusan_ma = $item->status_putusan_kasasi_text ?? '-';
             return $item;
         });
+
+        // --- CATAT LOG: Export Excel ---
+        $satkerName = $user->satker ? $user->satker->nama : 'Seluruh Satker';
+        ActivityLog::record(
+            'Export Excel Kasasi',
+            'MonitoringKasasi',
+            "Mendownload laporan Kasasi tahun {$tahun} untuk {$satkerName}"
+        );
 
         $suffix = $user->satker ? $user->satker->tabel : 'semua';
         $fileName = "kasasi_" . $suffix . "_" . $tahun . ".xlsx";

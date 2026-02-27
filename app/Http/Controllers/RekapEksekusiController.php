@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Services\RekapEksekusiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Collection; // Tambahkan ini
+use Illuminate\Support\Collection;
+use App\Models\ActivityLog;
 
 class RekapEksekusiController extends Controller
 {
@@ -17,7 +18,7 @@ class RekapEksekusiController extends Controller
     }
 
     /**
-     * Menampilkan rekapitulasi eksekusi dengan filter otomatis.
+     * Tampilan Index - Filter Otomatis & Log
      */
     public function index(Request $request)
     {
@@ -25,27 +26,20 @@ class RekapEksekusiController extends Controller
         $tglAwal = $request->tgl_awal ?? date('Y-01-01');
         $tglAkhir = $request->tgl_akhir ?? date('Y-12-31');
 
-        if ($tglAkhir < $tglAwal) {
-            $tglAkhir = $tglAwal;
-        }
+        if ($tglAkhir < $tglAwal) $tglAkhir = $tglAwal;
 
-        // 1. Ambil data mentah
         $dataRaw = $this->rekapService->getRekap($tglAwal, $tglAkhir);
-
-        // --- SOLUSI: Ubah Array ke Collection agar bisa menggunakan ->filter() ---
         $dataCollection = collect($dataRaw);
 
-        if ($user->role !== 'Super Admin' && $user->satker) {
-            // Berdasarkan Debug Anda, query SQL menggunakan nama satker UPPERCASE (BANDUNG, INDRAMAYU, dll)
-            $keyword = strtoupper($user->satker->tabel);
-
+        // Logika Admin vs Satker
+        if ($user->role_id == 1) {
+            $data = $dataCollection;
+        } else {
+            $keyword = strtoupper($user->satker->tabel ?? '');
             $data = $dataCollection->filter(function ($item) use ($keyword) {
-                // Pastikan $item adalah objek atau array sesuai hasil query
-                $namaSatker = is_object($item) ? $item->satker : $item['satker'];
+                $namaSatker = is_object($item) ? $item->satker : ($item['satker'] ?? '');
                 return str_contains(strtoupper($namaSatker), $keyword);
             });
-        } else {
-            $data = $dataCollection;
         }
 
         $summary = $this->rekapService->getSummary($data);
@@ -55,7 +49,7 @@ class RekapEksekusiController extends Controller
     }
 
     /**
-     * Menampilkan detail perkara eksekusi.
+     * Detail Perkara - Proteksi & Log
      */
     public function detail(Request $request)
     {
@@ -65,35 +59,22 @@ class RekapEksekusiController extends Controller
         $tglAwal = $request->get('tgl_awal') ?? date('Y-01-01');
         $tglAkhir = $request->get('tgl_akhir') ?? date('Y-12-31');
 
-        if (!$satker || !$jenis) {
-            return redirect()->route('laporan.eksekusi.index')->with('error', 'Parameter tidak valid.');
-        }
-
-        // --- PROTEKSI DETAIL ---
-        if ($user->role !== 'Super Admin' && $user->satker) {
+        if ($user->role_id != 1 && $user->satker) {
             $keyword = strtoupper($user->satker->tabel);
             if (!str_contains(strtoupper($satker), $keyword)) {
                 return redirect()->route('laporan.eksekusi.index')->with('error', 'Akses Ditolak!');
             }
         }
 
-        try {
-            $dataDetail = $this->rekapService->getDetailPerkara($satker, $jenis, $tglAwal, $tglAkhir);
+        $dataDetail = $this->rekapService->getDetailPerkara($satker, $jenis, $tglAwal, $tglAkhir);
 
-            return view('eksekusi.detail', [
-                'satker' => $satker,
-                'jenis' => $jenis,
-                'tglAwal' => $tglAwal,
-                'tglAkhir' => $tglAkhir,
-                'data' => $dataDetail
-            ]);
-        } catch (\Exception $e) {
-            return redirect()->route('laporan.eksekusi.index')->with('error', 'Gagal memuat detail.');
-        }
+        ActivityLog::record('Lihat Detail', 'RekapEksekusi', "Melihat detail {$jenis} Satker: {$satker}");
+
+        return view('eksekusi.detail', compact('satker', 'jenis', 'tglAwal', 'tglAkhir', 'data'));
     }
 
     /**
-     * Export data CSV.
+     * Export CSV Anti-Berantakan & Catat Log
      */
     public function export(Request $request)
     {
@@ -105,41 +86,58 @@ class RekapEksekusiController extends Controller
             $dataRaw = $this->rekapService->getRekap($tglAwal, $tglAkhir);
             $dataCollection = collect($dataRaw);
 
-            if ($user->role !== 'Super Admin' && $user->satker) {
-                $keyword = strtoupper($user->satker->tabel);
+            if ($user->role_id == 1) {
+                $data = $dataCollection;
+                $suffix = "pta_bandung_pusat";
+            } else {
+                $keyword = strtoupper($user->satker->tabel ?? '');
                 $data = $dataCollection->filter(function ($item) use ($keyword) {
-                    $namaSatker = is_object($item) ? $item->satker : $item['satker'];
+                    $namaSatker = is_object($item) ? $item->satker : ($item['satker'] ?? '');
                     return str_contains(strtoupper($namaSatker), $keyword);
                 });
-                $suffix = $user->satker->tabel;
-            } else {
-                $data = $dataCollection;
-                $suffix = "pta_bandung";
+                $suffix = strtolower($user->satker->tabel ?? 'satker');
             }
 
-            $summary = $this->rekapService->getSummary($data);
-            $filename = "rekap_eksekusi_{$suffix}.csv";
+            // --- CATAT LOG ---
+            ActivityLog::record('Export Data', 'RekapEksekusi', "Export CSV Eksekusi periode {$tglAwal} s/d {$tglAkhir}");
 
-            $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => "attachment; filename={$filename}",
-            ];
+            $filename = "rekap_eksekusi_{$suffix}_" . date('Ymd_His') . ".csv";
 
-            $callback = function () use ($data, $summary) {
+            return response()->stream(function () use ($data) {
                 $file = fopen('php://output', 'w');
-                fputcsv($file, ['Satker', 'SISA LALU', 'DITERIMA', 'BEBAN', 'SELESAI', '% SELESAI', 'SISA KINI']);
+
+                // Trik Rahasia: Beri tahu Excel untuk pakai koma (sep=,)
+                fputs($file, "sep=,\n");
+
+                // Beri tahu Excel ini adalah format UTF-8 (BOM)
+                fputs($file, "\xEF\xBB\xBF");
+
+                // Header
+                fputcsv($file, ['SATUAN KERJA', 'SISA LALU', 'DITERIMA', 'BEBAN', 'SELESAI', 'RASIO (%)', 'SISA KINI']);
 
                 foreach ($data as $row) {
                     $r = (array) $row;
-                    $persen = $r['BEBAN'] > 0 ? round(($r['SELESAI'] / $r['BEBAN']) * 100, 2) : 0;
-                    fputcsv($file, [$r['satker'], $r['SISA'], $r['DITERIMA'], $r['BEBAN'], $r['SELESAI'], $persen . '%', $r['SISA_TAHUN_INI']]);
+                    $beban = (int) ($r['BEBAN'] ?? 0);
+                    $selesai = (int) ($r['SELESAI'] ?? 0);
+                    $persen = $beban > 0 ? round(($selesai / $beban) * 100, 2) : 0;
+
+                    fputcsv($file, [
+                        $r['satker'] ?? '-',
+                        $r['SISA'] ?? 0,
+                        $r['DITERIMA'] ?? 0,
+                        $r['BEBAN'] ?? 0,
+                        $r['SELESAI'] ?? 0,
+                        $persen . '%',
+                        $r['SISA_TAHUN_INI'] ?? 0
+                    ]);
                 }
                 fclose($file);
-            };
-
-            return response()->stream($callback, 200, $headers);
+            }, 200, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename={$filename}",
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal ekspor.');
+            return redirect()->back()->with('error', 'Gagal ekspor: ' . $e->getMessage());
         }
     }
 }

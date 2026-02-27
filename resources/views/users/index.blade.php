@@ -26,7 +26,8 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
                     <tr>
-                        <th class="ps-4 py-3 text-uppercase small fw-bold text-muted">Nama & Username</th>
+                        <th class="ps-4 py-3 text-uppercase small fw-bold text-muted" style="width: 50px;">No.</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Nama & Username</th>
                         <th class="py-3 text-uppercase small fw-bold text-muted">Satker / Wilayah</th>
                         <th class="py-3 text-uppercase small fw-bold text-muted">Hak Akses (Role)</th>
                         <th class="py-3 text-uppercase small fw-bold text-muted text-center">Aksi</th>
@@ -36,10 +37,10 @@
                     @foreach($users as $user)
                     <tr>
                         <td class="ps-4">
+                            <span class="fw-bold text-muted small">{{ $loop->iteration }}.</span>
+                        </td>
+                        <td>
                             <div class="d-flex align-items-center">
-                                <div class="avatar-circle bg-primary bg-opacity-10 text-primary fw-bold me-3">
-                                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                                </div>
                                 <div>
                                     <div class="fw-bold text-dark">{{ $user->name }}</div>
                                     <div class="text-muted small">@ {{ $user->username }}</div>
@@ -49,24 +50,21 @@
                         <td>
                             <span class="text-secondary small fw-bold">
                                 <i class="fas fa-map-marker-alt me-1 text-danger"></i>
-                                {{-- Pengaman Satker --}}
                                 {{ $user->satker->nama ?? 'PTA BANDUNG (PUSAT)' }}
                             </span>
                         </td>
                         <td>
                             @php
-                            // Pewarnaan Badge berdasarkan Role ID
                             $badgeClass = [
-                            1 => 'bg-danger', // Administrator
-                            2 => 'bg-warning text-dark', // Manager
-                            3 => 'bg-primary', // User/Member
-                            4 => 'bg-secondary' // Viewer
+                            1 => 'bg-danger',
+                            2 => 'bg-warning text-dark',
+                            3 => 'bg-primary',
+                            4 => 'bg-secondary'
                             ][$user->role_id] ?? 'bg-light text-dark';
                             @endphp
 
                             <span class="badge {{ $badgeClass }} rounded-pill px-3 py-2">
                                 <i class="fas fa-user-shield me-1 small"></i>
-                                {{-- Pengaman Role: Menggunakan optional agar tidak error property on null --}}
                                 {{ optional($user->role)->nama_role ?? 'Tanpa Role' }}
                             </span>
                         </td>
@@ -76,7 +74,6 @@
                                     <i class="fas fa-edit me-1"></i> Edit
                                 </a>
 
-                                {{-- Cegah hapus diri sendiri --}}
                                 @if($user->id !== auth()->id())
                                 <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Hapus user ini?')">
                                     @csrf @method('DELETE')

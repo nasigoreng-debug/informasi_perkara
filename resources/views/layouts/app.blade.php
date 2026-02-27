@@ -14,6 +14,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
     <style>
         :root {
@@ -141,12 +142,22 @@
                             <i class="fas fa-home me-1"></i> Beranda
                         </a>
                     </li>
-                    {{-- Navigasi khusus Admin PTA --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                            <i class="fas fa-chart-line me-1"></i> Dashboard
+                        </a>
+                    </li>
+
                     @auth
                         @if(Auth::user()->isAdmin())
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
                                 <i class="fas fa-users-cog me-1"></i> Manajemen User
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('activity-log*') ? 'active' : '' }}" href="{{ url('/activity-log') }}">
+                                <i class="fas fa-fingerprint me-1"></i> Log Aktivitas
                             </a>
                         </li>
                         @endif
@@ -161,7 +172,6 @@
                                 <div class="text-start d-none d-sm-block">
                                     <div class="fw-bold" style="font-size: 0.75rem; line-height: 1;">{{ Auth::user()->name }}</div>
                                     <div style="font-size: 0.65rem; opacity: 0.8;">
-                                        {{-- PERBAIKAN: Gunakan optional() agar jika role kosong tidak error --}}
                                         {{ optional(Auth::user()->role)->nama_role ?? 'Pengguna' }}
                                     </div>
                                 </div>
@@ -169,14 +179,14 @@
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end shadow">
                                 <li class="px-3 py-2 border-bottom mb-2">
-                                    <span class="d-block small text-muted">Satker:</span>
-                                    <span class="fw-bold small">{{ Auth::user()->nama_singkat ? Auth::user()->nama_singkat->nama : 'PTA BANDUNG' }}</span>
+                                    <span class="d-block small text-muted">ID Pengguna:</span>
+                                    <span class="fw-bold small">{{ Auth::user()->username }}</span>
                                 </li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf
                                         <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2">
-                                            <i class="fas fa-power-off"></i> Logout
+                                            <i class="fas fa-power-off"></i> Logout Aplikasi
                                         </button>
                                     </form>
                                 </li>

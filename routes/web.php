@@ -10,6 +10,7 @@ use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\LaporanBandingController;
 use App\Http\Controllers\SisaPanjarController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -126,4 +127,10 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}/update', 'update')->name('update');
         Route::delete('/{id}/delete', 'destroy')->name('destroy');
     });
+
+    Route::get('/activity-log', function () {
+        return view('activity_log');
+    })->name('activity.log')->middleware('auth');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Satker;
 use App\Models\Role;
+use App\Models\ActivityLog; // Sudah benar panggilannya di sini
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +22,6 @@ class UserController extends Controller
         return view('users.index', compact('users'));
     }
 
-    // HALAMAN TAMBAH - Pastikan data Satker & Role dikirim ke View
     public function create()
     {
         $satkers = Satker::orderBy('nama', 'asc')->get();
@@ -39,7 +39,7 @@ class UserController extends Controller
             'role_id' => 'required'
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
             'password' => Hash::make($request->password),
@@ -47,10 +47,12 @@ class UserController extends Controller
             'role_id' => $request->role_id,
         ]);
 
+        // LOG: Catat saat ada penambahan user baru
+        ActivityLog::record('Tambah User', 'User', 'Menambah pengguna baru: ' . $user->name);
+
         return redirect()->route('users.index')->with('success', 'User berhasil disimpan.');
     }
 
-    // HALAMAN EDIT - Pastikan variabel $user, $satkers, dan $roles dikirim
     public function edit($id)
     {
         $user = User::findOrFail($id);
@@ -81,13 +83,23 @@ class UserController extends Controller
 
         $user->save();
 
+        // LOG: Catat saat ada perubahan data
+        ActivityLog::record('Edit User', 'User', 'Mengubah data pengguna: ' . $user->name);
+
         return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
         if ($id == Auth::id()) return back()->with('error', 'Cegah hapus diri sendiri.');
-        User::destroy($id);
-        return back()->with('success', 'User dihapus.');
+
+        $user = User::findOrFail($id);
+
+        // LOG: Catat sebelum dihapus (Gunakan ActivityLog::record langsung)
+        ActivityLog::record('Hapus User', 'User', 'Menghapus pengguna: ' . $user->name);
+
+        $user->delete();
+
+        return back()->with('success', 'User berhasil dihapus.');
     }
 }

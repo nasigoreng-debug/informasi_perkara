@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SidangSiappta;
 use App\Models\Visitor;
+use App\Models\ActivityLog; // Tambahkan pemanggilan Model Log
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -49,6 +50,9 @@ class SidangController extends Controller
                 'online' => Visitor::where('updated_at', '>=', now()->subMinutes(5))->count() + rand(2, 5)
             ];
 
+            // LOG: Akses Jadwal Sidang (Internal/TV)
+            ActivityLog::record('Akses Jadwal Sidang', 'Sidang', "Memantau jadwal sidang hari ini ({$perkarasHariIni->count()} perkara)");
+
             return view('jadwal_sidang.index', [
                 'perkaras' => $perkarasHariIni,
                 'sidangHariIni' => $perkarasHariIni->count(),
@@ -61,6 +65,9 @@ class SidangController extends Controller
         }
     }
 
+    /**
+     * TAMPILAN UNTUK PUBLIK
+     */
     public function index_public(Request $request)
     {
         try {
@@ -80,7 +87,7 @@ class SidangController extends Controller
                 ->orderBy('perkara.tgl_sidang_pertama', 'asc')
                 ->get();
 
-            // Mapping data agar Blade tinggal panggil
+            // Mapping data
             $perkarasHariIni->transform(function ($item) {
                 $dt = Carbon::parse($item->tgl_sidang_pertama);
                 $item->jam_sidang_display = $dt->format('H:i');
@@ -97,6 +104,13 @@ class SidangController extends Controller
                 'online' => Visitor::where('updated_at', '>=', now()->subMinutes(5))->count() + rand(2, 5)
             ];
 
+            // LOG: Akses Jadwal Sidang (Public)
+            // Khusus publik kita catat tanpa membebani server
+            if (!session()->has('logged_sidang_public')) {
+                ActivityLog::record('Akses Sidang Publik', 'Sidang', 'Pengunjung melihat jadwal sidang melalui akses publik');
+                session()->put('logged_sidang_public', true);
+            }
+
             return view('jadwal_sidang.index_public', [
                 'perkaras' => $perkarasHariIni,
                 'sidangHariIni' => $perkarasHariIni->count(),
@@ -104,7 +118,7 @@ class SidangController extends Controller
                 'visitorStats' => $visitorStats
             ]);
         } catch (\Exception $e) {
-            Log::error('Error Sidang Visual: ' . $e->getMessage());
+            Log::error('Error Sidang Visual Public: ' . $e->getMessage());
             return "Terjadi kesalahan sistem: " . $e->getMessage();
         }
     }
