@@ -5,19 +5,21 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
 <style>
-    body { 
-        font-family: 'Plus Jakarta Sans', sans-serif; 
-        background-color: #f4f7fa; 
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #f4f7fa;
     }
-    
-    .page-heading { padding: 2rem 0; }
-    
+
+    .page-heading {
+        padding: 2rem 0;
+    }
+
     /* Card Mewah sesuai Putusan Sela */
     .card-luxury {
         background: #ffffff;
         border: none;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
         overflow: hidden;
     }
 
@@ -52,7 +54,7 @@
         background: white;
         border: 1px solid #e2e8f0;
         color: #4f46e5;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         transition: all 0.3s;
         text-decoration: none;
     }
@@ -64,16 +66,69 @@
     }
 
     /* Badge DNA: Soft & Rounded */
-    .badge-soft-total { background: #eef2ff; color: #4f46e5; border: 1px solid #e0e7ff; font-weight: 700; padding: 0.6rem 1.2rem; border-radius: 12px; text-decoration: none; display: inline-block; transition: 0.2s; }
-    .badge-soft-ecourt { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; font-weight: 700; padding: 0.6rem 1.2rem; border-radius: 12px; text-decoration: none; display: inline-block; transition: 0.2s; }
-    .badge-soft-manual { background: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6; font-weight: 700; padding: 0.6rem 1.2rem; border-radius: 12px; text-decoration: none; display: inline-block; transition: 0.2s; }
+    .badge-soft-total {
+        background: #eef2ff;
+        color: #4f46e5;
+        border: 1px solid #e0e7ff;
+        font-weight: 700;
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-block;
+        transition: 0.2s;
+    }
 
-    .badge-soft-total:hover { background: #4f46e5; color: white !important; transform: translateY(-2px); }
-    .badge-soft-ecourt:hover { background: #16a34a; color: white !important; transform: translateY(-2px); }
-    .badge-soft-manual:hover { background: #e11d48; color: white !important; transform: translateY(-2px); }
+    .badge-soft-ecourt {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #dcfce7;
+        font-weight: 700;
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-block;
+        transition: 0.2s;
+    }
 
-    .tfoot-luxury { background: #1e293b; color: white; font-weight: 800; }
-    .tfoot-luxury td { padding: 1.5rem !important; }
+    .badge-soft-manual {
+        background: #fff1f2;
+        color: #e11d48;
+        border: 1px solid #ffe4e6;
+        font-weight: 700;
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-block;
+        transition: 0.2s;
+    }
+
+    .badge-soft-total:hover {
+        background: #4f46e5;
+        color: white !important;
+        transform: translateY(-2px);
+    }
+
+    .badge-soft-ecourt:hover {
+        background: #16a34a;
+        color: white !important;
+        transform: translateY(-2px);
+    }
+
+    .badge-soft-manual:hover {
+        background: #e11d48;
+        color: white !important;
+        transform: translateY(-2px);
+    }
+
+    .tfoot-luxury {
+        background: #1e293b;
+        color: white;
+        font-weight: 800;
+    }
+
+    .tfoot-luxury td {
+        padding: 1.5rem !important;
+    }
 
     /* Search DataTables Styling */
     .dataTables_filter input {
@@ -104,7 +159,7 @@
             <button onclick="window.print()" class="btn btn-white border shadow-sm fw-bold px-4 py-2 rounded-pill">
                 <i class="fas fa-print me-2 text-muted"></i> Cetak
             </button>
-            <a href="{{ route('laporan.banding.diterima.export', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-success shadow-sm fw-bold px-4 py-2 rounded-pill">
+            <a href="{{ route('laporan.banding.diterima.export', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-success shadow-sm fw-bold px-4 py-2 rounded-pill" target="_blank">
                 <i class="fas fa-file-excel me-2"></i> Export Excel
             </a>
         </div>
@@ -155,9 +210,9 @@
                     @php $gTotal=0; $gEcourt=0; $gManual=0; @endphp
                     @foreach($results as $row)
                     @php
-                        $gTotal += $row->total_perkara;
-                        $gEcourt += $row->jumlah_ecourt;
-                        $gManual += $row->jumlah_manual;
+                    $gTotal += $row->total_perkara;
+                    $gEcourt += $row->jumlah_ecourt;
+                    $gManual += $row->jumlah_manual;
                     @endphp
                     <tr>
                         <td class="text-center fw-bold text-muted">{{ $loop->iteration }}</td>
@@ -166,29 +221,29 @@
                         </td>
                         <td class="text-center">
                             @if($row->total_perkara > 0)
-                                <a href="{{ route('laporan.banding.detail', ['satker' => $row->satker_key, 'jenis' => 'total', 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="badge-soft-total">
-                                    {{ number_format($row->total_perkara) }}
-                                </a>
+                            <a href="{{ route('laporan.banding.detail', ['satker' => $row->satker_key, 'jenis' => 'total', 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="badge-soft-total">
+                                {{ number_format($row->total_perkara) }}
+                            </a>
                             @else
-                                <span class="text-muted fw-bold opacity-25">0</span>
+                            <span class="text-muted fw-bold opacity-25">0</span>
                             @endif
                         </td>
                         <td class="text-center">
                             @if($row->jumlah_ecourt > 0)
-                                <a href="{{ route('laporan.banding.detail', ['satker' => $row->satker_key, 'jenis' => 'ecourt', 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="badge-soft-ecourt">
-                                    {{ number_format($row->jumlah_ecourt) }}
-                                </a>
+                            <a href="{{ route('laporan.banding.detail', ['satker' => $row->satker_key, 'jenis' => 'ecourt', 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="badge-soft-ecourt">
+                                {{ number_format($row->jumlah_ecourt) }}
+                            </a>
                             @else
-                                <span class="text-muted fw-bold opacity-25">0</span>
+                            <span class="text-muted fw-bold opacity-25">0</span>
                             @endif
                         </td>
                         <td class="text-center">
                             @if($row->jumlah_manual > 0)
-                                <a href="{{ route('laporan.banding.detail', ['satker' => $row->satker_key, 'jenis' => 'manual', 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="badge-soft-manual">
-                                    {{ number_format($row->jumlah_manual) }}
-                                </a>
+                            <a href="{{ route('laporan.banding.detail', ['satker' => $row->satker_key, 'jenis' => 'manual', 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="badge-soft-manual">
+                                {{ number_format($row->jumlah_manual) }}
+                            </a>
                             @else
-                                <span class="text-muted fw-bold opacity-25">0</span>
+                            <span class="text-muted fw-bold opacity-25">0</span>
                             @endif
                         </td>
                     </tr>

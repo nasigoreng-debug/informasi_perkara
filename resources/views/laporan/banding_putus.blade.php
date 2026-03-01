@@ -5,19 +5,21 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
 <style>
-    body { 
-        font-family: 'Plus Jakarta Sans', sans-serif; 
-        background-color: #f4f7fa; 
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #f4f7fa;
     }
-    
-    .page-heading { padding: 2rem 0; }
-    
+
+    .page-heading {
+        padding: 2rem 0;
+    }
+
     /* Card Mewah DNA Putusan Sela */
     .card-luxury {
         background: #ffffff;
         border: none;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
         overflow: hidden;
     }
 
@@ -52,7 +54,7 @@
         background: white;
         border: 1px solid #e2e8f0;
         color: #4f46e5;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         transition: all 0.3s;
         text-decoration: none;
     }
@@ -74,11 +76,35 @@
         min-width: 45px;
     }
 
-    .link-sisa-lalu { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
-    .link-terima { background: #eef2ff; color: #4f46e5; border: 1px solid #e0e7ff; }
-    .link-beban { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
-    .link-putus { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
-    .link-sisa-akhir { background: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6; }
+    .link-sisa-lalu {
+        background: #f8fafc;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+
+    .link-terima {
+        background: #eef2ff;
+        color: #4f46e5;
+        border: 1px solid #e0e7ff;
+    }
+
+    .link-beban {
+        background: #fffbeb;
+        color: #d97706;
+        border: 1px solid #fef3c7;
+    }
+
+    .link-putus {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #dcfce7;
+    }
+
+    .link-sisa-akhir {
+        background: #fff1f2;
+        color: #e11d48;
+        border: 1px solid #ffe4e6;
+    }
 
     .link-num:hover {
         transform: translateY(-2px);
@@ -97,7 +123,11 @@
         border: none !important;
     }
 
-    .text-zero { color: #cbd5e1; font-weight: 700; opacity: 0.5; }
+    .text-zero {
+        color: #cbd5e1;
+        font-weight: 700;
+        opacity: 0.5;
+    }
 
     /* DataTables Search DNA */
     .dataTables_filter input {
@@ -128,7 +158,7 @@
             <button onclick="window.print()" class="btn btn-white border shadow-sm fw-bold px-4 py-2 rounded-pill">
                 <i class="fas fa-print me-2 text-muted"></i> Cetak
             </button>
-            <a href="{{ route('laporan.banding.putus.export', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-success shadow-sm fw-bold px-4 py-2 rounded-pill">
+            <a href="{{ route('laporan.banding.putus.export', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-success shadow-sm fw-bold px-4 py-2 rounded-pill" taerget="_blank">
                 <i class="fas fa-file-excel me-2"></i> Export Excel
             </a>
         </div>
@@ -181,8 +211,8 @@
                     @php $tS=0; $tD=0; $tB=0; $tP=0; $tA=0; @endphp
                     @foreach($results as $row)
                     @php
-                        $tS += $row->sisa_lalu; $tD += $row->diterima; $tB += $row->beban;
-                        $tP += $row->selesai; $tA += $row->sisa_ini;
+                    $tS += $row->sisa_lalu; $tD += $row->diterima; $tB += $row->beban;
+                    $tP += $row->selesai; $tA += $row->sisa_ini;
                     @endphp
                     <tr>
                         <td class="text-muted fw-bold">{{ $loop->iteration }}</td>
@@ -193,27 +223,27 @@
                         </td>
                         <td>
                             @if($row->sisa_lalu > 0)
-                                <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'sisa_lalu', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-sisa-lalu">{{ number_format($row->sisa_lalu) }}</a>
+                            <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'sisa_lalu', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-sisa-lalu">{{ number_format($row->sisa_lalu) }}</a>
                             @else <span class="text-zero">0</span> @endif
                         </td>
                         <td>
                             @if($row->diterima > 0)
-                                <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'diterima', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-terima">{{ number_format($row->diterima) }}</a>
+                            <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'diterima', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-terima">{{ number_format($row->diterima) }}</a>
                             @else <span class="text-zero">0</span> @endif
                         </td>
                         <td>
                             @if($row->beban > 0)
-                                <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'beban', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-beban">{{ number_format($row->beban) }}</a>
+                            <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'beban', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-beban">{{ number_format($row->beban) }}</a>
                             @else <span class="text-zero">0</span> @endif
                         </td>
                         <td>
                             @if($row->selesai > 0)
-                                <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'selesai', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-putus">{{ number_format($row->selesai) }}</a>
+                            <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'selesai', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-putus">{{ number_format($row->selesai) }}</a>
                             @else <span class="text-zero">0</span> @endif
                         </td>
                         <td>
                             @if($row->sisa_ini > 0)
-                                <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'sisa_ini', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-sisa-akhir">{{ number_format($row->sisa_ini) }}</a>
+                            <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'sisa_ini', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-sisa-akhir">{{ number_format($row->sisa_ini) }}</a>
                             @else <span class="text-zero">0</span> @endif
                         </td>
                     </tr>

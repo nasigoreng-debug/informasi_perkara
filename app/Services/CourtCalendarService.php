@@ -8,25 +8,28 @@ use App\Config\SatkerConfig;
 
 class CourtCalendarService
 {
+    /**
+     * Menarik data rekapitulasi wilayah
+     */
     public function getMonitoringData($tglAwal, $tglAkhir): Collection
     {
         $results = collect();
         foreach (SatkerConfig::SATKERS as $db => $namaSatker) {
             $results->push($this->getDataPerSatker($db, $namaSatker, $tglAwal, $tglAkhir));
         }
+        // Urutkan berdasarkan tunggakan terbanyak
         return $results->sortByDesc('jumlah')->values();
     }
 
     protected function getDataPerSatker($db, $namaSatker, $tglAwal, $tglAkhir): object
     {
         try {
-            // CEK DULU: Apakah tabel 'perkara' ada di database ini?
-            // Ini untuk mencegah error 1146 (Table not found)
+            // Cek keberadaan tabel perkara
             $tableExists = DB::connection('bandung')
                 ->select("SHOW TABLES FROM {$db} LIKE 'perkara'");
 
             if (empty($tableExists)) {
-                return (object) ['satker' => $namaSatker, 'db' => $db, 'jumlah' => 0, 'error' => 'Table not found'];
+                return (object) ['satker' => $namaSatker, 'db' => $db, 'jumlah' => 0];
             }
 
             $jumlah = DB::connection('bandung')->table("{$db}.perkara as p")
@@ -42,8 +45,7 @@ class CourtCalendarService
 
             return (object) ['satker' => $namaSatker, 'db' => $db, 'jumlah' => $jumlah];
         } catch (\Exception $e) {
-            // Log errornya di sini jika perlu: \Log::error($e->getMessage());
-            return (object) ['satker' => $namaSatker, 'db' => $db, 'jumlah' => 0, 'error' => true];
+            return (object) ['satker' => $namaSatker, 'db' => $db, 'jumlah' => 0];
         }
     }
 }

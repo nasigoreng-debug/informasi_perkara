@@ -37,48 +37,109 @@
     }
 
     .btn-back {
-        width: 45px; height: 45px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        background: white; border: 1px solid #e2e8f0; color: var(--pta-indigo);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: all 0.3s;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: var(--pta-indigo);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s;
         text-decoration: none !important;
     }
 
-    .btn-back:hover { background: var(--pta-indigo); color: white; transform: translateX(-5px); }
+    .btn-back:hover {
+        background: var(--pta-indigo);
+        color: white;
+        transform: translateX(-5px);
+    }
 
     .global-overview {
-        background: #1e293b; border-radius: 24px; color: white;
-        padding: 2rem; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        background: #1e293b;
+        border-radius: 24px;
+        color: white;
+        padding: 2rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     }
 
-    .kpi-card { border: none; border-radius: 20px; background: white; padding: 1.5rem; transition: transform 0.3s ease; }
-    .kpi-card:hover { transform: translateY(-5px); }
+    .kpi-card {
+        border: none;
+        border-radius: 20px;
+        background: white;
+        padding: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-5px);
+    }
 
     .table-luxury thead th {
-        background: #f8fafc; color: #64748b; font-weight: 800;
-        text-transform: uppercase; padding: 1.2rem; font-size: 0.75rem;
-        letter-spacing: 0.05em; border-bottom: 2px solid #f1f5f9;
+        background: #f8fafc;
+        color: #64748b;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 1.2rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #f1f5f9;
     }
 
-    .table-luxury tbody td { padding: 1.2rem; vertical-align: middle; font-size: 0.875rem; border-bottom: 1px solid #f1f5f9; }
+    .table-luxury tbody td {
+        padding: 1.2rem;
+        vertical-align: middle;
+        font-size: 0.875rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
 
     .angka-link {
-        font-weight: 800; padding: 0.5rem 1rem; border-radius: 12px;
-        text-decoration: none !important; display: inline-block; transition: 0.2s;
+        font-weight: 800;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        text-decoration: none !important;
+        display: inline-block;
+        transition: 0.2s;
     }
 
-    .link-blue { background: #eef2ff; color: #4f46e5; border: 1px solid #e0e7ff; }
-    .link-green { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
-    .link-red { background: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6; }
+    .link-blue {
+        background: #eef2ff;
+        color: #4f46e5;
+        border: 1px solid #e0e7ff;
+    }
 
-    .angka-link:hover { transform: translateY(-2px); filter: brightness(0.95); }
+    .link-green {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #dcfce7;
+    }
 
-    .tfoot-total { background-color: #1e293b !important; color: white !important; font-weight: 800; }
+    .link-red {
+        background: #fff1f2;
+        color: #e11d48;
+        border: 1px solid #ffe4e6;
+    }
+
+    .angka-link:hover {
+        transform: translateY(-2px);
+        filter: brightness(0.95);
+    }
+
+    .tfoot-total {
+        background-color: #1e293b !important;
+        color: white !important;
+        font-weight: 800;
+    }
 
     input[type="date"] {
-        border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 8px 15px; background: rgba(255, 255, 255, 0.1);
-        color: white; font-weight: 600;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-weight: 600;
     }
 </style>
 @endpush
@@ -87,13 +148,13 @@
 <div class="container py-4 px-xl-5">
     @php
     $urutanManual = ['BANDUNG', 'INDRAMAYU', 'MAJALENGKA', 'SUMBER', 'CIAMIS', 'TASIKMALAYA', 'KARAWANG', 'CIMAHI', 'SUBANG', 'SUMEDANG', 'PURWAKARTA', 'SUKABUMI', 'CIANJUR', 'KUNINGAN', 'CIBADAK', 'CIREBON', 'GARUT', 'BOGOR', 'BEKASI', 'CIBINONG', 'CIKARANG', 'DEPOK', 'TASIKKOTA', 'BANJAR', 'SOREANG', 'NGAMPRAH'];
-    
+
     // Pastikan data adalah collection
     $sortedData = collect($data)->sortBy(function($item) use ($urutanManual) {
-        $satkerName = is_object($item) ? $item->satker : $item['satker'];
-        $namaClean = strtoupper(trim(str_replace(['PA ', 'PENGADILAN AGAMA '], '', $satkerName)));
-        $index = array_search($namaClean, $urutanManual);
-        return ($index === false) ? 999 : $index;
+    $satkerName = is_object($item) ? $item->satker : $item['satker'];
+    $namaClean = strtoupper(trim(str_replace(['PA ', 'PENGADILAN AGAMA '], '', $satkerName)));
+    $index = array_search($namaClean, $urutanManual);
+    return ($index === false) ? 999 : $index;
     });
 
     $hariIni = date('Y-m-d');
@@ -192,13 +253,13 @@
     {{-- KPI CARDS --}}
     <div class="row g-4 mb-4">
         @php
-            $kpis = [
-                ['Sisa Lalu', $summary['SISA'], 'bi-journal-text'],
-                ['Diterima', $summary['DITERIMA'], 'bi-plus-circle'],
-                ['Beban', $summary['BEBAN'], 'bi-collection'],
-                ['Selesai', $summary['SELESAI'], 'bi-check-circle'],
-                ['Sisa', $summary['SISA_TAHUN_INI'], 'bi-clock-history']
-            ];
+        $kpis = [
+        ['Sisa Lalu', $summary['SISA'], 'bi-journal-text'],
+        ['Diterima', $summary['DITERIMA'], 'bi-plus-circle'],
+        ['Beban', $summary['BEBAN'], 'bi-collection'],
+        ['Selesai', $summary['SELESAI'], 'bi-check-circle'],
+        ['Sisa', $summary['SISA_TAHUN_INI'], 'bi-clock-history']
+        ];
         @endphp
         @foreach($kpis as $index => $c)
         <div class="col-md col-6 animate__animated animate__fadeInUp" style="animation-delay: {{ $index * 0.1 }}s">
@@ -216,8 +277,8 @@
         <div class="p-4 d-flex justify-content-between align-items-center border-bottom bg-white">
             <h5 class="fw-800 mb-0">Rincian Per Satuan Kerja</h5>
             {{-- PERBAIKAN: Tombol Ekspor langsung ke Route Controller --}}
-            <a href="{{ route('laporan.eksekusi.export', ['tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="btn btn-success fw-bold px-4 rounded-pill shadow-sm">
-                <i class="bi bi-file-earmark-excel me-2"></i> Ekspor CSV / Excel
+            <a href="{{ route('laporan.eksekusi.export', ['tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhirFix]) }}" class="btn btn-success fw-bold px-4 rounded-pill shadow-sm" target="_blank">
+                <i class="bi bi-file-earmark-excel me-2"></i> Export Excel
             </a>
         </div>
         <div class="table-responsive">
@@ -237,9 +298,9 @@
                 <tbody>
                     @php $no = 1; @endphp
                     @foreach($sortedData as $row)
-                    @php 
-                        $r = (object) $row; 
-                        $persen = $r->BEBAN > 0 ? ($r->SELESAI / $r->BEBAN) * 100 : 0; 
+                    @php
+                    $r = (object) $row;
+                    $persen = $r->BEBAN > 0 ? ($r->SELESAI / $r->BEBAN) * 100 : 0;
                     @endphp
                     <tr>
                         <td class="small fw-bold text-muted">{{ $no++ }}</td>

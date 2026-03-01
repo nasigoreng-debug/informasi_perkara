@@ -7,19 +7,21 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <style>
-    body { 
-        font-family: 'Plus Jakarta Sans', sans-serif; 
-        background-color: #f4f7fa; 
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #f4f7fa;
     }
-    
-    .page-heading { padding: 2rem 0; }
-    
+
+    .page-heading {
+        padding: 2rem 0;
+    }
+
     /* Card Luxury DNA */
     .card-luxury {
         background: #ffffff;
         border: none;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
         overflow: hidden;
     }
 
@@ -54,7 +56,7 @@
         background: white;
         border: 1px solid #e2e8f0;
         color: #4f46e5;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         transition: all 0.3s;
         text-decoration: none !important;
     }
@@ -75,9 +77,23 @@
         text-transform: uppercase;
     }
 
-    .bg-soft-green { background-color: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
-    .bg-soft-yellow { background-color: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
-    .bg-soft-red { background-color: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6; }
+    .bg-soft-green {
+        background-color: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #dcfce7;
+    }
+
+    .bg-soft-yellow {
+        background-color: #fffbeb;
+        color: #d97706;
+        border: 1px solid #fef3c7;
+    }
+
+    .bg-soft-red {
+        background-color: #fff1f2;
+        color: #e11d48;
+        border: 1px solid #ffe4e6;
+    }
 
     /* Badge Status DNA */
     .badge-status {
@@ -97,9 +113,22 @@
     }
 
     @media print {
-        .btn-back, .btn, .search-box, .breadcrumb { display: none !important; }
-        .card-luxury { box-shadow: none; border: 1px solid #eee; }
-        body { background: white; }
+
+        .btn-back,
+        .btn,
+        .search-box,
+        .breadcrumb {
+            display: none !important;
+        }
+
+        .card-luxury {
+            box-shadow: none;
+            border: 1px solid #eee;
+        }
+
+        body {
+            background: white;
+        }
     }
 </style>
 
@@ -136,12 +165,12 @@
             <h5 class="fw-800 mb-0">Daftar Rincian Perkara</h5>
             <div class="d-flex gap-2">
                 <input type="text" id="tableSearch" class="form-control search-field" placeholder="Cari nomor perkara..." style="width: 250px;">
-                <button onclick="exportToExcel('detailTable', 'Detail_Eksekusi_{{ $satker }}')" class="btn btn-success fw-bold px-4 rounded-pill shadow-sm">
+                <button onclick="exportToExcel('detailTable', 'Detail_Eksekusi_{{ $satker }}')" class="btn btn-success fw-bold px-4 rounded-pill shadow-sm" target="_blank">
                     <i class="bi bi-file-earmark-excel me-2"></i> Excel
                 </button>
             </div>
         </div>
-        
+
         <div class="table-responsive">
             <table class="table table-luxury align-middle text-center mb-0" id="detailTable">
                 <thead>
@@ -160,66 +189,66 @@
                 <tbody>
                     @forelse($data as $index => $row)
                     @php
-                        $isValid = !empty($row->tanggal_permohonan) && substr($row->tanggal_permohonan, 0, 4) != '0000';
-                        $usiaText = '-'; $colorClass = '';
-                        if ($isValid) {
-                            $start = \Carbon\Carbon::parse($row->tanggal_permohonan);
-                            $end = (!empty($row->tanggal_selesai) && substr($row->tanggal_selesai, 0, 4) != '0000') ? \Carbon\Carbon::parse($row->tanggal_selesai) : \Carbon\Carbon::now();
-                            $days = $start->diffInDays($end);
-                            $diff = $start->diff($end);
+                    $isValid = !empty($row->tanggal_permohonan) && substr($row->tanggal_permohonan, 0, 4) != '0000';
+                    $usiaText = '-'; $colorClass = '';
+                    if ($isValid) {
+                    $start = \Carbon\Carbon::parse($row->tanggal_permohonan);
+                    $end = (!empty($row->tanggal_selesai) && substr($row->tanggal_selesai, 0, 4) != '0000') ? \Carbon\Carbon::parse($row->tanggal_selesai) : \Carbon\Carbon::now();
+                    $days = $start->diffInDays($end);
+                    $diff = $start->diff($end);
 
-                            if ($days <= 180) $colorClass='bg-soft-green' ;
-                            elseif ($days <= 365) $colorClass='bg-soft-yellow' ;
-                            else $colorClass='bg-soft-red' ;
+                    if ($days <= 180) $colorClass='bg-soft-green' ;
+                        elseif ($days <=365) $colorClass='bg-soft-yellow' ;
+                        else $colorClass='bg-soft-red' ;
 
-                            $p=[];
-                            if ($diff->y > 0) $p[] = "{$diff->y} Thn";
-                            if ($diff->m > 0) $p[] = "{$diff->m} Bln";
-                            if ($diff->d > 0) $p[] = "{$diff->d} Hr";
-                            $usiaText = count($p) > 0 ? implode(', ', $p) : '0 Hari';
+                        $p=[];
+                        if ($diff->y > 0) $p[] = "{$diff->y} Thn";
+                        if ($diff->m > 0) $p[] = "{$diff->m} Bln";
+                        if ($diff->d > 0) $p[] = "{$diff->d} Hr";
+                        $usiaText = count($p) > 0 ? implode(', ', $p) : '0 Hari';
                         }
-                    @endphp
-                    <tr>
-                        <td class="small fw-bold text-muted">{{ $index + 1 }}</td>
-                        @if($satker == 'ALL') <td class="fw-800 text-uppercase" style="font-size: 0.75rem;">{{ $row->satker_nama }}</td> @endif
-                        <td class="text-start fw-800" style="color: #4f46e5;">{{ $row->nomor_eksekusi ?? '-' }}</td>
-                        <td class="text-start fw-bold text-dark small">{{ $row->nomor_perkara_asal ?? '-' }}</td>
-                        <td><span class="badge bg-light text-dark border fw-bold text-uppercase" style="font-size: 0.65rem;">{{ $row->jenis_eksekusi }}</span></td>
-                        <td class="fw-medium">{{ $isValid ? date('d/m/Y', strtotime($row->tanggal_permohonan)) : '-' }}</td>
-                        <td>
-                            @if(!empty($row->tanggal_selesai) && substr($row->tanggal_selesai, 0, 4) != '0000')
+                        @endphp
+                        <tr>
+                            <td class="small fw-bold text-muted">{{ $index + 1 }}</td>
+                            @if($satker == 'ALL') <td class="fw-800 text-uppercase" style="font-size: 0.75rem;">{{ $row->satker_nama }}</td> @endif
+                            <td class="text-start fw-800" style="color: #4f46e5;">{{ $row->nomor_eksekusi ?? '-' }}</td>
+                            <td class="text-start fw-bold text-dark small">{{ $row->nomor_perkara_asal ?? '-' }}</td>
+                            <td><span class="badge bg-light text-dark border fw-bold text-uppercase" style="font-size: 0.65rem;">{{ $row->jenis_eksekusi }}</span></td>
+                            <td class="fw-medium">{{ $isValid ? date('d/m/Y', strtotime($row->tanggal_permohonan)) : '-' }}</td>
+                            <td>
+                                @if(!empty($row->tanggal_selesai) && substr($row->tanggal_selesai, 0, 4) != '0000')
                                 <span class="badge bg-success text-white fw-bold" style="padding: 6px 12px; border-radius: 8px;">
                                     <i class="bi bi-check2-circle me-1"></i> {{ date('d/m/Y', strtotime($row->tanggal_selesai)) }}
                                 </span>
-                            @else
+                                @else
                                 <span class="badge bg-warning text-dark fw-bold" style="padding: 6px 12px; border-radius: 8px;">
                                     <i class="bi bi-clock me-1"></i> PROSES
                                 </span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($usiaText != '-')
+                                @endif
+                            </td>
+                            <td>
+                                @if($usiaText != '-')
                                 <div class="age-badge {{ $colorClass }}">{{ $usiaText }}</div>
-                            @else
+                                @else
                                 <span class="text-muted opacity-50">-</span>
-                            @endif
-                        </td>
-                        <td class="text-start">
-                            <div class="text-muted" style="font-size: 0.75rem; max-height: 50px; overflow-y: auto; line-height: 1.4;">
-                                {{ $row->keterangan ?? '-' }}
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="10" class="py-5">
-                            <div class="opacity-25">
-                                <i class="bi bi-folder2-open h1"></i>
-                                <h6 class="fw-bold mt-2">Data rincian tidak ditemukan.</h6>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforelse
+                                @endif
+                            </td>
+                            <td class="text-start">
+                                <div class="text-muted" style="font-size: 0.75rem; max-height: 50px; overflow-y: auto; line-height: 1.4;">
+                                    {{ $row->keterangan ?? '-' }}
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="10" class="py-5">
+                                <div class="opacity-25">
+                                    <i class="bi bi-folder2-open h1"></i>
+                                    <h6 class="fw-bold mt-2">Data rincian tidak ditemukan.</h6>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
                 </tbody>
             </table>
         </div>

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\SisaPanjarService;
 use Illuminate\Http\Request;
-use App\Models\ActivityLog; // Tambahkan pemanggilan Model Log
+use App\Models\ActivityLog;
 
 class SisaPanjarController extends Controller
 {
@@ -15,82 +15,58 @@ class SisaPanjarController extends Controller
         $this->sisaService = $sisaService;
     }
 
-    /**
-     * Halaman Menu Utama dengan Ringkasan Log
-     */
+    // Halaman Menu Utama (4 Kartu)
     public function index()
     {
-        $banding = $this->sisaService->getSisaPanjarData('banding');
-        $kasasi  = $this->sisaService->getSisaPanjarData('kasasi');
-        $pk      = $this->sisaService->getSisaPanjarData('pk');
-
-        $totalBanding = collect($banding)->sum('sisa');
-        $totalKasasi  = collect($kasasi)->sum('sisa');
-        $totalPK      = collect($pk)->sum('sisa');
-
-        // LOG: Akses Menu Utama Sisa Panjar
-        ActivityLog::record(
-            'Akses Menu Sisa Panjar',
-            'Keuangan',
-            "Membuka menu utama monitoring sisa panjar tingkat Banding, Kasasi, dan PK."
-        );
-
         return view('sisa_panjar.menu', [
-            'totalBanding' => $totalBanding,
-            'totalKasasi'  => $totalKasasi,
-            'totalPK'      => $totalPK,
+            'totalPertama' => collect($this->sisaService->getSisaPanjarData('pertama'))->sum('sisa'),
+            'totalBanding' => collect($this->sisaService->getSisaPanjarData('banding'))->sum('sisa'),
+            'totalKasasi'  => collect($this->sisaService->getSisaPanjarData('kasasi'))->sum('sisa'),
+            'totalPK'      => collect($this->sisaService->getSisaPanjarData('pk'))->sum('sisa'),
         ]);
+    }
+
+    // Fungsi Internal untuk Render Rekap
+    private function renderRekap($jenis, $label)
+    {
+        $data = collect($this->sisaService->getSisaPanjarData($jenis));
+        ActivityLog::record('Monitoring', 'Keuangan', "Melihat Rekap Sisa Panjar $label");
+
+        return view('sisa_panjar.index_sisa', compact('data', 'label', 'jenis'));
     }
 
     public function SisaPanjarPertama()
     {
-        $perkara = $this->sisaService->getSisaPanjarData('pertama');
-
-        // LOG: Lihat Detail Sisa Panjar TK.I
-        ActivityLog::record('Lihat Sisa Panjar', 'Keuangan', "Melihat rincian sisa panjar biaya perkara Tingkat Pertama.");
-
-        return view('sisa_panjar.sisa_panjar_pertama', [
-            'data' => collect($perkara),
-            'label' => 'Tingkat Pertama'
-        ]);
+        return $this->renderRekap('pertama', 'Tingkat Pertama');
     }
-
     public function SisaPanjarBanding()
     {
-        $perkara = $this->sisaService->getSisaPanjarData('banding');
-
-        // LOG: Lihat Detail Sisa Panjar Banding
-        ActivityLog::record('Lihat Sisa Panjar', 'Keuangan', "Melihat rincian sisa panjar biaya perkara Tingkat Banding.");
-
-        return view('sisa_panjar.sisa_panjar_banding', [
-            'data' => collect($perkara),
-            'label' => 'Banding'
-        ]);
+        return $this->renderRekap('banding', 'Tingkat Banding');
     }
-
     public function SisaPanjarKasasi()
     {
-        $perkara = $this->sisaService->getSisaPanjarData('kasasi');
-
-        // LOG: Lihat Detail Sisa Panjar Kasasi
-        ActivityLog::record('Lihat Sisa Panjar', 'Keuangan', "Melihat rincian sisa panjar biaya perkara Tingkat Kasasi.");
-
-        return view('sisa_panjar.sisa_panjar_kasasi', [
-            'data' => collect($perkara),
-            'label' => 'Kasasi'
-        ]);
+        return $this->renderRekap('kasasi', 'Tingkat Kasasi');
     }
-
     public function SisaPanjarPK()
     {
-        $perkara = $this->sisaService->getSisaPanjarData('pk');
+        return $this->renderRekap('pk', 'Peninjauan Kembali');
+    }
 
-        // LOG: Lihat Detail Sisa Panjar PK
-        ActivityLog::record('Lihat Sisa Panjar', 'Keuangan', "Melihat rincian sisa panjar biaya perkara Tingkat PK.");
+    // Halaman Detail (Pindah Halaman)
+    public function detail(Request $request)
+    {
+        $satker = $request->get('satker');
+        $jenis = $request->get('jenis');
 
-        return view('sisa_panjar.sisa_panjar_pk', [
-            'data' => collect($perkara),
-            'label' => 'PK'
+        $allData = collect($this->sisaService->getSisaPanjarData($jenis));
+        $listPerkara = $allData->where('satker_key', strtoupper($satker));
+
+        ActivityLog::record('Monitoring', 'Keuangan', "Melihat Detail Sisa Panjar $jenis Satker: $satker");
+
+        return view('sisa_panjar.detail_sisa', [
+            'data' => $listPerkara,
+            'satker' => $satker,
+            'jenis' => $jenis
         ]);
     }
 }

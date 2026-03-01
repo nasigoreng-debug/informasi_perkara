@@ -150,14 +150,16 @@ Route::middleware(['auth'])->group(function () {
     });
 
     /**
-     * MODUL: SISA PANJAR BIAYA PERKARA
-     * Monitoring sisa biaya perkara yang belum dikembalikan ke pihak (lebih dari 6 bulan).
+     * MODUL: MONITORING SISA PANJAR
+     * Melacak sisa panjar biaya perkara yang belum dikembalikan > 6 bulan.
      */
-    Route::controller(SisaPanjarController::class)->prefix('sisa-panjar')->name('sisa.')->group(function () {
+    Route::controller(SisaPanjarController::class)->prefix('sisa-panjar')->name('sisa.panjar.')->group(function () {
+        Route::get('/', 'index')->name('menu');
         Route::get('/pertama', 'SisaPanjarPertama')->name('pertama');
         Route::get('/banding', 'SisaPanjarBanding')->name('banding');
         Route::get('/kasasi', 'SisaPanjarKasasi')->name('kasasi');
         Route::get('/pk', 'SisaPanjarPK')->name('pk');
+        Route::get('/detail', 'detail')->name('detail');
     });
 
     /**

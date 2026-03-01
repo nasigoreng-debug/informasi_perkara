@@ -58,7 +58,7 @@
                 </div>
                 <div class="col-md-6 d-flex gap-2">
                     <button type="submit" class="btn btn-dark btn-sm px-3 shadow-sm"><i class="fas fa-filter me-1"></i> Filter</button>
-                    <a href="{{ route('laporan.export', request()->all()) }}" class="btn btn-success btn-sm px-3 shadow-sm"><i class="fas fa-file-excel me-1"></i> Excel</a>
+                    <a href="{{ route('laporan.export', request()->all()) }}" class="btn btn-success btn-sm px-3 shadow-sm" target="_blank"><i class="fas fa-file-excel me-1"></i> Excel</a>
                     <a href="{{ route('laporan-putus.index') }}" class="btn btn-outline-primary btn-sm px-3 shadow-sm ms-auto">Lihat Diputus <i class="fas fa-chevron-right ms-1"></i></a>
                 </div>
             </form>

@@ -54,7 +54,7 @@
                     <i class="fas fa-download me-1"></i> Export
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow mt-2">
-                    <li><a class="dropdown-item" href="#" onclick="exportToExcel()"><i class="fas fa-file-excel text-success me-2"></i> Excel (.xlsx)</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="exportToExcel()"><i class="fas fa-file-excel text-success me-2" target="_blank"></i> Excel (.xlsx)</a></li>
                     <li><a class="dropdown-item" href="#" onclick="printTable()"><i class="fas fa-print text-secondary me-2"></i> Cetak / PDF</a></li>
                 </ul>
             </div>

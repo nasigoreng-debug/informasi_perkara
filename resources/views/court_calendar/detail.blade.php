@@ -22,25 +22,27 @@
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
-                    <tr class="small fw-bold text-muted text-uppercase">
-                        <th class="ps-4 py-3">No</th>
-                        <th>Nomor Perkara</th>
-                        <th class="text-center">Tgl Daftar</th>
-                        <th class="text-center">Tgl Putus</th>
+                    <tr class="small fw-bold text-muted text-uppercase text-center">
+                        <th class="ps-4 py-3" width="60">No</th>
+                        <th class="text-start">Nomor Perkara</th>
+                        <th>Tgl Daftar</th>
+                        <th>Tgl Putus</th>
                         <th>Status Terakhir</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-center">
                     @forelse($data as $index => $row)
                     <tr>
-                        <td class="ps-4 text-muted">{{ $index + 1 }}</td>
-                        <td><span class="fw-bold text-primary">{{ $row->nomor_perkara }}</span></td>
-                        <td class="text-center">{{ date('d-m-Y', strtotime($row->tanggal_pendaftaran)) }}</td>
-                        <td class="text-center fw-bold">{{ date('d-m-Y', strtotime($row->tanggal_putusan)) }}</td>
+                        <td class="ps-4 text-muted small">{{ $index + 1 }}</td>
+                        <td class="text-start"><span class="fw-bold text-primary">{{ $row->nomor_perkara }}</span></td>
+                        <td>{{ date('d-m-Y', strtotime($row->tanggal_pendaftaran)) }}</td>
+                        <td class="fw-bold">{{ date('d-m-Y', strtotime($row->tanggal_putusan)) }}</td>
                         <td><span class="badge bg-warning bg-opacity-10 text-warning px-3 rounded-pill">{{ $row->proses_terakhir_text }}</span></td>
                     </tr>
                     @empty
-                    <tr><td colspan="5" class="text-center py-5 italic text-muted">Data tidak ditemukan.</td></tr>
+                    <tr>
+                        <td colspan="5" class="text-center py-5 italic text-muted">Data tidak ditemukan.</td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>

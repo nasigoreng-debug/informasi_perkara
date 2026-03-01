@@ -4,19 +4,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-    body { 
-        font-family: 'Plus Jakarta Sans', sans-serif; 
-        background-color: #f4f7fa; 
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #f4f7fa;
     }
-    
-    .page-heading { padding: 2rem 0; }
-    
+
+    .page-heading {
+        padding: 2rem 0;
+    }
+
     /* Card Mewah */
     .card-luxury {
         background: #ffffff;
         border: none;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
         overflow: hidden;
     }
 
@@ -51,7 +53,7 @@
         background: white;
         border: 1px solid #e2e8f0;
         color: #4f46e5;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         transition: all 0.3s;
         text-decoration: none;
     }
@@ -80,7 +82,10 @@
     }
 
     /* Efek Hover Baris */
-    .table-luxury tbody tr:hover { background-color: #f8fafc; transition: 0.2s; }
+    .table-luxury tbody tr:hover {
+        background-color: #f8fafc;
+        transition: 0.2s;
+    }
 </style>
 
 <div class="container px-4">
@@ -103,7 +108,7 @@
             <button onclick="window.print()" class="btn btn-white border shadow-sm fw-bold px-4 py-2 rounded-pill">
                 <i class="fas fa-print me-2 text-muted"></i> Cetak
             </button>
-            <a href="{{ route('laporan-putus.putusan.sela.export', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-success shadow-sm fw-bold px-4 py-2 rounded-pill">
+            <a href="{{ route('laporan-putus.putusan.sela.export', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-success shadow-sm fw-bold px-4 py-2 rounded-pill" target="_blank">
                 <i class="fas fa-file-excel me-2"></i> Export Excel
             </a>
         </div>

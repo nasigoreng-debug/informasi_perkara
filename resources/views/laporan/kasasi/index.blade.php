@@ -57,8 +57,13 @@
         font-size: 0.85rem;
     }
 
-    .pta-number { color: #4f46e5; }
-    .kasasi-number { color: #10b981; }
+    .pta-number {
+        color: #4f46e5;
+    }
+
+    .kasasi-number {
+        color: #10b981;
+    }
 
     .label-accent {
         font-size: 0.65rem;
@@ -89,13 +94,23 @@
         border: 1px solid transparent;
     }
 
-    .btn-circle:hover { transform: scale(1.1); }
+    .btn-circle:hover {
+        transform: scale(1.1);
+    }
 
     @media print {
-        .no-print { display: none !important; }
-        .print-only { display: block !important; }
+        .no-print {
+            display: none !important;
+        }
+
+        .print-only {
+            display: block !important;
+        }
     }
-    .print-only { display: none; }
+
+    .print-only {
+        display: none;
+    }
 </style>
 
 <div class="container px-4 py-4">
@@ -156,7 +171,7 @@
                         <i class="fas fa-undo-alt"></i>
                     </a>
                     <a href="{{ route('kasasi.export', ['bulan' => $bulan, 'tahun' => $tahun]) }}"
-                        class="btn btn-success rounded-pill shadow-sm px-3 fw-bold">
+                        class="btn btn-success rounded-pill shadow-sm px-3 fw-bold" target="_blank">
                         <i class="fas fa-file-excel me-1"></i> EXCEL
                     </a>
                 </div>
@@ -301,8 +316,14 @@
                             <div class="print-only text-center mb-4">
                                 <h4 class="fw-bold mb-3">SALINAN AMAR PUTUSAN</h4>
                                 <table class="table table-sm table-borderless text-start">
-                                    <tr><td style="width: 120px;">Nomor Kasasi</td><td>: {{ $item->no_kasasi ?? '-' }}</td></tr>
-                                    <tr><td>Ketua Majelis</td><td>: {{ $item->kmh ?? '-' }}</td></tr>
+                                    <tr>
+                                        <td style="width: 120px;">Nomor Kasasi</td>
+                                        <td>: {{ $item->no_kasasi ?? '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ketua Majelis</td>
+                                        <td>: {{ $item->kmh ?? '-' }}</td>
+                                    </tr>
                                 </table>
                                 <hr class="my-3">
                             </div>
@@ -361,7 +382,7 @@
         headers.forEach(header => {
             let hasVisibleCards = false;
             let nextEl = header.nextElementSibling;
-            
+
             // Cek elemen setelah header sampai ketemu header satker berikutnya
             while (nextEl && !nextEl.classList.contains('satker-header')) {
                 if (nextEl.classList.contains('searchable-item') && nextEl.style.display !== 'none') {
@@ -379,12 +400,17 @@
         const printWindow = window.open('', '_blank', 'width=900,height=700');
         printWindow.document.write('<html><head><title>Cetak Amar</title><style>body{font-family:serif;padding:50px;line-height:1.8;text-align:justify;}.print-only{display:block !important;}</style></head><body>' + content + '</body></html>');
         printWindow.document.close();
-        setTimeout(() => { printWindow.focus(); printWindow.print(); }, 500);
+        setTimeout(() => {
+            printWindow.focus();
+            printWindow.print();
+        }, 500);
     }
 
     // Auto-hide alert
     setTimeout(() => {
-        document.querySelectorAll('.alert-dismissible').forEach(a => { new bootstrap.Alert(a).close(); });
+        document.querySelectorAll('.alert-dismissible').forEach(a => {
+            new bootstrap.Alert(a).close();
+        });
     }, 5000);
 </script>
 @endpush

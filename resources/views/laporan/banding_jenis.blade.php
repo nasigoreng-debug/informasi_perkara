@@ -136,7 +136,7 @@
             <button onclick="window.print()" class="btn btn-white border shadow-sm fw-bold px-4 py-2 rounded-pill">
                 <i class="fas fa-print me-2 text-muted"></i> Cetak
             </button>
-            <a href="{{ route('laporan.banding.jenis.export', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-success shadow-sm fw-bold px-4 py-2 rounded-pill">
+            <a href="{{ route('laporan.banding.jenis.export', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-success shadow-sm fw-bold px-4 py-2 rounded-pill" target="_blank">
                 <i class="fas fa-file-excel me-2"></i> Export Excel
             </a>
         </div>
