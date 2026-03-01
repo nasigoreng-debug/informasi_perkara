@@ -157,7 +157,7 @@
 
         {{-- 6. AKTA CERAI --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
-            <a href="#" class="menu-card">
+            <a href="{{ route('akta-cerai.index') }}" class="menu-card">
                 <div class="icon-box bg-warning bg-opacity-10 text-warning">
                     <i class="fas fa-certificate"></i>
                 </div>

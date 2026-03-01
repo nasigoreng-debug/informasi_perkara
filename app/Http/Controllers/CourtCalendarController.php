@@ -16,42 +16,80 @@ class CourtCalendarController extends Controller
         $this->service = $service;
     }
 
+    /**
+     * Menampilkan Halaman Rekapitulasi Wilayah
+     */
     public function index(Request $request)
     {
-        $tglAwal = $request->get('tgl_awal', '2025-01-01');
-        $tglAkhir = $request->get('tgl_akhir', '2025-12-31');
+        $tglAwal = $request->get('tgl_awal', '2026-01-01');
+        $tglAkhir = $request->get('tgl_akhir', date('Y-m-d'));
 
         $data = $this->service->getMonitoringData($tglAwal, $tglAkhir);
 
-        ActivityLog::record('Monitoring', 'CourtCalendar', "Melihat rekapitulasi monitoring Court Calendar");
+        ActivityLog::record('Monitoring', 'CourtCalendar', "Melihat rekap Court Calendar periode {$tglAwal} s/d {$tglAkhir}");
 
         return view('court_calendar.index', compact('data', 'tglAwal', 'tglAkhir'));
     }
 
+    /**
+     * Menampilkan Halaman Detail Tunggakan per Satker
+     */
     public function detail(Request $request, $satker)
     {
-        $tglAwal = $request->get('tgl_awal', '2025-01-01');
-        $tglAkhir = $request->get('tgl_akhir', '2025-12-31');
-        $db = strtolower($satker);
+        $tglAwal = $request->get('tgl_awal', '2026-01-01');
+        $tglAkhir = $request->get('tgl_akhir', date('Y-m-d'));
 
-        // Query Detail Perkara Persis Pola Bapak yang Berhasil
-        $sql = "SELECT 
-                    p.nomor_perkara, 
-                    p.tanggal_pendaftaran, 
-                    p.proses_terakhir_text, 
-                    pp.tanggal_putusan
-                FROM {$db}.perkara p
-                JOIN {$db}.perkara_putusan pp ON p.perkara_id = pp.perkara_id
-                LEFT JOIN {$db}.perkara_court_calendar pcc ON p.perkara_id = pcc.perkara_id
-                WHERE pcc.rencana_tanggal IS NULL
-                AND (p.proses_terakhir_text LIKE '%minutasi%' OR p.proses_terakhir_text LIKE '%Akta Cerai%')
-                AND pp.tanggal_putusan BETWEEN '{$tglAwal}' AND '{$tglAkhir}'
-                ORDER BY pp.tanggal_putusan DESC";
+        // KUNCI PERBAIKAN: Ambil nama DB asli dari Config
+        $db = \App\Config\SatkerConfig::getDbName($satker);
 
-        $data = DB::connection('bandung')->select($sql);
+        try {
+            $data = DB::connection('bandung')->table("{$db}.perkara as p")
+                ->join("{$db}.perkara_putusan as pp", 'p.perkara_id', '=', 'pp.perkara_id')
+                ->leftJoin("{$db}.perkara_court_calendar as pcc", 'p.perkara_id', '=', 'pcc.perkara_id')
+                ->whereNull('pcc.rencana_tanggal')
+                ->where(function ($q) {
+                    $q->where('p.proses_terakhir_text', 'LIKE', '%minutasi%')
+                        ->orWhere('p.proses_terakhir_text', 'LIKE', '%Akta Cerai%');
+                })
+                ->whereBetween('pp.tanggal_putusan', [$tglAwal, $tglAkhir])
+                ->select([
+                    'p.nomor_perkara',
+                    'p.tanggal_pendaftaran',
+                    'p.proses_terakhir_text',
+                    'pp.tanggal_putusan'
+                ])
+                ->orderBy('pp.tanggal_putusan', 'desc')
+                ->get();
 
-        ActivityLog::record('Monitoring', 'CourtCalendar', "Melihat detail tunggakan satker: {$satker}");
+            ActivityLog::record('Monitoring', 'CourtCalendar', "Melihat detail tunggakan satker: {$satker}");
 
-        return view('court_calendar.detail', compact('data', 'satker', 'tglAwal', 'tglAkhir'));
+            return view('court_calendar.detail', compact('data', 'satker', 'tglAwal', 'tglAkhir'));
+        } catch (\Exception $e) {
+            // Jika database tidak ditemukan, kirim pesan error yang rapi ke view
+            return view('court_calendar.detail', [
+                'data' => collect(),
+                'satker' => $satker,
+                'tglAwal' => $tglAwal,
+                'tglAkhir' => $tglAkhir,
+                'errorMessage' => "Database '{$db}' tidak ditemukan di server."
+            ]);
+        }
+    }
+
+    /**
+     * Export Rekap Wilayah ke Excel
+     */
+    public function export(Request $request)
+    {
+        $tglAwal = $request->get('tgl_awal', '2026-01-01');
+        $tglAkhir = $request->get('tgl_akhir', date('Y-m-d'));
+        $data = $this->service->getMonitoringData($tglAwal, $tglAkhir);
+
+        ActivityLog::record('Monitoring', 'CourtCalendar', "Export Excel Rekap Court Calendar");
+
+        header("Content-Type: application/vnd-ms-excel");
+        header("Content-Disposition: attachment; filename=Rekap_Court_Calendar.xls");
+
+        return view('court_calendar.export_excel', compact('data', 'tglAwal', 'tglAkhir'));
     }
 }

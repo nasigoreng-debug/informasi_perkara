@@ -103,7 +103,7 @@
     }
 </style>
 
-<div class="container-fluid px-4">
+<div class="container px-4">
     <div class="page-heading d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center">
             <a href="{{ route('laporan.eksekusi.index', ['tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir]) }}" class="btn-back me-3 shadow-sm" title="Kembali ke Monitoring">

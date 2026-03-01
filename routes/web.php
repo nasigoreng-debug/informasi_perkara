@@ -12,7 +12,8 @@ use App\Http\Controllers\{
     LaporanBandingController,
     SisaPanjarController,
     UserController,
-    CourtCalendarController
+    CourtCalendarController,
+    AktaCeraiController
 };
 
 /*
@@ -48,9 +49,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/laporan-utama', function () {
         return view('laporan-utama');
     })->name('laporan-utama');
-    Route::get('/administrasi', function () {
-        return view('administrasi');
-    })->name('administrasi');
+    // Route::get('/administrasi', function () {
+    //     return view('administrasi');
+    // })->name('administrasi');
     Route::get('/sisa-panjar', function () {
         return view('sisa_panjar_menu');
     })->name('sisa.panjar.menu');
@@ -73,10 +74,11 @@ Route::middleware(['auth'])->group(function () {
      * Memantau kepatuhan input rencana sidang (Court Calendar) pada aplikasi SIPP.
      */
     Route::controller(CourtCalendarController::class)->prefix('court-calendar')->name('court-calendar')->group(function () {
-        Route::get('/', 'index'); // route('court-calendar') -> Halaman Rekap
-        Route::get('/detail/{satker}', 'detail')->name('.detail'); // route('court-calendar.detail') -> Halaman Detail Per Satker
+        Route::get('/', 'index');
+        Route::get('/detail/{satker}', 'detail')->name('.detail');
+        Route::get('/export', 'export')->name('.export');
+        Route::get('/export-detail/{satker}', 'exportDetail')->name('.export-detail'); // Tambahkan baris ini
     });
-
     /**
      * MODUL: LAPORAN KASASI
      * Monitoring berkas kasasi dan pengiriman dokumen PDF.
@@ -169,6 +171,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', 'edit')->name('edit');
         Route::put('/{id}/update', 'update')->name('update');
         Route::delete('/{id}/delete', 'destroy')->name('destroy');
+    });
+
+    Route::controller(AktaCeraiController::class)->prefix('akta-cerai')->name('akta-cerai.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/detail/{satker}', 'detail')->name('detail'); // Untuk detail per perkara
+        Route::get('/export', 'export')->name('export');         // Untuk tarik data excel
+        Route::get('/akta-cerai/export-detail', [AktaCeraiController::class, 'exportDetail'])->name('export-detail');
     });
 
     Route::get('/activity-log', function () {

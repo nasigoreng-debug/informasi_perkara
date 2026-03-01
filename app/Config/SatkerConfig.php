@@ -5,7 +5,8 @@ namespace App\Config;
 class SatkerConfig
 {
     /**
-     * Daftar 26 satker dengan urutan sesuai permintaan
+     * Daftar Satker se-Wilayah PTA Bandung
+     * Key: Nama Database, Value: Nama Tampilan
      */
     public const SATKERS = [
         'bandung' => 'BANDUNG',
@@ -30,70 +31,29 @@ class SatkerConfig
         'cibinong' => 'CIBINONG',
         'cikarang' => 'CIKARANG',
         'depok' => 'DEPOK',
-        'tasikkota' => 'KOTA TASIKMALAYA',
-        'banjar' => 'KOTA BANJAR',
+        'tasikkota' => 'TASIKMALAYA KOTA',
+        'banjar' => 'BANJAR',
         'soreang' => 'SOREANG',
         'ngamprah' => 'NGAMPRAH'
     ];
 
     /**
-     * Get nomor urut berdasarkan database
+     * Mendapatkan nomor urut satker (untuk keperluan sorting standar)
      */
-    public static function getNomorUrut($database): int
+    public static function getNomorUrut($db)
     {
-        $nomor = [
-            'bandung' => 1,
-            'indramayu' => 2,
-            'majalengka' => 3,
-            'sumber' => 4,
-            'ciamis' => 5,
-            'tasikmalaya' => 6,
-            'karawang' => 7,
-            'cimahi' => 8,
-            'subang' => 9,
-            'sumedang' => 10,
-            'purwakarta' => 11,
-            'sukabumi' => 12,
-            'cianjur' => 13,
-            'kuningan' => 14,
-            'cibadak' => 15,
-            'cirebon' => 16,
-            'garut' => 17,
-            'bogor' => 18,
-            'bekasi' => 19,
-            'cibinong' => 20,
-            'cikarang' => 21,
-            'depok' => 22,
-            'tasikkota' => 23,
-            'banjar' => 24,
-            'soreang' => 25,
-            'ngamprah' => 26
-        ];
-
-        return $nomor[$database] ?? 0;
+        $keys = array_keys(self::SATKERS);
+        $index = array_search(strtolower($db), $keys);
+        return ($index === false) ? 99 : $index + 1;
     }
 
     /**
-     * Get daftar koneksi database
+     * Mencari nama database asli berdasarkan input nama tampilan
      */
-    public static function getConnections(): array
+    public static function getDbName($namaTampilan)
     {
-        return array_keys(self::SATKERS);
-    }
-
-    /**
-     * Get nama satker berdasarkan database
-     */
-    public static function getNamaSatker($database): string
-    {
-        return self::SATKERS[$database] ?? strtoupper($database);
-    }
-
-    /**
-     * Get total satker
-     */
-    public static function getTotalSatker(): int
-    {
-        return count(self::SATKERS);
+        $cleanName = strtoupper(trim(str_replace('%20', ' ', $namaTampilan)));
+        $dbName = array_search($cleanName, self::SATKERS);
+        return $dbName ?: strtolower(str_replace(' ', '', $namaTampilan));
     }
 }
