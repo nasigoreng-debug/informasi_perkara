@@ -37,7 +37,8 @@ class SisaPanjarService
 
     public function getSisaPanjarData($jenis = 'banding')
     {
-        $unions = [];
+        $hasilAkhir = []; // Menggunakan array murni agar RAM server lebih lega dan cepat
+
         $config = [
             'pertama' => ['tahapan' => 10],
             'banding' => ['tahapan' => 20, 'notif_col' => 'pemberitahuan_putusan_banding', 'tabel' => 'perkara_banding', 'nomor_atas' => 'nomor_perkara_banding'],
@@ -51,8 +52,7 @@ class SisaPanjarService
             $db = strtolower($satker);
 
             if ($jenis == 'pertama') {
-                // Query Tingkat Pertama: Ambil nomor asli & hitung dari tanggal pemberitahuan putusan 
-                $sqlPart = "SELECT 
+                $sql = "SELECT 
                     '{$satker}' AS satker_key, 
                     p.nomor_perkara, 
                     p.nomor_perkara AS nomor_perkara_atas, 
@@ -71,8 +71,7 @@ class SisaPanjarService
                     AND pbt.tgl_akhir IS NOT NULL 
                     HAVING sisa <> 0";
             } else {
-                // Query Upaya Hukum: Ambil nomor pendaftaran spesifik (Banding/Kasasi/PK) 
-                $sqlPart = "SELECT 
+                $sql = "SELECT 
                     '{$satker}' AS satker_key, 
                     p.nomor_perkara, 
                     pb.{$cfg['nomor_atas']} AS nomor_perkara_atas, 
@@ -86,10 +85,22 @@ class SisaPanjarService
                     AND pb.{$cfg['notif_col']} IS NOT NULL 
                     HAVING sisa <> 0";
             }
-            $unions[] = $sqlPart;
+
+            try {
+                // Eksekusi satu per satu agar database tidak "nge-hang"
+                $dataSatker = DB::connection('bandung')->select($sql);
+
+                // Gabungkan hasil ke array utama (Sangat cepat di memori PHP)
+                foreach ($dataSatker as $row) {
+                    $hasilAkhir[] = $row;
+                }
+            } catch (\Exception $e) {
+                // Jika 1 database satker mati, abaikan dan lanjut ke satker berikutnya
+                continue;
+            }
         }
 
-        $sql = "SELECT * FROM (" . implode(" UNION ALL ", $unions) . ") as hasil ORDER BY satker_key ASC, selisih_bulan DESC";
-        return collect(DB::connection('bandung')->select($sql));
+        // Ubah jadi collection agar mudah diurutkan dan dikirim ke Blade
+        return collect($hasilAkhir)->sortByDesc('selisih_bulan')->values();
     }
 }

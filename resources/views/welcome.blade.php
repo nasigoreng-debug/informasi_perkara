@@ -119,20 +119,20 @@
                 </div>
                 <h2 class="card-title text-uppercase">Monitoring</h2>
                 <p class="card-desc">Monitoring kinerja satuan kerja secara real-time Se-Wilayah PTA Bandung.</p>
-                <div class="btn btn-primary w-100 py-2 mt-auto fw-bold rounded-pill">MASUK MONITORING</div>
+                <div class="btn btn-primary w-100 py-2 mt-auto fw-bold rounded-pill">LIHAT</div>
             </a>
         </div>
 
         {{-- 2. MENU ADMINISTRASI (Hanya Admin & Manager) --}}
         @if(Auth::user()->canSeeAllData())
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
-            <a href="{{ route('errors.under_construction') }}" class="welcome-card">
+            <a href="{{ route('administrasi') }}" class="welcome-card">
                 <div class="icon-box bg-success bg-opacity-10 text-success">
                     <i class="fas fa-user-shield"></i>
                 </div>
                 <h2 class="card-title text-uppercase">Administrasi</h2>
                 <p class="card-desc">Pengelolaan data administrasi kepaniteraan muda hukum.</p>
-                <div class="btn btn-success w-100 py-2 mt-auto fw-bold rounded-pill">MASUK ADMINISTRASI</div>
+                <div class="btn btn-success w-100 py-2 mt-auto fw-bold rounded-pill">LIHAT</div>
             </a>
         </div>
 
@@ -142,9 +142,9 @@
                 <div class="icon-box bg-warning bg-opacity-10 text-warning">
                     <i class="fas fa-file-signature"></i>
                 </div>
-                <h2 class="card-title text-uppercase">Laporan Utama</h2>
+                <h2 class="card-title text-uppercase">Laporan</h2>
                 <p class="card-desc">Rekapitulasi laporan perkara diterima dan diputus per periode.</p>
-                <div class="btn btn-warning w-100 py-2 mt-auto fw-bold rounded-pill text-dark">MASUK LAPORAN</div>
+                <div class="btn btn-warning w-100 py-2 mt-auto fw-bold rounded-pill text-dark">LIHAT</div>
             </a>
         </div>
         @endif

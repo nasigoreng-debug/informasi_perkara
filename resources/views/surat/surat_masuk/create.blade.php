@@ -7,10 +7,10 @@
             <div class="card modern-card border-0">
                 <div class="card-header header-gradient py-3 d-flex justify-content-between align-items-center">
                     <h5 class="m-0 font-weight-bold text-white"><i class="fas fa-plus-circle mr-2"></i> Tambah Arsip Surat Masuk</h5>
-                    <a href="{{ route('surat.index') }}" class="btn btn-light btn-sm rounded-pill px-3 text-primary font-weight-bold shadow-sm">Kembali</a>
+                    <a href="{{ route('surat.masuk.index') }}" class="btn btn-light btn-sm rounded-pill px-3 text-primary font-weight-bold shadow-sm">Kembali</a>
                 </div>
                 <div class="card-body p-4 p-md-5">
-                    <form action="{{ route('surat.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('surat.masuk.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-4 border-right px-4">
@@ -53,7 +53,7 @@
                                 <h6 class="text-success font-weight-bold mb-4 border-bottom pb-2">Isi & Lampiran</h6>
                                 <div class="form-group mb-3">
                                     <label class="small font-weight-bold text-uppercase">Perihal</label>
-                                    <textarea name="perihal" class="form-control modern-input" rows="2" placeholder="Ringkasan isi surat..." required></textarea>
+                                    <textarea name="perihal" class="form-control modern-input" rows="2" placeholder="Ringkasan isi .." required></textarea>
                                 </div>
                                 <div class="form-group mb-3">
                                     <label class="small font-weight-bold text-uppercase">Keterangan</label>
@@ -71,7 +71,7 @@
                         </div>
                         <hr class="my-4">
                         <div class="text-right">
-                            <button type="submit" class="btn btn-primary rounded-pill px-5 shadow-sm font-weight-bold">Simpan Arsip Sultan</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 shadow-sm font-weight-bold">Simpan</button>
                         </div>
                     </form>
                 </div>

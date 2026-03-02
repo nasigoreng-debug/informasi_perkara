@@ -7,10 +7,10 @@
             <div class="card modern-card border-0">
                 <div class="card-header header-gradient-warning py-3 d-flex justify-content-between align-items-center">
                     <h5 class="m-0 font-weight-bold text-white"><i class="fas fa-edit mr-2"></i> Perbarui Arsip Surat</h5>
-                    <a href="{{ route('surat.index') }}" class="btn btn-light btn-sm rounded-pill px-3 text-warning font-weight-bold shadow-sm">Kembali</a>
+                    <a href="{{ route('surat.masuk.index') }}" class="btn btn-light btn-sm rounded-pill px-3 text-warning font-weight-bold shadow-sm">Kembali</a>
                 </div>
                 <div class="card-body p-4 p-md-5">
-                    <form action="{{ route('surat.update', $surat->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('surat.masuk.update', $surat->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf @method('PUT')
                         <div class="row">
                             <div class="col-md-4 border-right px-4">
@@ -71,7 +71,7 @@
                         </div>
                         <hr class="my-4">
                         <div class="text-right">
-                            <button type="submit" class="btn btn-warning rounded-pill px-5 shadow-sm font-weight-bold text-white">Update Arsip Sultan</button>
+                            <button type="submit" class="btn btn-warning rounded-pill px-5 shadow-sm font-weight-bold text-white">Update</button>
                         </div>
                     </form>
                 </div>

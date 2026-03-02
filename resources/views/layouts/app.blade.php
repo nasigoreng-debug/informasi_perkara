@@ -27,7 +27,10 @@
         /* --- LOADING SCREEN CSS --- */
         #loader-wrapper {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: var(--primary-gradient);
             z-index: 99999;
             display: flex;
@@ -37,7 +40,9 @@
             transition: opacity 0.4s ease, visibility 0.4s;
         }
 
-        .loader-content { text-align: center; }
+        .loader-content {
+            text-align: center;
+        }
 
         .logo-loader {
             font-size: 70px;
@@ -61,25 +66,44 @@
         .spinner-custom {
             width: 40px;
             height: 40px;
-            border: 3px solid rgba(255,255,255,0.1);
+            border: 3px solid rgba(255, 255, 255, 0.1);
             border-top: 3px solid var(--pta-gold);
             border-radius: 50%;
             margin: 25px auto;
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         @keyframes pulse-gold {
-            0% { transform: scale(0.95); filter: drop-shadow(0 0 0 rgba(255, 215, 0, 0.7)); }
-            70% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0)); }
-            100% { transform: scale(0.95); filter: drop-shadow(0 0 0 rgba(255, 215, 0, 0)); }
+            0% {
+                transform: scale(0.95);
+                filter: drop-shadow(0 0 0 rgba(255, 215, 0, 0.7));
+            }
+
+            70% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0));
+            }
+
+            100% {
+                transform: scale(0.95);
+                filter: drop-shadow(0 0 0 rgba(255, 215, 0, 0));
+            }
         }
 
         .loader-hidden {
             opacity: 0;
             visibility: hidden;
         }
-        /* --- END LOADING SCREEN CSS --- */
 
         body {
             font-family: var(--font-main);
@@ -95,18 +119,31 @@
             padding: 0.75rem 0;
         }
 
-        .navbar-brand { font-weight: 700; font-size: 1.1rem; color: #fff !important; }
-        .navbar-brand small { display: block; font-size: 0.65rem; font-weight: 400; opacity: 0.8; text-transform: uppercase; }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff !important;
+        }
+
+        .navbar-brand small {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 400;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
 
         .nav-link {
             color: rgba(255, 255, 255, 0.8) !important;
-            font-weight: 500; font-size: 0.85rem;
+            font-weight: 500;
+            font-size: 0.85rem;
             padding: 0.6rem 1.2rem !important;
             border-radius: 50px;
             transition: all 0.3s ease;
         }
 
-        .nav-link:hover, .nav-link.active {
+        .nav-link:hover,
+        .nav-link.active {
             background-color: rgba(255, 255, 255, 0.15);
             color: #fff !important;
         }
@@ -114,24 +151,42 @@
         .user-dropdown .dropdown-toggle {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white; padding: 0.5rem 1rem;
-            border-radius: 50px; font-size: 0.85rem;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
         }
 
         .header-clock {
-            color: #fff; text-align: right; line-height: 1.2;
-            border-left: 1px solid rgba(255,255,255,0.2);
-            padding-left: 15px; margin-left: 15px;
+            color: #fff;
+            text-align: right;
+            line-height: 1.2;
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            padding-left: 15px;
+            margin-left: 15px;
         }
 
-        .header-clock .time { font-size: 1.1rem; font-weight: 700; }
-        .header-clock .date { font-size: 0.7rem; opacity: 0.8; }
+        .header-clock .time {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
 
-        main { flex: 1; padding: 0; }
+        .header-clock .date {
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
+        main {
+            flex: 1;
+            padding: 0;
+        }
 
         .footer-public {
-            background-color: #fff; border-top: 1px solid #dee2e6;
-            padding: 1.5rem 0; color: #6c757d; font-size: 0.85rem;
+            background-color: #fff;
+            border-top: 1px solid #dee2e6;
+            padding: 1.5rem 0;
+            color: #6c757d;
+            font-size: 0.85rem;
         }
     </style>
 
@@ -162,9 +217,9 @@
                     PANMUD HUKUM CONNECTION
                     <small>
                         @auth
-                            {{ Auth::user()->satker ? Auth::user()->satker->nama : 'PTA BANDUNG (ADMIN)' }}
+                        {{ Auth::user()->satker ? Auth::user()->satker->nama : 'PTA BANDUNG (ADMIN)' }}
                         @else
-                            Pengadilan Agama Se-Jawa Barat
+                        Pengadilan Agama Se-Jawa Barat
                         @endauth
                     </small>
                 </div>
@@ -187,46 +242,46 @@
                         </a>
                     </li>
                     @auth
-                        @if(Auth::user()->isAdmin())
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
-                                <i class="fas fa-users-cog me-1"></i> Manajemen User
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->is('activity-log*') ? 'active' : '' }}" href="{{ url('/activity-log') }}">
-                                <i class="fas fa-fingerprint me-1"></i> Log Aktivitas
-                            </a>
-                        </li>
-                        @endif
+                    @if(Auth::user()->isAdmin())
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                            <i class="fas fa-users-cog me-1"></i> Manajemen User
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('activity-log*') ? 'active' : '' }}" href="{{ url('/activity-log') }}">
+                            <i class="fas fa-fingerprint me-1"></i> Log Aktivitas
+                        </a>
+                    </li>
+                    @endif
                     @endauth
                 </ul>
 
                 <div class="d-flex align-items-center">
                     @auth
-                        <div class="dropdown user-dropdown">
-                            <button class="btn dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle fs-5 text-warning"></i>
-                                <div class="text-start d-none d-sm-block">
-                                    <div class="fw-bold" style="font-size: 0.75rem; line-height: 1;">{{ Auth::user()->name }}</div>
-                                    <div style="font-size: 0.65rem; opacity: 0.8;">{{ optional(Auth::user()->role)->nama_role ?? 'Pengguna' }}</div>
-                                </div>
-                                <i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 15px;">
-                                <li class="px-3 py-2 border-bottom mb-1">
-                                    <span class="d-block small text-muted">ID: {{ Auth::user()->username }}</span>
-                                </li>
-                                <li>
-                                    <form id="logout-form-main" action="{{ route('logout') }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2">
-                                            <i class="fas fa-power-off"></i> Logout
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
+                    <div class="dropdown user-dropdown">
+                        <button class="btn dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle fs-5 text-warning"></i>
+                            <div class="text-start d-none d-sm-block">
+                                <div class="fw-bold" style="font-size: 0.75rem; line-height: 1;">{{ Auth::user()->name }}</div>
+                                <div style="font-size: 0.65rem; opacity: 0.8;">{{ optional(Auth::user()->role)->nama_role ?? 'Pengguna' }}</div>
+                            </div>
+                            <i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 15px;">
+                            <li class="px-3 py-2 border-bottom mb-1">
+                                <span class="d-block small text-muted">ID: {{ Auth::user()->username }}</span>
+                            </li>
+                            <li>
+                                <form id="logout-form-main" action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2">
+                                        <i class="fas fa-power-off"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                     @endauth
 
                     <div class="d-none d-lg-block header-clock">
@@ -251,33 +306,36 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         // --- LOGIKA LOADING SCREEN SULTAN ---
         const loader = document.getElementById('loader-wrapper');
 
-        // 1. Menghilangkan loader saat halaman selesai dimuat 100%
+        // Sembunyikan saat load selesai
         window.addEventListener('load', function() {
             setTimeout(() => {
                 loader.classList.add('loader-hidden');
-            }, 500); 
+            }, 500);
         });
 
-        // 2. Memunculkan loader saat klik menu (inter-page loading)
-        document.addEventListener('DOMContentLoaded', function() {
-            // Target semua link yang berpindah halaman dalam aplikasi
-            const links = document.querySelectorAll('a:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not(.no-loader)');
+        // FIX SAKTI: Sembunyikan saat tombol BACK ditekan (Pageshow event)
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                loader.classList.add('loader-hidden');
+            }
+        });
 
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('a:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not(.no-loader)');
             links.forEach(link => {
                 link.addEventListener('click', function(e) {
-                    // Hanya jika klik kiri dan link valid (tidak kosong)
                     if (e.button === 0 && !e.ctrlKey && !e.metaKey && this.getAttribute('href') !== null) {
                         loader.classList.remove('loader-hidden');
                     }
                 });
             });
 
-            // Munculkan loader saat submit form (seperti Login, Filter, Search)
             const forms = document.querySelectorAll('form:not(.no-loader)');
             forms.forEach(form => {
                 form.addEventListener('submit', function() {
@@ -289,8 +347,18 @@
         // --- SCRIPT JAM DIGITAL ---
         function updateClock() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const timeString = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
             const clockEl = document.getElementById('digital-clock');
             const dateEl = document.getElementById('current-date');
             if (clockEl) clockEl.textContent = timeString.replace(/\./g, ':');
@@ -298,6 +366,49 @@
         }
         setInterval(updateClock, 1000);
         updateClock();
+
+        // --- LOGIKA SWEETALERT2 ---
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        @if(session('success'))
+        Toast.fire({
+            icon: 'success',
+            title: "{{ session('success') }}"
+        });
+        @endif
+
+        @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Waduh!',
+            text: "{{ session('error') }}"
+        });
+        @endif
+
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Yakin mau hapus?',
+                text: "Data yang dihapus tidak bisa dikembalikan, Pak!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    loader.classList.remove('loader-hidden');
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            })
+        }
     </script>
 
     @stack('scripts')

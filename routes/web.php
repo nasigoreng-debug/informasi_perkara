@@ -13,7 +13,8 @@ use App\Http\Controllers\{
     SisaPanjarController,
     UserController,
     CourtCalendarController,
-    AktaCeraiController
+    AktaCeraiController,
+    SuratKeluarController
 };
 
 /*
@@ -49,9 +50,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/laporan-utama', function () {
         return view('laporan-utama');
     })->name('laporan-utama');
-    // Route::get('/administrasi', function () {
-    //     return view('administrasi');
-    // })->name('administrasi');
+    Route::get('/administrasi', function () {
+        return view('administrasi');
+    })->name('administrasi');
     Route::get('/sisa-panjar', function () {
         return view('sisa_panjar_menu');
     })->name('sisa.panjar.menu');
@@ -94,7 +95,7 @@ Route::middleware(['auth'])->group(function () {
      * MODUL: SURAT MASUK (PERSURATAN)
      * Manajemen arsip surat masuk digital di lingkungan kepaniteraan.
      */
-    Route::controller(SuratMasukController::class)->prefix('surat-masuk')->name('surat.')->group(function () {
+    Route::controller(SuratMasukController::class)->prefix('surat-masuk')->name('surat.masuk.')->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/', 'index')->name('index');
         Route::get('/create', 'create')->name('create');
@@ -103,6 +104,22 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/update/{id}', 'update')->name('update');
         Route::delete('/delete/{id}', 'destroy')->name('destroy');
         Route::get('/download/{id}', 'download')->name('download');
+        Route::get('/cetak', 'printPDF')->name('cetak');
+        Route::get('/export-excel', 'exportExcel')->name('exportExcel');
+    });
+
+    Route::controller(SuratKeluarController::class)->prefix('surat-keluar')->name('surat.keluar.')->group(function () {
+        Route::get('/dashboard', 'dashboard')->name('dashboard');
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/{id}/edit', 'edit')->name('edit');
+        Route::put('/{id}/update', 'update')->name('update');
+        Route::delete('/{id}/delete', 'destroy')->name('destroy');
+
+        // PERBAIKAN DI SINI: Tambahkan {type}
+        Route::get('/{id}/download/{type}', 'download')->name('download');
+
         Route::get('/cetak', 'printPDF')->name('cetak');
         Route::get('/export-excel', 'exportExcel')->name('exportExcel');
     });
