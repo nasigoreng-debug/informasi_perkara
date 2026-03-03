@@ -16,7 +16,8 @@ use App\Http\Controllers\{
     AktaCeraiController,
     SuratKeluarController,
     SuratKeputusanController,
-    PengaduanController
+    PengaduanController,
+    PeraturanController
 };
 
 /*
@@ -30,6 +31,7 @@ use App\Http\Controllers\{
 // 1. ROUTE PUBLIC (TANPA LOGIN)
 // ==========================================
 Route::get('/jadwal-sidang/public', [SidangController::class, 'index_public'])->name('sidang.index_public');
+Route::get('/jdih-ptabandung', [PeraturanController::class, 'index_public'])->name('peraturan.public');
 
 // ==========================================
 // 2. OTENTIKASI (LOGIN & LOGOUT)
@@ -229,6 +231,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/download/{id}/{type}', 'download')->name('download');
         Route::get('/export', 'exportExcel')->name('export_excel');
         Route::get('/modal-detail/{id}', 'modalDetail')->name('modal-detail');
+    });
+
+    /**
+     * MODUL: HIMPUNAN PERATURAN (SEMA, PERMA, UU)
+     */
+    Route::controller(PeraturanController::class)->prefix('peraturan')->name('peraturan.')->group(function () {
+        Route::get('/', 'index')->name('index');           // Daftar Peraturan & Monitoring
+        Route::get('/create', 'create')->name('create');   // Form Tambah
+        Route::post('/store', 'store')->name('store');     // Simpan Data
+        Route::get('/edit/{id}', 'edit')->name('edit');     // Form Edit
+        Route::put('/update/{id}', 'update')->name('update'); // Proses Update
+        Route::delete('/delete/{id}', 'destroy')->name('destroy'); // Hapus Data
     });
 
     Route::get('/activity-log', function () {

@@ -197,7 +197,7 @@
             <p class="card-desc">Manajemen data pengaduan.</p>
         </a>
 
-        <a href="#" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.4s">
+        <a href="{{ route('peraturan.index') }}" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.4s">
             <div class="icon-box bg-danger bg-opacity-10 text-danger"><i class="fas fa-balance-scale"></i></div>
             <h5 class="card-title">Himpunan Peraturan</h5>
             <p class="card-desc">Kumpulan regulasi, SEMA, dan PERMA terbaru.</p>
