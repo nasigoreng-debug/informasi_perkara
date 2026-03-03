@@ -140,6 +140,7 @@
 </header>
 
 <main class="main-container container px-4">
+    <br><br><br>
 
     {{-- SECTION 1: ARSIP & PERKARA --}}
     <div class="section-title animate__animated animate__fadeInLeft">Arsip & Manajemen Perkara</div>
@@ -169,41 +170,7 @@
         </a>
     </div>
 
-    {{-- SECTION 2: UPAYA HUKUM --}}
-    <div class="section-title animate__animated animate__fadeInLeft">Upaya Hukum & Putusan</div>
-    <div class="luxury-grid">
-        <a href="#" class="menu-card animate__animated animate__zoomIn">
-            <div class="icon-box bg-indigo bg-opacity-10" style="color: #4f46e5;"><i class="fas fa-file-signature"></i></div>
-            <h5 class="card-title">Pemberitahuan Putusan</h5>
-            <p class="card-desc">Monitoring delegasi pemberitahuan isi putusan.</p>
-        </a>
-
-        <a href="#" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.1s">
-            <div class="icon-box bg-dark bg-opacity-10 text-dark"><i class="fas fa-balance-scale-right"></i></div>
-            <h5 class="card-title">Putusan Kasasi</h5>
-            <p class="card-desc">Data penerimaan kembali berkas dan putusan Kasasi.</p>
-        </a>
-
-        <a href="#" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.2s">
-            <div class="icon-box bg-dark bg-opacity-10 text-dark"><i class="fas fa-gavel"></i></div>
-            <h5 class="card-title">Putusan PK</h5>
-            <p class="card-desc">Data putusan Peninjauan Kembali dari Mahkamah Agung.</p>
-        </a>
-
-        <a href="#" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.3s">
-            <div class="icon-box bg-secondary bg-opacity-10 text-secondary"><i class="fas fa-paper-plane"></i></div>
-            <h5 class="card-title">Permohonan Kasasi</h5>
-            <p class="card-desc">Register pendaftaran upaya hukum Kasasi.</p>
-        </a>
-
-        <a href="#" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.4s">
-            <div class="icon-box bg-secondary bg-opacity-10 text-secondary"><i class="fas fa-book"></i></div>
-            <h5 class="card-title">Register PK</h5>
-            <p class="card-desc">Pencatatan register pendaftaran Peninjauan Kembali.</p>
-        </a>
-    </div>
-
-    {{-- SECTION 3: ADMINISTRASI & PERSURATAN --}}
+    {{-- SECTION 2: ADMINISTRASI & PERSURATAN --}}
     <div class="section-title animate__animated animate__fadeInLeft">Administrasi & Surat</div>
     <div class="luxury-grid">
         <a href="{{ route('surat.masuk.dashboard') }}" class="menu-card animate__animated animate__zoomIn">
@@ -212,13 +179,13 @@
             <p class="card-desc">Log arsip digital seluruh surat masuk.</p>
         </a>
 
-        <a href="{{ route('surat.keluar.dashboard') }}" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.1s">
+        <a href="{{ route('surat.keluar.index') }}" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.1s">
             <div class="icon-box bg-success bg-opacity-10 text-success"><i class="fas fa-paper-plane"></i></div>
             <h5 class="card-title">Surat Keluar</h5>
             <p class="card-desc">Log arsip digital seluruh surat keluar.</p>
         </a>
 
-        <a href="#" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.2s">
+        <a href="{{ route('sk.dashboard') }}" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.2s">
             <div class="icon-box bg-info bg-opacity-10 text-info"><i class="fas fa-file-contract"></i></div>
             <h5 class="card-title">Surat Keputusan (SK)</h5>
             <p class="card-desc">Himpunan SK Ketua/Sekretaris PTA Bandung.</p>
@@ -237,7 +204,7 @@
         </a>
     </div>
 
-    {{-- SECTION 4: LAPORAN --}}
+    {{-- SECTION 3: LAPORAN --}}
     <div class="section-title animate__animated animate__fadeInLeft">Pelaporan & Kinerja</div>
     <div class="luxury-grid">
         <a href="#" class="menu-card animate__animated animate__zoomIn" style="border-bottom: 4px solid var(--gold-mewah) !important;">

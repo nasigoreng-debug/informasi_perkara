@@ -14,7 +14,9 @@ use App\Http\Controllers\{
     UserController,
     CourtCalendarController,
     AktaCeraiController,
-    SuratKeluarController
+    SuratKeluarController,
+    SuratKeputusanController,
+    PengaduanController
 };
 
 /*
@@ -22,7 +24,6 @@ use App\Http\Controllers\{
 | SISTEM INFORMASI PERKARA - PTA BANDUNG
 |--------------------------------------------------------------------------
 | Pengelolaan Route Aplikasi PH-Connection.
-| Semua route dikelompokkan berdasarkan fungsinya untuk memudahkan maintenance.
 */
 
 // ==========================================
@@ -39,7 +40,6 @@ Route::middleware(['auth'])->group(function () {
 
     /**
      * LANDING PAGES & NAVIGASI UTAMA
-     * Menu utama untuk mengarahkan pengguna ke sub-sub modul.
      */
     Route::get('/', function () {
         return view('welcome');
@@ -63,7 +63,6 @@ Route::middleware(['auth'])->group(function () {
 
     /**
      * MODUL: MONITORING JADWAL SIDANG
-     * Menampilkan jadwal sidang harian se-wilayah PTA Bandung.
      */
     Route::controller(SidangController::class)->prefix('jadwal-sidang')->name('sidang.')->group(function () {
         Route::get('/', 'index')->name('index');
@@ -72,17 +71,16 @@ Route::middleware(['auth'])->group(function () {
 
     /**
      * MODUL: MONITORING COURT CALENDAR
-     * Memantau kepatuhan input rencana sidang (Court Calendar) pada aplikasi SIPP.
      */
     Route::controller(CourtCalendarController::class)->prefix('court-calendar')->name('court-calendar')->group(function () {
         Route::get('/', 'index');
         Route::get('/detail/{satker}', 'detail')->name('.detail');
         Route::get('/export', 'export')->name('.export');
-        Route::get('/export-detail/{satker}', 'exportDetail')->name('.export-detail'); // Tambahkan baris ini
+        Route::get('/export-detail/{satker}', 'exportDetail')->name('.export-detail');
     });
+
     /**
      * MODUL: LAPORAN KASASI
-     * Monitoring berkas kasasi dan pengiriman dokumen PDF.
      */
     Route::controller(LaporanKasasiController::class)->prefix('kasasi')->name('kasasi.')->group(function () {
         Route::get('/', 'index')->name('index');
@@ -93,7 +91,6 @@ Route::middleware(['auth'])->group(function () {
 
     /**
      * MODUL: SURAT MASUK (PERSURATAN)
-     * Manajemen arsip surat masuk digital di lingkungan kepaniteraan.
      */
     Route::controller(SuratMasukController::class)->prefix('surat-masuk')->name('surat.masuk.')->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
@@ -108,6 +105,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export-excel', 'exportExcel')->name('exportExcel');
     });
 
+    /**
+     * MODUL: SURAT KELUAR
+     */
     Route::controller(SuratKeluarController::class)->prefix('surat-keluar')->name('surat.keluar.')->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/', 'index')->name('index');
@@ -116,17 +116,27 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', 'edit')->name('edit');
         Route::put('/{id}/update', 'update')->name('update');
         Route::delete('/{id}/delete', 'destroy')->name('destroy');
-
-        // PERBAIKAN DI SINI: Tambahkan {type}
         Route::get('/{id}/download/{type}', 'download')->name('download');
-
         Route::get('/cetak', 'printPDF')->name('cetak');
         Route::get('/export-excel', 'exportExcel')->name('exportExcel');
     });
 
     /**
+     * MODUL: SURAT KEPUTUSAN (SK)
+     */
+    Route::controller(SuratKeputusanController::class)->prefix('surat-keputusan')->name('sk.')->group(function () {
+        Route::get('/dashboard', 'dashboard')->name('dashboard');
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/edit/{id}', 'edit')->name('edit');
+        Route::put('/update/{id}', 'update')->name('update');
+        Route::delete('/delete/{id}', 'destroy')->name('destroy');
+        Route::get('/download/{id}/{type}', 'download')->name('download');
+        Route::get('/export-excel', 'exportExcel')->name('exportExcel');
+    });
+    /**
      * MODUL: LAPORAN PERKARA & PUTUSAN
-     * Statistik jumlah perkara masuk, putus, dan putusan sela.
      */
     Route::controller(LaporanPerkaraController::class)->group(function () {
         Route::prefix('laporan-perkara')->name('laporan.')->group(function () {
@@ -143,7 +153,6 @@ Route::middleware(['auth'])->group(function () {
 
     /**
      * MODUL: REKAP EKSEKUSI
-     * Monitoring perkara permohonan eksekusi yang sedang berjalan.
      */
     Route::controller(RekapEksekusiController::class)->prefix('eksekusi')->name('laporan.eksekusi.')->group(function () {
         Route::get('/', 'index')->name('index');
@@ -152,8 +161,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     /**
-     * MODUL: LAPORAN BANDING (RK-1 & RK-2)
-     * Data perkara banding yang diterima dan diputus oleh PTA Bandung.
+     * MODUL: LAPORAN BANDING
      */
     Route::controller(LaporanBandingController::class)->prefix('laporan/banding')->name('laporan.banding.')->group(function () {
         Route::get('/diterima', 'diterima')->name('diterima');
@@ -168,7 +176,6 @@ Route::middleware(['auth'])->group(function () {
 
     /**
      * MODUL: MONITORING SISA PANJAR
-     * Melacak sisa panjar biaya perkara yang belum dikembalikan > 6 bulan.
      */
     Route::controller(SisaPanjarController::class)->prefix('sisa-panjar')->name('sisa.panjar.')->group(function () {
         Route::get('/', 'index')->name('menu');
@@ -180,8 +187,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     /**
-     * MODUL: ADMINISTRASI USER & LOG AKTIVITAS
-     * Manajemen hak akses pengguna dan pencatatan log sistem.
+     * MODUL: ADMINISTRASI USER
      */
     Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
         Route::get('/', 'index')->name('index');
@@ -192,11 +198,31 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}/delete', 'destroy')->name('destroy');
     });
 
+    /**
+     * MODUL: AKTA CERAI
+     */
     Route::controller(AktaCeraiController::class)->prefix('akta-cerai')->name('akta-cerai.')->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/detail/{satker}', 'detail')->name('detail'); // Untuk detail per perkara
-        Route::get('/export', 'export')->name('export');         // Untuk tarik data excel
-        Route::get('/akta-cerai/export-detail', [AktaCeraiController::class, 'exportDetail'])->name('export-detail');
+        Route::get('/detail/{satker}', 'detail')->name('detail');
+        Route::get('/export', 'export')->name('export');
+        Route::get('/export-detail', 'exportDetail')->name('export-detail');
+    });
+
+    /**
+     * MODUL: AKTA PENGADUAN (SIWAS)
+     */
+    Route::controller(PengaduanController::class)->prefix('pengaduan')->name('pengaduan.')->group(function () {
+        Route::get('/dashboard', 'dashboard')->name('dashboard');
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/edit/{id}', 'edit')->name('edit');
+        Route::put('/update/{id}', 'update')->name('update');
+        Route::get('/detail/{id}', 'detail')->name('detail');
+        Route::delete('/delete/{id}', 'destroy')->name('destroy');
+        Route::get('/download/{id}/{type}', 'download')->name('download');
+        Route::get('/export', 'exportExcel')->name('export_excel');
+        Route::get('/modal-detail/{id}', 'modalDetail')->name('modal-detail');
     });
 
     Route::get('/activity-log', function () {
