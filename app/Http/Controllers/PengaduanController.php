@@ -9,44 +9,44 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PengaduanExport;
 
 class PengaduanController extends Controller
 {
     /**
-     * DASHBOARD PENGADUAN - Menampilkan Semua yang BELUM SELESAI
+     * DASHBOARD PENGADUAN
      */
     public function dashboard()
     {
-        // Statistik Umum
-        $total = \App\Models\Pengaduan::count();
-        $selesai = \App\Models\Pengaduan::whereNotNull('tgl_selesai_pgd')->count();
-
-        // 1. Hitung yang MASIH PROSES (tgl_selesai_pgd kosong)
-        $proses = \App\Models\Pengaduan::whereNull('tgl_selesai_pgd')->count();
-
-        // 2. Ambil SEMUA data yang belum selesai (tanpa batasan 14 hari)
-        // Agar ke-10 data Bapak muncul semua di list
         $notif_deadline = \App\Models\Pengaduan::whereNull('tgl_selesai_pgd')
-            ->latest('tgl_terima_pgd')
+            ->orderBy('tgl_terima_pgd', 'asc')
             ->get();
 
-        \App\Models\ActivityLog::record('Akses Dashboard Pengaduan', 'Pengaduan', 'Memantau seluruh pengaduan aktif');
+        $total_semua = \App\Models\Pengaduan::count();
+        $total_selesai = \App\Models\Pengaduan::whereNotNull('tgl_selesai_pgd')->count();
+        $total_proses = \App\Models\Pengaduan::whereNull('tgl_selesai_pgd')->count();
 
-        return view('pengaduan.dashboard', compact('total', 'selesai', 'proses', 'notif_deadline'));
+        // TAMBAHKAN LOG DASHBOARD
+        ActivityLog::record('Akses Dashboard PENGADUAN', 'Pengaduan', 'Membuka ringkasan statistik dan monitoring deadline');
+
+        return view('pengaduan.dashboard', compact(
+            'notif_deadline',
+            'total_semua',
+            'total_selesai',
+            'total_proses'
+        ));
     }
 
     /**
-     * INDEX - Daftar Pengaduan dengan Filter Tanggal Default
+     * INDEX - Daftar Pengaduan
      */
     public function index(Request $request)
     {
-        // Default Tanggal: Awal Tahun s.d Hari Ini
         $startDate = $request->input('from_date', date('Y-01-01'));
         $endDate = $request->input('to_date', date('Y-m-d'));
 
         $query = Pengaduan::query();
 
-        // Pencarian No Pengaduan, Pelapor, atau Terlapor
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('no_pgd', 'like', "%{$request->search}%")
@@ -58,21 +58,19 @@ class PengaduanController extends Controller
         $query->whereBetween('tgl_terima_pgd', [$startDate, $endDate]);
         $data = $query->latest('tgl_terima_pgd')->paginate(10)->withQueryString();
 
+        // LOG SUDAH ADA
         ActivityLog::record('Akses PENGADUAN', 'Pengaduan', 'Membuka daftar pengaduan masyarakat');
 
         return view('pengaduan.index', compact('data', 'startDate', 'endDate'));
     }
 
-    /**
-     * CREATE - Form Tambah Pengaduan
-     */
     public function create()
     {
         return view('pengaduan.create');
     }
 
     /**
-     * STORE - Simpan Pengaduan Baru
+     * STORE - Simpan Pengaduan
      */
     public function store(Request $request)
     {
@@ -87,7 +85,6 @@ class PengaduanController extends Controller
 
         $input = $request->all();
 
-        // Upload Surat Pengaduan (PDF)
         if ($request->hasFile('surat_pgd')) {
             $file = $request->file('surat_pgd');
             $name = time() . '_PENGADUAN_' . Str::slug($request->no_pgd) . '.' . $file->getClientOriginalExtension();
@@ -95,7 +92,6 @@ class PengaduanController extends Controller
             $input['surat_pgd'] = $name;
         }
 
-        // Upload Lampiran
         if ($request->hasFile('lampiran')) {
             $file = $request->file('lampiran');
             $name = time() . '_LAMP_PENGADUAN_' . Str::slug($request->no_pgd) . '.' . $file->getClientOriginalExtension();
@@ -104,56 +100,50 @@ class PengaduanController extends Controller
         }
 
         Pengaduan::create($input);
+
+        // LOG SUDAH ADA
         ActivityLog::record('Tambah Pengaduan', 'Pengaduan', "Input Pengaduan No: {$request->no_pgd}");
 
         return redirect()->route('pengaduan.index')->with('success', 'Data pengaduan berhasil disimpan!');
     }
 
-    /**
-     * EDIT - Form Ubah Data
-     */
     public function edit($id)
     {
         $pgd = Pengaduan::findOrFail($id);
+
+        // TAMBAHKAN LOG EDIT (Melihat form edit)
+        ActivityLog::record('Akses Form Edit PENGADUAN', 'Pengaduan', "Membuka form edit No: {$pgd->no_pgd}");
+
         return view('pengaduan.edit', compact('pgd'));
     }
 
     /**
-     * UPDATE - Perbarui Data & Tracking Disposisi
+     * UPDATE - Perbarui Data
      */
     public function update(Request $request, $id)
     {
         $pgd = Pengaduan::findOrFail($id);
         $input = $request->all();
 
-        // 1. Update File Surat Pengaduan
         if ($request->hasFile('surat_pgd')) {
-            // Hapus file lama jika ada
             if ($pgd->surat_pgd) @unlink(storage_path('app/public/pengaduan/surat/' . $pgd->surat_pgd));
-
             $file = $request->file('surat_pgd');
             $name = time() . '_PENGADUAN_' . Str::slug($request->no_pgd) . '.' . $file->getClientOriginalExtension();
             $file->move(storage_path('app/public/pengaduan/surat'), $name);
-
             $input['surat_pgd'] = $name;
         }
 
-        // 2. Update File Lampiran (TAMBAHKAN BAGIAN INI)
         if ($request->hasFile('lampiran')) {
-            // Hapus file lampiran lama jika ada
             if ($pgd->lampiran) @unlink(storage_path('app/public/pengaduan/lampiran/' . $pgd->lampiran));
-
             $file_lamp = $request->file('lampiran');
             $name_lamp = time() . '_LAMPIRAN_' . Str::slug($request->no_pgd) . '.' . $file_lamp->getClientOriginalExtension();
             $file_lamp->move(storage_path('app/public/pengaduan/lampiran'), $name_lamp);
-
             $input['lampiran'] = $name_lamp;
         }
 
-        // Simpan semua perubahan
         $pgd->update($input);
 
-        // Catat aktivitas
+        // LOG SUDAH ADA
         ActivityLog::record('Update Pengaduan', 'Pengaduan', "Ubah Data No: {$pgd->no_pgd}");
 
         return redirect()->route('pengaduan.index')->with('success', 'Data pengaduan berhasil diperbarui!');
@@ -163,14 +153,12 @@ class PengaduanController extends Controller
     {
         $pgd = \App\Models\Pengaduan::findOrFail($id);
 
-        \App\Models\ActivityLog::record('Lihat Detail PENGADUAN', 'Pengaduan', "Melihat detail pengaduan No: {$pgd->no_pgd}");
+        // LOG SUDAH ADA
+        ActivityLog::record('Lihat Detail PENGADUAN', 'Pengaduan', "Melihat detail pengaduan No: {$pgd->no_pgd}");
 
         return view('pengaduan.detail', compact('pgd'));
     }
 
-    /**
-     * DOWNLOAD - Download Berkas PENGADUAN
-     */
     public function download($id, $type)
     {
         $pgd = Pengaduan::findOrFail($id);
@@ -179,16 +167,14 @@ class PengaduanController extends Controller
         $path = storage_path("app/public/pengaduan/{$folder}/" . $fileName);
 
         if ($fileName && file_exists($path)) {
-            ActivityLog::record("Download Berkas PENGADUAN", 'Pengaduan', "File No: {$pgd->no_pgd}");
+            // LOG SUDAH ADA
+            ActivityLog::record("Download Berkas PENGADUAN", 'Pengaduan', "File No: {$pgd->no_pgd} ({$type})");
             return response()->download($path);
         }
 
         return back()->with('error', 'Berkas tidak ditemukan di server.');
     }
 
-    /**
-     * DESTROY - Hapus Pengaduan
-     */
     public function destroy($id)
     {
         $pgd = Pengaduan::findOrFail($id);
@@ -197,6 +183,8 @@ class PengaduanController extends Controller
         if ($pgd->lampiran) @unlink(storage_path('app/public/pengaduan/lampiran/' . $pgd->lampiran));
 
         $pgd->delete();
+
+        // LOG SUDAH ADA
         ActivityLog::record('Hapus Pengaduan', 'Pengaduan', "Hapus No: {$pgd->no_pgd}");
 
         return redirect()->route('pengaduan.index')->with('success', 'Data pengaduan telah dihapus!');
@@ -205,54 +193,38 @@ class PengaduanController extends Controller
     public function modalDetail($id)
     {
         $pgd = \App\Models\Pengaduan::findOrFail($id);
-        // Mengembalikan view tanpa layout (hanya isinya)
+
+        // TAMBAHKAN LOG MODAL TRACKING
+        ActivityLog::record('Lihat Tracking Modal', 'Pengaduan', "Melihat alur proses No: {$pgd->no_pgd}");
+
         return view('pengaduan.modal_detail', compact('pgd'));
     }
 
     public function exportExcel(Request $request)
     {
-        $query = Pengaduan::query();
+        $query = \App\Models\Pengaduan::query();
 
-        // Filter Search
-        if ($request->search) {
-            $query->where('no_pgd', 'like', "%{$request->search}%")
-                ->orWhere('pelapor', 'like', "%{$request->search}%")
-                ->orWhere('terlapor', 'like', "%{$request->search}%");
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('no_pgd', 'like', "%{$search}%")
+                    ->orWhere('pelapor', 'like', "%{$search}%")
+                    ->orWhere('terlapor', 'like', "%{$search}%");
+            });
         }
 
-        // Filter Tanggal
-        if ($request->from_date && $request->to_date) {
+        if ($request->filled('from_date') && $request->filled('to_date')) {
             $query->whereBetween('tgl_terima_pgd', [$request->from_date, $request->to_date]);
         }
 
-        $data = $query->get();
+        $data = $query->orderBy('tgl_terima_pgd', 'desc')->get();
 
-        // Buat file excel sederhana tanpa perlu class export tambahan (Fast Mode)
-        return Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\WithHeadings {
-            private $data;
-            public function __construct($data)
-            {
-                $this->data = $data;
-            }
-            public function collection()
-            {
-                return $this->data->map(function ($item, $key) {
-                    return [
-                        $key + 1,
-                        $item->no_pgd,
-                        $item->tgl_terima_pgd,
-                        $item->pelapor,
-                        $item->terlapor,
-                        $item->uraian_pgd,
-                        $item->status_berkas,
-                        $item->status_pgd,
-                    ];
-                });
-            }
-            public function headings(): array
-            {
-                return ['No', 'No. Pengaduan', 'Tgl Terima', 'Pelapor', 'Terlapor', 'Uraian', 'Posisi Berkas', 'Status'];
-            }
-        }, 'Register_Pengaduan_SIWAS_' . date('Ymd') . '.xlsx');
+        // TAMBAHKAN LOG EXCEL (SANGAT PENTING)
+        ActivityLog::record('Export Excel PENGADUAN', 'Pengaduan', "Menarik laporan excel (Total: " . $data->count() . " data)");
+
+        return Excel::download(
+            new \App\Exports\PengaduanExport($data),
+            'Register_Pengaduan_Filtered_' . date('Ymd_His') . '.xlsx'
+        );
     }
 }

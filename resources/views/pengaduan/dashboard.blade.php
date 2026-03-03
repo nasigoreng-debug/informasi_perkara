@@ -3,6 +3,53 @@
 @section('content')
 <div class="container py-4 fade-in">
     <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-lg overflow-hidden bg-gradient-dark text-white hover-elevate">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2 fw-bold opacity-75 small tracking-wider">Total Pengaduan</h6>
+                            <h2 class="mb-0 fw-extrabold">{{ $total_semua ?? 0 }}</h2>
+                        </div>
+                        <div class="icon-shape bg-white text-dark rounded-circle shadow-sm">
+                            <i class="fas fa-folder-open fa-2x opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-lg overflow-hidden bg-gradient-success text-white hover-elevate">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2 fw-bold opacity-75 small tracking-wider">Telah Selesai</h6>
+                            <h2 class="mb-0 fw-extrabold">{{ $total_selesai ?? 0 }}</h2>
+                        </div>
+                        <div class="icon-shape bg-white text-success rounded-circle shadow-sm">
+                            <i class="fas fa-check-double fa-2x opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-lg overflow-hidden bg-gradient-danger text-white hover-elevate">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2 fw-bold opacity-75 small tracking-wider">Sisa Proses</h6>
+                            <h2 class="mb-0 fw-extrabold">{{ $total_proses ?? 0 }}</h2>
+                        </div>
+                        <div class="icon-shape bg-white text-danger rounded-circle shadow-sm">
+                            <i class="fas fa-hourglass-half fa-2x opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="card border-0 shadow-sm rounded-lg overflow-hidden">
@@ -75,7 +122,6 @@
         $('#modalTracking').modal('show');
         $('#modalContentTracking').html('<div class="text-center py-5"><div class="spinner-border text-danger" role="status"></div><p class="mt-2 text-muted small">Memuat alur SOP...</p></div>');
 
-        // Memanggil route detail khusus modal
         $.get("{{ url('/pengaduan/modal-detail') }}/" + id, function(data) {
             $('#modalContentTracking').html(data);
         });
@@ -83,114 +129,30 @@
 </script>
 
 <style>
-    /* Tambahkan CSS yang Bapak punya di sini */
-    .vertical-tracking::before {
-        content: '';
-        position: absolute;
-        left: 107px;
-        top: 0;
-        height: 100%;
-        width: 2px;
-        background: #e3e6f0;
-    }
+    /* Gradient Cards */
+    .bg-gradient-dark { background: linear-gradient(135deg, #2d3436 0%, #000000 100%); }
+    .bg-gradient-success { background: linear-gradient(135deg, #1d976c 0%, #93f9b9 100%); }
+    .bg-gradient-danger { background: linear-gradient(135deg, #8b0000 0%, #ff4b2b 100%); }
+    
+    .icon-shape { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; }
+    .fw-extrabold { font-weight: 800; }
+    .hover-elevate:hover { transform: translateY(-3px); transition: 0.2s; }
+    .hover-soft:hover { background-color: #f8f9fa; }
 
-    .tracking-item {
-        position: relative;
-        display: flex;
-        align-items: flex-start;
-        margin-bottom: 35px;
-    }
-
-    .tracking-dot {
-        position: relative;
-        width: 14px;
-        height: 14px;
-        background: #fff;
-        border: 3px solid #d1d3e2;
-        border-radius: 50%;
-        margin: 0 15px;
-        z-index: 2;
-        margin-top: 2px;
-    }
-
-    .tracking-item.current .tracking-dot {
-        background: #4e73df;
-        border-color: #fff;
-        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.3);
-    }
-
-    /* ... (CSS Sultan lainnya) ... */
-
-    /* Perbaikan Modal Agar Tidak Berantakan */
-    .vertical-tracking-modal {
-        position: relative;
-        padding: 10px 0;
-        margin-left: 20px;
-    }
-
+    /* Modal Tracking Style */
+    .vertical-tracking-modal { position: relative; padding: 10px 0; margin-left: 20px; }
     .vertical-tracking-modal::before {
-        content: '';
-        position: absolute;
-        left: 87px;
-        top: 0;
-        height: 100%;
-        width: 2px;
-        background: #e3e6f0;
+        content: ''; position: absolute; left: 87px; top: 0;
+        height: 100%; width: 2px; background: #e3e6f0;
     }
-
-    .tracking-item {
-        position: relative;
-        display: flex;
-        align-items: flex-start;
-        margin-bottom: 30px;
-        z-index: 1;
-    }
-
-    .tracking-date {
-        width: 80px;
-        text-align: right;
-        font-size: 0.6rem;
-        font-weight: 800;
-        color: #5a5c69;
-        line-height: 1.2;
-    }
-
-    .tracking-date span {
-        display: block;
-        font-size: 0.5rem;
-        color: #b7b9cc;
-        text-transform: uppercase;
-    }
-
+    .tracking-item { position: relative; display: flex; align-items: flex-start; margin-bottom: 30px; }
+    .tracking-date { width: 80px; text-align: right; font-size: 0.6rem; font-weight: 800; color: #5a5c69; }
     .tracking-dot {
-        position: relative;
-        width: 12px;
-        height: 12px;
-        background: #fff;
-        border: 2px solid #d1d3e2;
-        border-radius: 50%;
-        margin: 0 10px;
-        z-index: 2;
-        margin-top: 2px;
+        position: relative; width: 12px; height: 12px; background: #fff;
+        border: 2px solid #d1d3e2; border-radius: 50%; margin: 0 10px; z-index: 2;
     }
-
     .tracking-item.current .tracking-dot {
-        background: #4e73df;
-        border-color: #fff;
-        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
-    }
-
-    .tracking-content {
-        flex: 1;
-    }
-
-    .icon-circle {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        background: #4e73df; border-color: #fff; box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
     }
 </style>
 @endsection

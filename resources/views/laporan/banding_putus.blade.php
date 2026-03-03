@@ -1,289 +1,174 @@
 @extends('layouts.app')
 
-@section('content')
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+@section('title', 'Laporan Perkara Diputus (RK.2)')
 
+@push('styles')
 <style>
-    body {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: #f4f7fa;
-    }
-
-    .page-heading {
-        padding: 2rem 0;
-    }
-
-    /* Card Mewah DNA Putusan Sela */
-    .card-luxury {
-        background: #ffffff;
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
-        overflow: hidden;
-    }
-
-    /* Tabel Presisi */
-    .table-luxury thead th {
-        background: #f8fafc;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-        font-weight: 800;
-        color: #64748b;
-        padding: 1.2rem 1.5rem;
-        border-bottom: 2px solid #f1f5f9;
-    }
-
-    .table-luxury tbody td {
-        padding: 1.2rem 1.5rem;
-        vertical-align: middle;
-        color: #334155;
-        border-bottom: 1px solid #f1f5f9;
-        font-size: 0.875rem;
-    }
-
-    /* Tombol Kembali Melingkar DNA */
-    .btn-back {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: white;
-        border: 1px solid #e2e8f0;
-        color: #4f46e5;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s;
-        text-decoration: none;
-    }
-
-    .btn-back:hover {
-        background: #4f46e5;
-        color: white;
-        transform: translateX(-5px);
-    }
-
-    /* Soft Badge DNA - Mewarnai Angka sesuai Kategori */
-    .link-num {
-        font-weight: 800;
-        padding: 0.6rem 1.2rem;
-        border-radius: 12px;
-        display: inline-block;
-        transition: all 0.2s;
-        text-decoration: none !important;
-        min-width: 45px;
-    }
-
-    .link-sisa-lalu {
-        background: #f8fafc;
-        color: #64748b;
-        border: 1px solid #e2e8f0;
-    }
-
-    .link-terima {
-        background: #eef2ff;
-        color: #4f46e5;
-        border: 1px solid #e0e7ff;
-    }
-
-    .link-beban {
-        background: #fffbeb;
-        color: #d97706;
-        border: 1px solid #fef3c7;
-    }
-
-    .link-putus {
-        background: #f0fdf4;
-        color: #16a34a;
-        border: 1px solid #dcfce7;
-    }
-
-    .link-sisa-akhir {
-        background: #fff1f2;
-        color: #e11d48;
-        border: 1px solid #ffe4e6;
-    }
-
-    .link-num:hover {
-        transform: translateY(-2px);
-        filter: brightness(0.9);
-        color: inherit;
-    }
-
-    .tfoot-luxury {
-        background-color: #1e293b !important;
-        color: #ffffff !important;
-        font-weight: 800;
-    }
-
-    .tfoot-luxury td {
-        padding: 1.5rem !important;
-        border: none !important;
-    }
-
-    .text-zero {
-        color: #cbd5e1;
-        font-weight: 700;
-        opacity: 0.5;
-    }
-
-    /* DataTables Search DNA */
-    .dataTables_filter input {
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        padding: 0.5rem 1rem;
-        background: #fbfcfe;
-    }
+    .table-rk { font-size: 10px; border-collapse: separate; border-spacing: 0; }
+    .table-rk td, .table-rk th { padding: 5px !important; border: 1px solid #dee2e6 !important; }
+    thead th { vertical-align: middle !important; text-align: center !important; font-weight: 700; text-transform: uppercase; }
+    .header-dark { background-color: #2c3e50 !important; color: #ffffff !important; }
+    .header-gray { background-color: #5d6d7e !important; color: #ffffff !important; }
+    .header-blue { background-color: #2980b9 !important; color: #ffffff !important; }
+    .header-orange { background-color: #f39c12 !important; color: #000 !important; }
+    .v-head { height: 200px; min-width: 30px; position: relative; }
+    .v-head span { writing-mode: vertical-rl; transform: rotate(180deg); display: inline-block; text-align: center; height: 100%; margin: 0 auto; }
+    .table-responsive { position: relative; border-radius: 8px; border: 1px solid #dee2e6; overflow: auto; }
+    thead tr.main-header th { position: sticky; top: 0; z-index: 1000; }
+    thead tr.sub-header th { position: sticky; top: 41px; z-index: 999; }
+    .sticky-col { position: sticky !important; z-index: 10; }
+    .fz-1 { left: 0; width: 35px; min-width: 35px; }
+    .fz-2 { left: 35px; width: 160px; min-width: 160px; }
+    .fz-3 { left: 195px; width: 55px; min-width: 55px; }
+    .fz-4 { left: 250px; width: 55px; min-width: 55px; }
+    .fz-5 { left: 305px; width: 55px; min-width: 55px; }
+    thead th.sticky-col { z-index: 1100 !important; }
+    .border-end-strong { border-right: 3px solid #2c3e50 !important; }
+    .border-start-strong { border-left: 3px solid #2c3e50 !important; }
+    .border-sub { border-right: 1px solid #dee2e6 !important; }
+    tbody tr:hover td:not(.sticky-col) { background-color: #f1f7ff !important; }
+    .bg-light-blue { background-color: #ebf5fb !important; }
+    .sticky-footer td { position: sticky; bottom: 0; z-index: 1000; background-color: #2c3e50 !important; color: white !important; font-weight: bold; }
 </style>
+@endpush
 
-<div class="container-fluid px-4">
-    <div class="page-heading d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center">
-            <a href="{{ url('laporan-utama') }}" class="btn-back me-3 shadow-sm" title="Kembali ke Panel Laporan">
-                <i class="fas fa-arrow-left"></i>
-            </a>
-            <div>
-                <h1 class="h3 fw-800 mb-1" style="color: #1e293b;">Laporan RK2</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
-                        <li class="breadcrumb-item"><a href="{{ url('laporan-utama') }}" class="text-decoration-none text-muted">Panel</a></li>
-                        <li class="breadcrumb-item active fw-bold" style="color: #4f46e5;">Keadaan Perkara Banding</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-        <div class="d-flex gap-2">
-            <button onclick="window.print()" class="btn btn-white border shadow-sm fw-bold px-4 py-2 rounded-pill">
-                <i class="fas fa-print me-2 text-muted"></i> Cetak
-            </button>
-            <a href="{{ route('laporan.banding.putus.export', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-success shadow-sm fw-bold px-4 py-2 rounded-pill" taerget="_blank">
-                <i class="fas fa-file-excel me-2"></i> Export Excel
-            </a>
-        </div>
+@section('content')
+<div class="container-fluid py-4">
+
+    @php
+    $jenisPerkara = [
+        'iz'=>'Izin Poligami','pp'=>'Pencegahan Perkawinan','p_ppn'=>'Penolakan PPN','pb'=>'Pembatalan Perkawinan',
+        'lks'=>'Kelalaian Kewajiban','ct'=>'Cerai Talak','cg'=>'Cerai Gugat','hb'=>'Harta Bersama','pa'=>'Penguasaan Anak',
+        'nai'=>'Nafkah Anak','hbi'=>'Hak Bekas Isteri','psa'=>'Pengesahan Anak','pkot'=>'Cabut Kuasa Ortu',
+        'pw'=>'Perwalian','phw'=>'Cabut Kuasa Wali','pol'=>'Penunjukan Wali','grw'=>'Ganti Rugi Wali',
+        'aua'=>'Asal Usul Anak','pkc'=>'Tolak Kawin Campur','isbath'=>'Isbath Nikah','ik'=>'Izin Kawin',
+        'dk'=>'Dispensasi Kawin','wa'=>'Wali Adhol','es'=>'Ekonomi Syari','kw'=>'Kewarisan','wst'=>'Wasiat',
+        'hb_h'=>'Hibah','wkf'=>'Wakaf','zkt_infq'=>'Zakat/Infaq','p3hp'=>'P3HP/Ahli Waris','ll'=>'Lain-lain'
+    ];
+    @endphp
+
+    <div class="text-center mb-4">
+        <h3 class="fw-bold text-uppercase" style="color: #2c3e50; letter-spacing: 1px;">Laporan Perkara Banding Diputus (RK.2)</h3>
+        <h5 class="text-muted fw-normal">PENGADILAN AGAMA SE-JAWA BARAT | <span class="badge bg-secondary">Periode: {{ $tgl_awal }} s/d {{ $tgl_akhir }}</span></h5>
+        <div class="mx-auto" style="width: 60px; height: 4px; background: #3498db; border-radius: 10px; margin-top: 10px;"></div>
     </div>
 
-    <div class="card card-luxury mb-4 border-0">
-        <div class="card-body p-4">
-            <form action="{{ url()->current() }}" method="GET" class="row g-3 align-items-end">
-                <div class="col-lg-3">
-                    <label class="small fw-bold text-muted text-uppercase mb-2 d-block">Tanggal Awal</label>
-                    <input type="date" name="tgl_awal" class="form-control border-light py-2" style="border-radius: 10px;" value="{{ $tgl_awal }}">
+    {{-- Filter Card --}}
+    <div class="card shadow-sm border-0 mb-4 bg-light">
+        <div class="card-body">
+            <form action="{{ route('laporan.banding.putus') }}" method="GET" class="row g-2 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted">Tgl Awal</label>
+                    <input type="date" name="tgl_awal" class="form-control form-control-sm" value="{{ $tgl_awal }}">
                 </div>
-                <div class="col-lg-3">
-                    <label class="small fw-bold text-muted text-uppercase mb-2 d-block">Tanggal Akhir</label>
-                    <input type="date" name="tgl_akhir" class="form-control border-light py-2" style="border-radius: 10px;" value="{{ $tgl_akhir }}">
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted">Tgl Akhir</label>
+                    <input type="date" name="tgl_akhir" class="form-control form-control-sm" value="{{ $tgl_akhir }}">
                 </div>
-                <div class="col-lg-4">
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary fw-800 flex-grow-1 py-2 shadow-sm rounded-pill" style="background: #4f46e5; border: none; height: 45px;">
-                            <i class="fas fa-filter me-2"></i> TAMPILKAN
-                        </button>
-                        <a href="{{ url()->current() }}" class="btn btn-light border d-flex align-items-center justify-content-center shadow-sm rounded-circle" style="width: 45px; height: 45px;">
-                            <i class="fas fa-undo-alt text-muted"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-2 text-end d-none d-lg-block">
-                    <div class="small fw-bold text-muted text-uppercase">Data Per Periode</div>
-                    <span class="badge bg-soft-primary text-primary border-0 rounded-pill px-3">{{ date('d/m/y', strtotime($tgl_awal)) }} - {{ date('d/m/y', strtotime($tgl_akhir)) }}</span>
+                <div class="col-md-8 d-flex gap-2">
+                    <button type="submit" class="btn btn-dark btn-sm px-3 shadow-sm"><i class="fas fa-filter me-1"></i> Filter</button>
+                    <a href="{{ route('laporan.banding.putus') }}" class="btn btn-outline-danger btn-sm px-3 shadow-sm"><i class="fas fa-undo me-1"></i> Reset</a>
+                    <a href="{{ route('laporan.banding.putus.export', request()->all()) }}" class="btn btn-success btn-sm px-3 shadow-sm"><i class="fas fa-file-excel me-1"></i> Excel</a>
                 </div>
             </form>
         </div>
     </div>
 
-    <div class="card card-luxury border-0">
-        <div class="table-responsive">
-            <table id="tableRK2" class="table table-luxury align-middle mb-0 text-center">
-                <thead>
-                    <tr>
-                        <th width="60">No</th>
-                        <th class="text-start">Satuan Kerja</th>
-                        <th>Sisa Lalu</th>
-                        <th>Diterima</th>
-                        <th>Beban</th>
-                        <th>Putus</th>
-                        <th>Sisa Akhir</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php $tS=0; $tD=0; $tB=0; $tP=0; $tA=0; @endphp
-                    @foreach($results as $row)
-                    @php
-                    $tS += $row->sisa_lalu; $tD += $row->diterima; $tB += $row->beban;
-                    $tP += $row->selesai; $tA += $row->sisa_ini;
-                    @endphp
-                    <tr>
-                        <td class="text-muted fw-bold">{{ $loop->iteration }}</td>
-                        <td class="text-start">
-                            <div class="fw-800 text-dark text-uppercase" style="font-size: 0.75rem;">
-                                {{ $row->satker_key == 'TASIKKOTA' ? 'TASIKMALAYA KOTA' : $row->satker_key }}
-                            </div>
-                        </td>
-                        <td>
-                            @if($row->sisa_lalu > 0)
-                            <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'sisa_lalu', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-sisa-lalu">{{ number_format($row->sisa_lalu) }}</a>
-                            @else <span class="text-zero">0</span> @endif
-                        </td>
-                        <td>
-                            @if($row->diterima > 0)
-                            <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'diterima', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-terima">{{ number_format($row->diterima) }}</a>
-                            @else <span class="text-zero">0</span> @endif
-                        </td>
-                        <td>
-                            @if($row->beban > 0)
-                            <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'beban', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-beban">{{ number_format($row->beban) }}</a>
-                            @else <span class="text-zero">0</span> @endif
-                        </td>
-                        <td>
-                            @if($row->selesai > 0)
-                            <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'selesai', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-putus">{{ number_format($row->selesai) }}</a>
-                            @else <span class="text-zero">0</span> @endif
-                        </td>
-                        <td>
-                            @if($row->sisa_ini > 0)
-                            <a href="{{ route('laporan.banding.putus.detail', ['satker'=>$row->satker_key, 'jenis'=>'sisa_ini', 'tgl_awal'=>$tgl_awal, 'tgl_akhir'=>$tgl_akhir]) }}" class="link-num link-sisa-akhir">{{ number_format($row->sisa_ini) }}</a>
-                            @else <span class="text-zero">0</span> @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-                <tfoot class="tfoot-luxury">
-                    <tr>
-                        <td colspan="2" class="text-center">TOTAL WILAYAH HUKUM PTA BANDUNG</td>
-                        <td>{{ number_format($tS) }}</td>
-                        <td>{{ number_format($tD) }}</td>
-                        <td>{{ number_format($tB) }}</td>
-                        <td>{{ number_format($tP) }}</td>
-                        <td>{{ number_format($tA) }}</td>
-                    </tr>
-                </tfoot>
-            </table>
+    {{-- Table Card --}}
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 80vh;">
+                <table class="table-rk table table-bordered align-middle mb-0">
+                    <thead class="text-center align-middle">
+                        <tr class="main-header">
+                            <th rowspan="2" class="fz-1 sticky-col header-dark">NO</th>
+                            <th rowspan="2" class="fz-2 sticky-col header-dark">PENGADILAN AGAMA</th>
+                            <th rowspan="2" class="v-head fz-3 sticky-col header-gray text-white"><span>SISA LALU</span></th>
+                            <th rowspan="2" class="v-head fz-4 sticky-col header-gray text-white"><span>DITERIMA</span></th>
+                            <th rowspan="2" class="v-head fz-5 sticky-col header-gray text-white border-end-strong"><span>JUMLAH (BEBAN)</span></th>
+                            <th rowspan="2" class="v-head header-orange text-dark"><span>DICABUT</span></th>
+                            <th colspan="{{ count($jenisPerkara) }}" class="header-blue text-white">JENIS PERKARA DIPUTUS (DIKABULKAN)</th>
+                            <th rowspan="2" class="v-head header-blue border-start-strong text-white"><span>TOTAL DIKABULKAN</span></th>
+                            <th colspan="4" class="header-orange text-dark">STATUS PUTUSAN LAINNYA</th>
+                            <th rowspan="2" class="v-head header-blue border-start-strong text-white"><span>JUMLAH PUTUS</span></th>
+                            <th rowspan="2" class="v-head header-dark text-white"><span>SISA AKHIR</span></th>
+                        </tr>
+                        <tr class="sub-header">
+                            @foreach($jenisPerkara as $alias => $label)
+                                <th class="v-head" title="{{ $label }}"><span>{{ $label }}</span></th>
+                            @endforeach
+                            <th class="v-head"><span>DITOLAK</span></th>
+                            <th class="v-head"><span>TAK DITERIMA</span></th>
+                            <th class="v-head"><span>GUGUR</span></th>
+                            <th class="v-head"><span>DICORET</span></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @php $totalRow = null; @endphp
+                        @foreach($results as $index => $row)
+                            @if($row->satker == 'JUMLAH KESELURUHAN')
+                                @php $totalRow = $row; continue; @endphp
+                            @endif
+
+                            @php
+                                $rowTotalDikabulkan = 0;
+                                foreach(array_keys($jenisPerkara) as $k) { $rowTotalDikabulkan += $row->$k ?? 0; }
+                                $rowJmlPutus = ($row->dicabut??0) + $rowTotalDikabulkan + ($row->ditolak??0) + ($row->tidak_diterima??0) + ($row->gugur??0) + ($row->dicoret??0);
+                                $rowSisaAkhir = ($row->beban ?? 0) - $rowJmlPutus;
+                            @endphp
+
+                            <tr>
+                                <td class="text-center fz-1 sticky-col bg-white">{{ $index + 1 }}</td>
+                                <td class="fz-2 sticky-col bg-white fw-bold px-3 text-uppercase" style="font-size: 10px;">{{ $row->satker }}</td>
+                                <td class="text-center fz-3 sticky-col bg-light fw-bold text-primary">{{ number_format($row->sisa_lalu ?? 0) }}</td>
+                                <td class="text-center fz-4 sticky-col bg-light fw-bold text-success">{{ number_format($row->diterima ?? 0) }}</td>
+                                <td class="text-center fz-5 sticky-col bg-light fw-bold border-end-strong">{{ number_format($row->beban ?? 0) }}</td>
+                                <td class="text-center">{{ number_format($row->dicabut ?? 0) }}</td>
+                                @foreach(array_keys($jenisPerkara) as $key)
+                                    <td class="text-center border-sub">{{ number_format($row->$key ?? 0) }}</td>
+                                @endforeach
+                                <td class="text-center fw-bold bg-light-blue border-start-strong">{{ number_format($rowTotalDikabulkan) }}</td>
+                                <td class="text-center">{{ number_format($row->ditolak ?? 0) }}</td>
+                                <td class="text-center">{{ number_format($row->tidak_diterima ?? 0) }}</td>
+                                <td class="text-center">{{ number_format($row->gugur ?? 0) }}</td>
+                                <td class="text-center">{{ number_format($row->dicoret ?? 0) }}</td>
+                                <td class="text-center fw-bold bg-light-blue border-start-strong">{{ number_format($rowJmlPutus) }}</td>
+                                <td class="text-center fw-bold {{ $rowSisaAkhir > 0 ? 'text-danger' : 'text-success' }} bg-light">{{ number_format($rowSisaAkhir) }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+
+                    @if($totalRow)
+                    <tfoot>
+                        @php
+                            $grandTotalDikabulkan = 0;
+                            foreach(array_keys($jenisPerkara) as $k) { $grandTotalDikabulkan += $totalRow->$k ?? 0; }
+                            $grandJmlPutus = ($totalRow->dicabut??0) + $grandTotalDikabulkan + ($totalRow->ditolak??0) + ($totalRow->tidak_diterima??0) + ($totalRow->gugur??0) + ($totalRow->dicoret??0);
+                        @endphp
+                        <tr class="sticky-footer">
+                            <td class="fz-1 sticky-col" colspan="2">JUMLAH KESELURUHAN</td>
+                            <td class="d-none sticky-col fz-2"></td> 
+                            <td class="text-center fz-3 sticky-col">{{ number_format($totalRow->sisa_lalu ?? 0) }}</td>
+                            <td class="text-center fz-4 sticky-col">{{ number_format($totalRow->diterima ?? 0) }}</td>
+                            <td class="text-center fz-5 sticky-col border-end-strong">{{ number_format($totalRow->beban ?? 0) }}</td>
+                            <td class="text-center">{{ number_format($totalRow->dicabut ?? 0) }}</td>
+                            @foreach(array_keys($jenisPerkara) as $key)
+                                <td class="text-center">{{ number_format($totalRow->$key ?? 0) }}</td>
+                            @endforeach
+                            <td class="text-center border-start-strong">{{ number_format($grandTotalDikabulkan) }}</td>
+                            <td class="text-center">{{ number_format($totalRow->ditolak ?? 0) }}</td>
+                            <td class="text-center">{{ number_format($totalRow->tidak_diterima ?? 0) }}</td>
+                            <td class="text-center">{{ number_format($totalRow->gugur ?? 0) }}</td>
+                            <td class="text-center">{{ number_format($totalRow->dicoret ?? 0) }}</td>
+                            <td class="text-center border-start-strong">{{ number_format($grandJmlPutus) }}</td>
+                            <td class="text-center text-white">{{ number_format(($totalRow->beban ?? 0) - $grandJmlPutus) }}</td>
+                        </tr>
+                    </tfoot>
+                    @endif
+                </table>
+            </div>
         </div>
     </div>
 </div>
-@endsection
-
-@section('scripts')
-<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#tableRK2').DataTable({
-            "pageLength": 30,
-            "ordering": false,
-            "dom": '<"p-4 d-flex justify-content-between align-items-center"f>rtip',
-            "language": {
-                "search": "",
-                "searchPlaceholder": "Cari Satker...",
-                "paginate": {
-                    "next": '<i class="fas fa-chevron-right"></i>',
-                    "previous": '<i class="fas fa-chevron-left"></i>'
-                }
-            }
-        });
-    });
-</script>
 @endsection

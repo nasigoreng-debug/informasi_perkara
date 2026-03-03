@@ -5,103 +5,142 @@ namespace App\Exports;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
-class RK2Export implements FromCollection, WithHeadings, WithStyles, WithMapping, WithCustomStartCell
+class RK2Export implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
-    protected $data;
-    protected $tglAwal;
-    protected $tglAkhir;
+    protected $results;
+    protected $tgl_awal;
+    protected $tgl_akhir;
+    protected $jenisPerkara;
 
-    public function __construct($data, $tglAwal, $tglAkhir)
+    public function __construct($results, $tgl_awal, $tgl_akhir)
     {
-        $this->data = collect($data);
-        $this->tglAwal = $tglAwal;
-        $this->tglAkhir = $tglAkhir;
-    }
-
-    // Menentukan sel mana tabel dimulai (agar ada ruang untuk judul di atas)
-    public function startCell(): string
-    {
-        return 'A4';
+        $this->results = $results;
+        $this->tgl_awal = $tgl_awal;
+        $this->tgl_akhir = $tgl_akhir;
+        $this->jenisPerkara = [
+            'iz' => 'Izin Poligami',
+            'pp' => 'Pencegahan Perkawinan',
+            'p_ppn' => 'Penolakan PPN',
+            'pb' => 'Pembatalan Perkawinan',
+            'lks' => 'Kelalaian Kewajiban',
+            'ct' => 'Cerai Talak',
+            'cg' => 'Cerai Gugat',
+            'hb' => 'Harta Bersama',
+            'pa' => 'Penguasaan Anak',
+            'nai' => 'Nafkah Anak',
+            'hbi' => 'Hak Bekas Isteri',
+            'psa' => 'Pengesahan Anak',
+            'pkot' => 'Cabut Kuasa Ortu',
+            'pw' => 'Perwalian',
+            'phw' => 'Cabut Kuasa Wali',
+            'pol' => 'Penunjukan Wali',
+            'grw' => 'Ganti Rugi Wali',
+            'aua' => 'Asal Usul Anak',
+            'pkc' => 'Tolak Kawin Campur',
+            'isbath' => 'Isbath Nikah',
+            'ik' => 'Izin Kawin',
+            'dk' => 'Dispensasi Kawin',
+            'wa' => 'Wali Adhol',
+            'es' => 'Ekonomi Syari',
+            'kw' => 'Kewarisan',
+            'wst' => 'Wasiat',
+            'hb_h' => 'Hibah',
+            'wkf' => 'Wakaf',
+            'zkt_infq' => 'Zakat/Infaq',
+            'p3hp' => 'P3HP/Ahli Waris',
+            'll' => 'Lain-lain'
+        ];
     }
 
     public function collection()
     {
-        $collection = $this->data->map(function ($row) {
-            return (object) [
-                'satker' => $row->satker_key == 'TASIKKOTA' ? 'TASIKMALAYA KOTA' : $row->satker_key,
-                'sisa_lalu' => $row->sisa_lalu,
-                'diterima' => $row->diterima,
-                'beban' => $row->beban,
-                'selesai' => $row->selesai,
-                'sisa_ini' => $row->sisa_ini,
+        $data = [];
+        $no = 1;
+
+        foreach ($this->results as $row) {
+            $isTotal = ($row->satker == 'JUMLAH KESELURUHAN');
+
+            // Hitung total rincian dikabulkan menyamping
+            $totalDikabulkan = 0;
+            foreach (array_keys($this->jenisPerkara) as $k) {
+                $totalDikabulkan += $row->$k ?? 0;
+            }
+
+            // Hitung Jumlah Putus (Sinkron dengan Web)
+            $jmlPutus = ($row->dicabut ?? 0) + $totalDikabulkan + ($row->ditolak ?? 0) + ($row->tidak_diterima ?? 0) + ($row->gugur ?? 0) + ($row->dicoret ?? 0);
+            $sisaAkhir = ($row->beban ?? 0) - $jmlPutus;
+
+            $item = [
+                'no' => $isTotal ? '' : $no++,
+                'satker' => $row->satker,
+                'sisa_lalu' => $row->sisa_lalu ?? 0,
+                'diterima' => $row->diterima ?? 0,
+                'beban' => $row->beban ?? 0,
+                'dicabut' => $row->dicabut ?? 0,
             ];
-        });
 
-        // HITUNG GRAND TOTAL
-        $totalSisaLalu = $collection->sum('sisa_lalu');
-        $totalDiterima = $collection->sum('diterima');
-        $totalBeban    = $collection->sum('beban');
-        $totalSelesai  = $collection->sum('selesai');
-        $totalSisaAkhir = $collection->sum('sisa_ini');
+            // Isi Rincian Jenis Perkara
+            foreach (array_keys($this->jenisPerkara) as $k) {
+                $item[$k] = $row->$k ?? 0;
+            }
 
-        // TAMBAHKAN BARIS TOTAL KE KOLEKSI
-        $collection->push((object) [
-            'satker' => 'TOTAL SELURUH WILAYAH',
-            'sisa_lalu' => $totalSisaLalu,
-            'diterima' => $totalDiterima,
-            'beban' => $totalBeban,
-            'selesai' => $totalSelesai,
-            'sisa_ini' => $totalSisaAkhir,
-        ]);
+            $item['total_kabul'] = $totalDikabulkan;
+            $item['ditolak'] = $row->ditolak ?? 0;
+            $item['tidak_diterima'] = $row->tidak_diterima ?? 0;
+            $item['gugur'] = $row->gugur ?? 0;
+            $item['dicoret'] = $row->dicoret ?? 0;
+            $item['jml_putus'] = $jmlPutus;
+            $item['sisa_akhir'] = $sisaAkhir;
 
-        return $collection;
-    }
+            $data[] = $item;
+        }
 
-    public function map($row): array
-    {
-        return [
-            $row->satker,
-            $row->sisa_lalu,
-            $row->diterima,
-            $row->beban,
-            $row->selesai,
-            $row->sisa_ini,
-        ];
+        return collect($data);
     }
 
     public function headings(): array
     {
-        return ["SATUAN KERJA", "SISA LALU", "DITERIMA", "BEBAN", "PUTUS", "SISA AKHIR"];
+        return [
+            ['LAPORAN PERKARA BANDING DIPUTUS (RK.2)'],
+            ['PERIODE: ' . $this->tgl_awal . ' S/D ' . $this->tgl_akhir],
+            [''],
+            array_merge(
+                ['NO', 'PENGADILAN AGAMA', 'SISA LALU', 'DITERIMA', 'JUMLAH (BEBAN)', 'DICABUT'],
+                array_values($this->jenisPerkara),
+                ['TOTAL DIKABULKAN', 'DITOLAK', 'TAK DITERIMA', 'GUGUR', 'DICORET', 'JUMLAH PUTUS', 'SISA AKHIR']
+            )
+        ];
     }
 
     public function styles(Worksheet $sheet)
     {
-        // MENAMBAHKAN JUDUL LAPORAN DI BARIS ATAS
-        $sheet->mergeCells('A1:F1');
-        $sheet->setCellValue('A1', 'LAPORAN KEADAAN PERKARA BANDING (RK2)');
-
-        $sheet->mergeCells('A2:F2');
-        $sheet->setCellValue('A2', 'PERIODE: ' . date('d-m-Y', strtotime($this->tglAwal)) . ' S/D ' . date('d-m-Y', strtotime($this->tglAkhir)));
-
-        // STYLE JUDUL
-        $sheet->getStyle('A1:A2')->getFont()->setBold(true)->setSize(14);
-        $sheet->getStyle('A1:A2')->getAlignment()->setHorizontal('center');
-
-        // STYLE HEADER TABEL (BARIS 4)
-        $sheet->getStyle('A4:F4')->getFont()->setBold(true);
-        $sheet->getStyle('A4:F4')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-
-        // STYLE BARIS TERAKHIR (GRAND TOTAL)
         $lastRow = $sheet->getHighestRow();
-        $sheet->getStyle('A' . $lastRow . ':F' . $lastRow)->getFont()->setBold(true);
-        $sheet->getStyle('A' . $lastRow . ':F' . $lastRow)->getFill()
-            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-            ->getStartColor()->setARGB('F1F5F9');
+        $lastCol = $sheet->getHighestColumn();
 
-        return [];
+        // Title Center
+        $sheet->mergeCells("A1:{$lastCol}1");
+        $sheet->mergeCells("A2:{$lastCol}2");
+        $sheet->getStyle('A1:A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+
+        // Header Styling
+        $sheet->getStyle("A4:{$lastCol}4")->getFont()->setBold(true);
+        $sheet->getStyle("A4:{$lastCol}4")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('E2E2E2');
+
+        // Borders
+        $sheet->getStyle("A4:{$lastCol}{$lastRow}")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+        // Number Alignment
+        $sheet->getStyle("C4:{$lastCol}{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Total Row Bold
+        $sheet->getStyle("A{$lastRow}:{$lastCol}{$lastRow}")->getFont()->setBold(true);
+        $sheet->getStyle("A{$lastRow}:{$lastCol}{$lastRow}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('F2F2F2');
     }
 }

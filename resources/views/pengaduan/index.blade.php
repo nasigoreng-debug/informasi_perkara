@@ -31,9 +31,9 @@
                         <div class="btn-group w-100 shadow-sm rounded-pill overflow-hidden border">
                             <button type="submit" class="btn btn-danger btn-sm font-weight-bold">Filter</button>
 
-                            <a href="{{ route('pengaduan.export_excel', request()->all()) }}" class="btn btn-success btn-sm font-weight-bold text-white" target="_blank">
-                                <i class="fas fa-file-excel me-1"></i> Excel
-                            </a>
+                            <button type="button" onclick="exportExcel()" class="btn btn-success btn-sm font-weight-bold text-white shadow-sm px-3">
+                                <i class="fas fa-file-excel me-1"></i> Export Excel
+                            </button>
 
                             <a href="{{ route('pengaduan.dashboard') }}" class="btn btn-dark btn-sm text-white font-weight-bold">Dashboard</a>
                             <a href="{{ route('pengaduan.index') }}" class="btn btn-light btn-sm text-muted font-weight-bold"><i class="fas fa-sync-alt"></i></a>
@@ -178,6 +178,22 @@
         if (confirm('Yakin mau hapus data ini secara permanen, Bos?')) {
             document.getElementById('delete-form-' + id).submit();
         }
+    }
+
+    function exportExcel() {
+        // Ambil data dari form filter lo
+        const search = document.querySelector('input[name="search"]').value;
+        const fromDate = document.querySelector('input[name="from_date"]').value;
+        const toDate = document.querySelector('input[name="to_date"]').value;
+
+        // Susun URL export dengan parameter filter
+        const url = "{{ route('pengaduan.export_excel') }}?" +
+            "search=" + encodeURIComponent(search) +
+            "&from_date=" + fromDate +
+            "&to_date=" + toDate;
+
+        // Buka tab baru untuk download tanpa me-refresh halaman sekarang
+        window.open(url, '_blank');
     }
 </script>
 @endsection

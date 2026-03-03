@@ -27,14 +27,19 @@ use App\Http\Controllers\{
 */
 
 // ==========================================
-// 1. OTENTIKASI (LOGIN & LOGOUT)
+// 1. ROUTE PUBLIC (TANPA LOGIN)
+// ==========================================
+Route::get('/jadwal-sidang/public', [SidangController::class, 'index_public'])->name('sidang.index_public');
+
+// ==========================================
+// 2. OTENTIKASI (LOGIN & LOGOUT)
 // ==========================================
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ==========================================
-// 2. AREA PRIVAT (Hanya User Terautentikasi)
+// 3. AREA PRIVAT (Hanya User Terautentikasi)
 // ==========================================
 Route::middleware(['auth'])->group(function () {
 
@@ -66,7 +71,7 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::controller(SidangController::class)->prefix('jadwal-sidang')->name('sidang.')->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/public', 'index_public')->name('index_public');
+        // Route public sudah dipindahkan ke luar
     });
 
     /**
@@ -135,6 +140,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/download/{id}/{type}', 'download')->name('download');
         Route::get('/export-excel', 'exportExcel')->name('exportExcel');
     });
+
     /**
      * MODUL: LAPORAN PERKARA & PUTUSAN
      */

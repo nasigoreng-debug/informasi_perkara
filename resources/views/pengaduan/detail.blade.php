@@ -136,14 +136,14 @@
                                     <div class="tracking-date">{{ \Carbon\Carbon::parse($pgd->dis_pm_hk)->format('d M Y') }}<span>REGISTER</span></div>
                                     <div class="tracking-dot"></div>
                                     <div class="tracking-content">
-                                        <h6 class="fw-bold text-dark">Registrasi & Aplikasi Siwas</h6>
-                                        <p class="text-muted small">Panmud Hukum mencatat pada Buku Register dan menginput ke Aplikasi Siwas.</p>
+                                        <h6 class="fw-bold text-dark">Registrasi</h6>
+                                        <p class="text-muted small">Panitera Muda Hukum mencatat pada Buku Register.</p>
                                     </div>
                                 </div>
                                 @endif
 
                                 <div class="tracking-item {{ $activePos == 'DITERIMA' ? 'current' : '' }}">
-                                    <div class="tracking-date">{{ \Carbon\Carbon::parse($pgd->tgl_terima_pgd)->format('d M Y') }}<span>START</span></div>
+                                    <div class="tracking-date">{{ \Carbon\Carbon::parse($pgd->tgl_terima_pgd)->format('d M Y') }}<span>DITERIMA</span></div>
                                     <div class="tracking-dot"></div>
                                     <div class="tracking-content">
                                         <h6 class="fw-bold text-dark">Menerima Pengaduan</h6>

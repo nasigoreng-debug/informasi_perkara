@@ -2,85 +2,55 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class RK1Export implements FromCollection, WithHeadings, WithStyles, WithMapping, WithCustomStartCell
+class RK1Export implements FromView, ShouldAutoSize, WithStyles
 {
-    protected $data;
-    protected $tglAwal;
-    protected $tglAkhir;
+    protected $results;
+    protected $tgl_awal;
+    protected $tgl_akhir;
 
-    public function __construct($data, $tglAwal, $tglAkhir)
+    public function __construct($results, $tgl_awal, $tgl_akhir)
     {
-        $this->data = collect($data);
-        $this->tglAwal = $tglAwal;
-        $this->tglAkhir = $tglAkhir;
+        $this->results = $results;
+        $this->tgl_awal = $tgl_awal;
+        $this->tgl_akhir = $tgl_akhir;
     }
 
-    public function startCell(): string
+    public function view(): View
     {
-        return 'A4';
-    }
-
-    public function collection()
-    {
-        $collection = $this->data->map(function ($row) {
-            return (object) [
-                'satker' => $row->satker,
-                'total' => $row->total_perkara,
-                'ecourt' => $row->jumlah_ecourt,
-                'manual' => $row->jumlah_manual,
-            ];
-        });
-
-        // Tambah Grand Total
-        $collection->push((object) [
-            'satker' => 'TOTAL SELURUH WILAYAH',
-            'total' => $collection->sum('total'),
-            'ecourt' => $collection->sum('ecourt'),
-            'manual' => $collection->sum('manual'),
+        return view('exports.banding_diterima_excel', [
+            'results' => $this->results,
+            'tgl_awal' => $this->tgl_awal,
+            'tgl_akhir' => $this->tgl_akhir
         ]);
-
-        return $collection;
-    }
-
-    public function map($row): array
-    {
-        return [
-            $row->satker,
-            $row->total,
-            $row->ecourt,
-            $row->manual,
-        ];
-    }
-
-    public function headings(): array
-    {
-        return ["SATUAN KERJA", "TOTAL PERKARA", "E-COURT", "MANUAL"];
     }
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->mergeCells('A1:D1');
-        $sheet->setCellValue('A1', 'LAPORAN PENERIMAAN PERKARA BANDING (RK1)');
-        $sheet->mergeCells('A2:D2');
-        $sheet->setCellValue('A2', 'PERIODE: ' . date('d-m-Y', strtotime($this->tglAwal)) . ' S/D ' . date('d-m-Y', strtotime($this->tglAkhir)));
+        $lastRow = count($this->results) + 6;
 
-        $sheet->getStyle('A1:A2')->getFont()->setBold(true)->setSize(14);
-        $sheet->getStyle('A1:A2')->getAlignment()->setHorizontal('center');
-        $sheet->getStyle('A4:D4')->getFont()->setBold(true);
+        // Atur border untuk semua tabel (A5 sampai AI[lastRow])
+        $sheet->getStyle('A5:AI' . $lastRow)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
-        $lastRow = $sheet->getHighestRow();
-        $sheet->getStyle('A' . $lastRow . ':D' . $lastRow)->getFont()->setBold(true);
-        $sheet->getStyle('A' . $lastRow . ':D' . $lastRow)->getFill()
-            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-            ->getStartColor()->setARGB('F1F5F9');
-
-        return [];
+        return [
+            5 => [
+                'font' => ['bold' => true],
+                'alignment' => ['horizontal' => 'center', 'vertical' => 'center']
+            ],
+            6 => [
+                'font' => ['bold' => true, 'size' => 9],
+                'alignment' => [
+                    'horizontal' => 'center',
+                    'vertical' => 'center',
+                    'textRotation' => 90, // Muter teks 90 derajat (Vertikal)
+                    'wrapText' => true
+                ],
+            ],
+        ];
     }
 }

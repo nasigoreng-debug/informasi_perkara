@@ -104,13 +104,6 @@ class SidangController extends Controller
                 'online' => Visitor::where('updated_at', '>=', now()->subMinutes(5))->count() + rand(2, 5)
             ];
 
-            // LOG: Akses Jadwal Sidang (Public)
-            // Khusus publik kita catat tanpa membebani server
-            if (!session()->has('logged_sidang_public')) {
-                ActivityLog::record('Akses Sidang Publik', 'Sidang', 'Pengunjung melihat jadwal sidang melalui akses publik');
-                session()->put('logged_sidang_public', true);
-            }
-
             return view('jadwal_sidang.index_public', [
                 'perkaras' => $perkarasHariIni,
                 'sidangHariIni' => $perkarasHariIni->count(),

@@ -191,10 +191,10 @@
             <p class="card-desc">Himpunan SK Ketua/Sekretaris PTA Bandung.</p>
         </a>
 
-        <a href="#" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.3s">
+        <a href="{{ route('pengaduan.dashboard') }}" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.3s">
             <div class="icon-box bg-warning bg-opacity-10 text-warning"><i class="fas fa-bullhorn"></i></div>
             <h5 class="card-title">Pengaduan</h5>
-            <p class="card-desc">Manajemen data pengaduan masyarakat (SIWAS).</p>
+            <p class="card-desc">Manajemen data pengaduan.</p>
         </a>
 
         <a href="#" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.4s">
