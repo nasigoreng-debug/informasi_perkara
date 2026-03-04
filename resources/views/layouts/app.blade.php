@@ -201,7 +201,7 @@
             </div>
             <div class="loader-text">
                 <h5>PANMUD HUKUM</h5>
-                <p>Sinkronisasi data sedang berlangsung...</p>
+                <p>Integrasi data sedang berlangsung...</p>
             </div>
             <div class="spinner-custom"></div>
         </div>

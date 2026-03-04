@@ -26,6 +26,19 @@
         margin: 0 auto;
     }
 
+    /* Notifikasi Periode */
+    .alert-periode {
+        background-color: #eff6ff;
+        border: 1px solid #dbeafe;
+        color: #1e40af;
+        border-radius: 12px;
+        padding: 12px 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+
     /* Navigasi & Filter */
     .btn-back {
         width: 42px;
@@ -121,23 +134,9 @@
         letter-spacing: 0.02em;
     }
 
-    .bg-tuntas {
-        background: #f0fdf4;
-        color: #16a34a;
-        border: 1px solid #dcfce7;
-    }
-
-    .bg-baik {
-        background: #f0f9ff;
-        color: #0ea5e9;
-        border: 1px solid #e0f2fe;
-    }
-
-    .bg-belum {
-        background: #fff1f2;
-        color: #e11d48;
-        border: 1px solid #ffe4e6;
-    }
+    .bg-tuntas { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
+    .bg-baik { background: #f0f9ff; color: #0ea5e9; border: 1px solid #e0f2fe; }
+    .bg-belum { background: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6; }
 
     .tfoot-dark {
         background: var(--dark-navy);
@@ -151,27 +150,20 @@
     }
 
     @media print {
-
-        .no-print,
-        .btn-back,
-        .filter-card {
+        .no-print, .btn-back, .filter-card, .alert-periode {
             display: none !important;
         }
-
         .table-container {
             border: none;
             box-shadow: none;
         }
-
-        body {
-            background: white;
-        }
+        body { background: white; }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="container py-5">
+<div class="container-wide py-5">
 
     {{-- HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -207,7 +199,6 @@
                     <button type="submit" class="btn btn-primary fw-bold px-4">
                         <i class="bi bi-filter me-1"></i> FILTER
                     </button>
-                    {{-- TOMBOL RESET --}}
                     <a href="{{ route('court-calendar') }}" class="btn btn-light border px-3" title="Reset Filter">
                         <i class="bi bi-arrow-clockwise text-primary"></i>
                     </a>
@@ -217,6 +208,17 @@
                 </div>
             </div>
         </form>
+    </div>
+
+    {{-- NOTIFIKASI PERIODE --}}
+    <div class="alert-periode shadow-sm mb-4">
+        <i class="bi bi-info-circle-fill me-3 fs-5"></i>
+        <div>
+            Menampilkan hasil monitoring periode: 
+            <span class="fw-bold text-dark">{{ \Carbon\Carbon::parse($tglAwal)->translatedFormat('d F Y') }}</span> 
+            s.d 
+            <span class="fw-bold text-dark">{{ \Carbon\Carbon::parse($tglAkhir)->translatedFormat('d F Y') }}</span>
+        </div>
     </div>
 
     {{-- DATA TABLE --}}
@@ -238,9 +240,9 @@
                     @php $gTotal = 0; $gSudah = 0; $gBelum = 0; @endphp
                     @foreach($results as $index => $row)
                     @php
-                    $gTotal += $row->total;
-                    $gSudah += $row->sudah;
-                    $gBelum += $row->belum;
+                        $gTotal += $row->total;
+                        $gSudah += $row->sudah;
+                        $gBelum += $row->belum;
                     @endphp
                     <tr>
                         <td class="fw-bold text-muted">
@@ -255,7 +257,6 @@
                         <td class="text-success fw-bold">{{ number_format($row->sudah) }}</td>
                         <td>
                             @if($row->belum > 0)
-                            {{-- Route Name: court-calendar.detail --}}
                             <a href="{{ route('court-calendar.detail', ['satker' => $row->db, 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir]) }}"
                                 target="_blank" class="text-danger fw-bold text-decoration-none">
                                 {{ number_format($row->belum) }}
