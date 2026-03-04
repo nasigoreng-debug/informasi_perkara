@@ -242,7 +242,7 @@
                         </a>
                     </li>
                     @auth
-                    @if(Auth::user()->isAdmin())
+                    @if(Auth::user()->isSuperAdmin())
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
                             <i class="fas fa-users-cog me-1"></i> Manajemen User

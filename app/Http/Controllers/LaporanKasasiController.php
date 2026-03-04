@@ -9,7 +9,7 @@ use App\Exports\KasasiExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use App\Models\ActivityLog; // Tambahkan pemanggilan Model Log
+use App\Models\ActivityLog; 
 
 class LaporanKasasiController extends Controller
 {
@@ -34,7 +34,7 @@ class LaporanKasasiController extends Controller
         $dataRaw = $this->kasasiService->getLaporanKasasi($tahun, $bulan);
 
         // --- FILTER OTOMATIS BERDASARKAN SATKER ---
-        if (!$user->isAdmin() && $user->satker) {
+        if (!$user->isSuperAdmin() && !$user->isAdmin() && $user->satker) {
             $keyword = strtolower($user->satker->tabel);
             $data = $dataRaw->filter(function ($item) use ($keyword) {
                 return str_contains(strtolower($item->nama_db), $keyword);

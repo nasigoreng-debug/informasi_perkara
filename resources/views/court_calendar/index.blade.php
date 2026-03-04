@@ -1,186 +1,301 @@
 @extends('layouts.app')
 
-@section('content')
+@section('title', 'Monitoring Court Calendar')
+
+@push('styles')
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 <style>
-    .content-container {
-        max-width: 1050px;
-        margin: auto;
+    :root {
+        --dark-navy: #1e293b;
+        --border-color: #e2e8f0;
+        --bg-body: #f8fafc;
+        --accent-blue: #2563eb;
+    }
+
+    body {
+        background-color: var(--bg-body);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #334155;
+        letter-spacing: -0.01em;
+    }
+
+    .container-wide {
+        max-width: 96%;
+        margin: 0 auto;
+    }
+
+    /* Navigasi & Filter */
+    .btn-back {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: 1px solid var(--border-color);
+        color: var(--dark-navy);
+        text-decoration: none !important;
+        transition: 0.2s;
+    }
+
+    .btn-back:hover {
+        background: var(--dark-navy);
+        color: white;
     }
 
     .filter-card {
-        background: #fdfdfd;
-        border: 1px solid #e3e6f0;
+        background: white;
+        border: 1px solid var(--border-color);
         border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
     }
 
-    .table thead th {
-        background-color: #f8f9fc;
-        text-transform: uppercase;
-        font-size: 0.8rem !important;
-        font-weight: 700 !important;
-        color: #4e73df;
-        padding: 15px;
-    }
-
-    .table tbody td {
-        font-size: 0.85rem !important;
-        vertical-align: middle !important;
-        color: #2d3748;
-    }
-
-    /* Style khusus untuk baris Grand Total di paling bawah */
-    .bg-grand-total {
-        background-color: #ffff00 !important;
-        /* Kuning pekat */
-        font-weight: 800 !important;
-    }
-
-    .bg-grand-total td {
-        color: #000 !important;
-        border-top: 2px solid #2d3748 !important;
-    }
-
-    .text-satker {
-        text-align: left !important;
-        padding-left: 20px !important;
-        font-weight: 700;
-    }
-
-    .status-badge {
-        width: 100%;
-        display: block;
-        padding: 0.4rem;
-        font-weight: 700;
-        font-size: 0.75rem;
-        border-radius: 6px;
-        text-decoration: none !important;
-        transition: all 0.3s;
-    }
-
-    .status-badge:hover {
-        opacity: 0.8;
-        transform: scale(1.02);
-    }
-
-    .alert-filter {
-        background-color: #e0f2fe;
-        border-left: 5px solid #0ea5e9;
-        color: #0369a1;
+    input[type="date"] {
+        border: 1px solid var(--border-color);
         border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+    /* Table DNA - Grid Kotak Tipis (Classic Clean) */
+    .table-container {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .table-grid {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+    .table-grid thead th {
+        background: #f8fafc;
+        border: 1px solid var(--border-color);
+        padding: 16px 12px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #64748b;
+        letter-spacing: 0.05em;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .table-grid tbody td {
+        border: 1px solid var(--border-color);
+        padding: 16px 12px;
+        font-size: 0.85rem;
+        vertical-align: middle;
+        line-height: 1.5;
+    }
+
+    .table-grid tr:hover td {
+        background-color: #f1f5f9;
+    }
+
+    /* Visual Elements */
+    .progress-sm {
+        height: 8px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        overflow: hidden;
+        width: 80px;
+    }
+
+    .status-pill {
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-weight: 800;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    .bg-tuntas {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #dcfce7;
+    }
+
+    .bg-baik {
+        background: #f0f9ff;
+        color: #0ea5e9;
+        border: 1px solid #e0f2fe;
+    }
+
+    .bg-belum {
+        background: #fff1f2;
+        color: #e11d48;
+        border: 1px solid #ffe4e6;
+    }
+
+    .tfoot-dark {
+        background: var(--dark-navy);
+        color: white;
+        font-weight: 700;
+    }
+
+    .tfoot-dark td {
+        border: 1px solid #334155 !important;
+        padding: 18px !important;
+    }
+
+    @media print {
+
+        .no-print,
+        .btn-back,
+        .filter-card {
+            display: none !important;
+        }
+
+        .table-container {
+            border: none;
+            box-shadow: none;
+        }
+
+        body {
+            background: white;
+        }
     }
 </style>
+@endpush
 
-<div class="container py-4">
-    <div class="content-container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="font-weight-bold text-gray-800 mb-0">Monitoring Court Calendar</h3>
-                <p class="text-muted small mb-0 font-italic">Urutan Berdasarkan Jumlah Belum Input Tertinggi</p>
-            </div>
-            <a href="{{ route('monitoring') }}" class="btn btn-sm btn-outline-primary px-3 shadow-sm bg-white font-weight-bold">
-                <i class="fas fa-th-large mr-1"></i> DASHBOARD MONITORING
+@section('content')
+<div class="container py-5">
+
+    {{-- HEADER --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <a href="{{ url('monitoring') }}" class="btn-back me-3 shadow-sm no-print">
+                <i class="bi bi-arrow-left"></i>
             </a>
-        </div>
-
-        <div class="card filter-card shadow-sm mb-4 border-0">
-            <div class="card-body py-4">
-                <form action="{{ route('court-calendar') }}" method="GET" class="row align-items-end justify-content-center">
-                    <div class="col-md-3">
-                        <label class="small font-weight-bold text-secondary mb-1 text-uppercase">Mulai Tanggal Putus</label>
-                        <input type="date" name="tgl_awal" class="form-control form-control-sm shadow-sm" value="{{ $tglAwal }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="small font-weight-bold text-secondary mb-1 text-uppercase">Sampai Tanggal Putus</label>
-                        <input type="date" name="tgl_akhir" class="form-control form-control-sm shadow-sm" value="{{ $tglAkhir }}">
-                    </div>
-                    <div class="col-md-5 mt-3 mt-md-0">
-                        <div class="btn-group w-100 shadow-sm">
-                            <button type="submit" class="btn btn-primary btn-sm font-weight-bold">
-                                <i class="fas fa-filter mr-1"></i> FILTER
-                            </button>
-                            <a href="{{ route('court-calendar.export', ['tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir]) }}"
-                                target="_blank" class="btn btn-success btn-sm font-weight-bold shadow-sm">
-                                <i class="fas fa-file-excel mr-1"></i> EXPORT
-                            </a>
-                            <a href="{{ route('court-calendar') }}" class="btn btn-white btn-sm border px-3 text-dark font-weight-bold">
-                                <i class="fas fa-sync-alt mr-1"></i> RESET
-                            </a>
-                        </div>
-                    </div>
-                </form>
+            <div>
+                <h2 class="fw-800 mb-0" style="color: var(--dark-navy); letter-spacing: -0.02em;">Peringkat Kepatuhan Court Calendar</h2>
+                <p class="text-muted small mb-0 font-italic">Urutan: Persentase Tertinggi & Volume Terima Terbanyak</p>
             </div>
         </div>
-
-        <div class="alert alert-filter shadow-sm mb-4 d-flex align-items-center">
-            <i class="fas fa-info-circle mr-3 fa-lg"></i>
-            <div>Menampilkan hasil monitoring periode: <strong>{{ \Carbon\Carbon::parse($tglAwal)->translatedFormat('d F Y') }}</strong> s.d <strong>{{ \Carbon\Carbon::parse($tglAkhir)->translatedFormat('d F Y') }}</strong></div>
+        <div class="no-print d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-white border shadow-sm fw-bold px-3 btn-sm">
+                <i class="bi bi-printer me-2"></i> Cetak
+            </button>
         </div>
+    </div>
 
-        <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
-            <div class="card-body p-0 text-dark">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="text-center text-uppercase">
-                            <tr>
-                                <th width="60">RANK</th>
-                                <th class="text-left px-4">SATUAN KERJA</th>
-                                <th width="200">BELUM INPUT COURT CALENDAR</th>
-                                <th width="120">STATUS</th>
-                                <th width="160">AKSI</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-center">
-                            @php $grandTotal = 0; @endphp
-                            @foreach($data as $index => $row)
-                            @php $grandTotal += $row->jumlah; @endphp
-                            <tr>
-                                <td class="font-weight-bold text-muted">
-                                    @if($index === 0 && $row->jumlah > 0)
-                                    <i class="fas fa-crown text-warning fa-lg"></i>
-                                    @else
-                                    {{ $index + 1 }}
-                                    @endif
-                                </td>
-                                <td class="text-satker text-primary text-uppercase">{{ $row->satker }}</td>
-                                <td class="px-5">
-                                    <a href="{{ route('court-calendar.detail', ['satker' => $row->satker, 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir]) }}"
-                                        class="status-badge {{ $row->jumlah > 0 ? 'bg-danger shadow-sm' : 'bg-light text-success border' }}"
-                                        style="color: #000 !important;">
-                                        {{ number_format($row->jumlah) }} Perkara
-                                    </a>
-                                </td>
-                                <td>
-                                    @if($row->jumlah > 0)
-                                    <span class="badge badge-warning px-3 py-2 text-uppercase fw-bold shadow-sm" style="font-size: 0.7rem; color: #cc0000 !important; border: 1px solid #ffc107;">
-                                        <i class="fas fa-clock mr-1"></i> Belum Input
-                                    </span>
-                                    @else
-                                    <span class="badge badge-success px-3 py-2 text-uppercase fw-bold shadow-sm" style="font-size: 0.7rem; color: #006600 !important; border: 1px solid #28a745;">
-                                        <i class="fas fa-check-circle mr-1"></i> Tuntas
-                                    </span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <a href="{{ route('court-calendar.detail', ['satker' => $row->satker, 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir]) }}"
-                                        class="btn btn-sm btn-outline-primary font-weight-bold px-3 shadow-sm rounded-pill">
-                                        <i class="fas fa-search mr-1"></i> DETAIL
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                        <tfoot class="text-center bg-grand-total">
-                            <tr>
-                                <td></td>
-                                <td class="text-left px-4 text-uppercase">Total Seluruh Wilayah</td>
-                                <td class="px-5">{{ number_format($grandTotal) }} Perkara</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
+    {{-- FILTER FORM --}}
+    <div class="filter-card shadow-sm no-print">
+        <form action="{{ route('court-calendar') }}" method="GET" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="small fw-bold text-muted text-uppercase mb-1">Dari Tgl Daftar</label>
+                <input type="date" name="tgl_awal" class="form-control" value="{{ $tglAwal }}">
+            </div>
+            <div class="col-md-3">
+                <label class="small fw-bold text-muted text-uppercase mb-1">Sampai Tgl Daftar</label>
+                <input type="date" name="tgl_akhir" class="form-control" value="{{ $tglAkhir }}">
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="btn-group shadow-sm">
+                    <button type="submit" class="btn btn-primary fw-bold px-4">
+                        <i class="bi bi-filter me-1"></i> FILTER
+                    </button>
+                    {{-- TOMBOL RESET --}}
+                    <a href="{{ route('court-calendar') }}" class="btn btn-light border px-3" title="Reset Filter">
+                        <i class="bi bi-arrow-clockwise text-primary"></i>
+                    </a>
+                    <a href="{{ route('court-calendar.export', ['tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir]) }}" target="_blank" class="btn btn-success fw-bold px-4">
+                        <i class="bi bi-file-earmark-excel me-1"></i> EXPORT
+                    </a>
                 </div>
             </div>
+        </form>
+    </div>
+
+    {{-- DATA TABLE --}}
+    <div class="table-container shadow-sm">
+        <div class="table-responsive">
+            <table class="table-grid text-center">
+                <thead>
+                    <tr>
+                        <th width="70">Rank</th>
+                        <th class="text-start px-4">Satuan Kerja</th>
+                        <th width="150">Total Terima</th>
+                        <th width="150">Sudah Input</th>
+                        <th width="150">Belum Input</th>
+                        <th width="180">Status</th>
+                        <th width="220">Kepatuhan (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php $gTotal = 0; $gSudah = 0; $gBelum = 0; @endphp
+                    @foreach($results as $index => $row)
+                    @php
+                    $gTotal += $row->total;
+                    $gSudah += $row->sudah;
+                    $gBelum += $row->belum;
+                    @endphp
+                    <tr>
+                        <td class="fw-bold text-muted">
+                            @if($index === 0 && $row->persentase == 100)
+                            <i class="bi bi-patch-check-fill text-primary fs-5" title="Terbaik"></i>
+                            @else
+                            {{ $index + 1 }}
+                            @endif
+                        </td>
+                        <td class="text-start px-4 fw-700 text-uppercase text-primary">{{ $row->satker }}</td>
+                        <td class="fw-bold">{{ number_format($row->total) }}</td>
+                        <td class="text-success fw-bold">{{ number_format($row->sudah) }}</td>
+                        <td>
+                            @if($row->belum > 0)
+                            {{-- Route Name: court-calendar.detail --}}
+                            <a href="{{ route('court-calendar.detail', ['satker' => $row->db, 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir]) }}"
+                                target="_blank" class="text-danger fw-bold text-decoration-none">
+                                {{ number_format($row->belum) }}
+                            </a>
+                            @else
+                            <span class="text-muted opacity-25">0</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($row->persentase >= 100)
+                            <span class="status-pill bg-tuntas">Sempurna</span>
+                            @elseif($row->persentase >= 85)
+                            <span class="status-pill bg-baik">Baik</span>
+                            @else
+                            <span class="status-pill bg-belum">Kurang</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center justify-content-center gap-3">
+                                <div class="progress-sm">
+                                    <div class="progress-bar {{ $row->persentase >= 85 ? 'bg-success' : 'bg-danger' }}" style="width: {{ $row->persentase }}%"></div>
+                                </div>
+                                <span class="fw-800 small" style="width: 45px;">{{ $row->persentase }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot class="tfoot-dark text-center">
+                    <tr>
+                        <td></td>
+                        <td class="text-start px-4">TOTAL WILAYAH HUKUM PTA BANDUNG</td>
+                        <td>{{ number_format($gTotal) }}</td>
+                        <td>{{ number_format($gSudah) }}</td>
+                        <td>{{ number_format($gBelum) }}</td>
+                        <td></td>
+                        <td>{{ $gTotal > 0 ? round(($gSudah / $gTotal) * 100, 2) : 0 }}%</td>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
     </div>
 </div>

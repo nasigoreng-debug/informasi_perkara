@@ -150,7 +150,7 @@
         @endif
 
         {{-- 4. MENU KHUSUS ADMINISTRATOR (Setting User) --}}
-        @if(Auth::user()->isAdmin())
+        @if(Auth::user()->isSuperAdmin())
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
             <a href="{{ route('users.index') }}" class="welcome-card">
                 <div class="icon-box bg-dark bg-opacity-10 text-dark">

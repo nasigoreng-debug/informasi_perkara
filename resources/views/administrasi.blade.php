@@ -145,7 +145,7 @@
     {{-- SECTION 1: ARSIP & PERKARA --}}
     <div class="section-title animate__animated animate__fadeInLeft">Arsip & Manajemen Perkara</div>
     <div class="luxury-grid">
-        <a href="#" class="menu-card animate__animated animate__zoomIn">
+        <a href="{{ route('retensi-arsip.index') }}" class="menu-card animate__animated animate__zoomIn">
             <div class="icon-box bg-primary bg-opacity-10 text-primary"><i class="fas fa-archive"></i></div>
             <h5 class="card-title">Arsip Perkara<br><small class="text-muted">1986 - 2018</small></h5>
             <p class="card-desc">Database arsip perkara lama versi digital.</p>

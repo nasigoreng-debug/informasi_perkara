@@ -178,7 +178,7 @@
 
         {{-- RK3 --}}
         <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-            <a href="{{ route('laporan.index') }}" class="menu-card text-warning border-bottom border-warning border-4">
+            <a href="{{ route('laporan.diterima.index') }}" class="menu-card text-warning border-bottom border-warning border-4">
                 <div class="icon-box bg-warning bg-opacity-10">
                     <i class="fas fa-folder-plus"></i>
                 </div>
@@ -191,7 +191,7 @@
 
         {{-- RK4 --}}
         <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
-            <a href="{{ route('laporan-putus.index') }}" class="menu-card text-danger border-bottom border-danger border-4">
+            <a href="{{ route('laporan.diputus.index') }}" class="menu-card text-danger border-bottom border-danger border-4">
                 <div class="icon-box bg-danger bg-opacity-10">
                     <i class="fas fa-balance-scale"></i>
                 </div>
@@ -217,7 +217,7 @@
 
         {{-- PUTUSAN SELA --}}
         <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
-            <a href="{{ route('laporan-putus.putusan.sela') }}" class="menu-card border-bottom border-4" style="color: var(--indigo-mewah); border-color: var(--indigo-mewah) !important;">
+            <a href="{{ route('laporan.diterima.putusan.sela') }}" class="menu-card border-bottom border-4" style="color: var(--indigo-mewah); border-color: var(--indigo-mewah) !important;">
                 <div class="icon-box" style="background: rgba(79, 70, 229, 0.1);">
                     <i class="fas fa-scroll"></i>
                 </div>

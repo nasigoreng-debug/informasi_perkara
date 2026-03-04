@@ -1,241 +1,303 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan Perkara Diterima')
-
 @section('content')
-<div class="container-fluid py-4">
+<style>
+    .table-rk3 {
+        font-size: 9px;
+        border: 1px solid #000;
+        font-family: 'Arial Narrow', Arial, sans-serif;
+    }
 
-    @php
-    // Helper untuk nama bulan Indonesia
-    $namaBulan = [
-    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
-    7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-    ];
-    @endphp
+    .table-rk3 th,
+    .table-rk3 td {
+        border: 1px solid #000 !important;
+        padding: 3px 1px !important;
+        vertical-align: middle;
+        text-align: center;
+    }
 
+    .v-text {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        white-space: nowrap;
+        height: 150px;
+        font-weight: bold;
+        line-height: 1.1;
+    }
+
+    .header-gray {
+        background: #f2f2f2;
+        font-weight: bold;
+    }
+
+    .bg-gray-dark {
+        background: #d9d9d9;
+    }
+
+    .th-fixed {
+        min-width: 25px;
+    }
+</style>
+
+<div class="container-fluid py-3">
+    {{-- HEADER --}}
     <div class="text-center mb-4">
-        <h3 class="fw-bold text-uppercase" style="color: #2c3e50; letter-spacing: 1px;">Laporan Perkara Diterima</h3>
-        <h5 class="text-muted fw-normal">
-            Pengadilan Agama Se-Jawa Barat |
-            <span class="badge bg-secondary">
-                @if(!empty($month)) Bulan {{ $namaBulan[(int)$month] }}
-                @elseif(!empty($quarter)) Triwulan {{ $quarter }}
-                @else Tahun @endif {{ $year }}
-            </span>
-        </h5>
-        <div class="mx-auto" style="width: 60px; height: 4px; background: #3498db; border-radius: 10px; margin-top: 10px;"></div>
+        <h6 class="mb-0 fw-bold">LAPORAN PERKARA YANG DITERIMA</h6>
+        <h6 class="mb-0 fw-bold">PADA PENGADILAN AGAMA WILAYAH PENGADILAN TINGGI AGAMA JAWA BARAT</h6>
+        <h6 class="mb-0 fw-bold text-uppercase">{{ $periode ?? '' }}</h6>
     </div>
 
-    {{-- Filter Card --}}
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body bg-light">
-            <form action="{{ route('laporan.index') }}" method="GET" class="row g-2 align-items-end">
+    {{-- FILTER --}}
+    <div class="card mb-3 border-0 shadow-sm bg-light d-print-none">
+        <div class="card-body py-2">
+            <form action="{{ route('laporan.diterima.index') }}" method="GET" class="row g-2 align-items-end">
                 <div class="col-md-2">
-                    <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 10px;">Tahun</label>
-                    <select name="tahun" class="form-select form-select-sm shadow-sm">
-                        @for($t=date('Y'); $t>=2020; $t--)
-                        <option value="{{$t}}" {{$year == $t ? 'selected' : ''}}>{{$t}}</option>
+                    <label class="small fw-bold">TAHUN</label>
+                    <select name="tahun" class="form-select form-select-sm">
+                        @for($t = date('Y'); $t >= 2020; $t--)
+                        <option value="{{ $t }}" {{ ($tahun ?? date('Y')) == $t ? 'selected' : '' }}>{{ $t }}</option>
                         @endfor
                     </select>
                 </div>
+
                 <div class="col-md-2">
-                    <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 10px;">Bulan</label>
-                    <select name="bulan" class="form-select form-select-sm shadow-sm">
-                        <option value="">Semua Bulan</option>
-                        @foreach($namaBulan as $num => $nama)
-                        <option value="{{$num}}" {{ ($month == $num) ? 'selected' : '' }}>{{$nama}}</option>
+                    <label class="small fw-bold">BULAN</label>
+                    <select name="bulan" class="form-select form-select-sm" id="bulan">
+                        <option value="">-- Pilih Bulan --</option>
+                        @foreach([1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'] as $n => $b)
+                        <option value="{{ $n }}" {{ ($bulan ?? '') == $n ? 'selected' : '' }}>{{ $b }}</option>
                         @endforeach
                     </select>
                 </div>
+
                 <div class="col-md-2">
-                    <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 10px;">Triwulan</label>
-                    <select name="triwulan" class="form-select form-select-sm shadow-sm">
-                        <option value="">Semua Triwulan</option>
-                        @for($i=1; $i<=4; $i++)
-                            <option value="{{$i}}" {{ $quarter == $i ? 'selected' : '' }}>Triwulan {{ $i }}</option>
-                            @endfor
+                    <label class="small fw-bold">TRIWULAN</label>
+                    <select name="triwulan" class="form-select form-select-sm" id="triwulan">
+                        <option value="">-- Pilih Triwulan --</option>
+                        <option value="1" {{ ($triwulan ?? '') == 1 ? 'selected' : '' }}>Triwulan I (Jan-Mar)</option>
+                        <option value="2" {{ ($triwulan ?? '') == 2 ? 'selected' : '' }}>Triwulan II (Apr-Jun)</option>
+                        <option value="3" {{ ($triwulan ?? '') == 3 ? 'selected' : '' }}>Triwulan III (Jul-Sep)</option>
+                        <option value="4" {{ ($triwulan ?? '') == 4 ? 'selected' : '' }}>Triwulan IV (Okt-Des)</option>
                     </select>
                 </div>
-                <div class="col-md-6 d-flex gap-2">
-                    <button type="submit" class="btn btn-dark btn-sm px-3 shadow-sm"><i class="fas fa-filter me-1"></i> Filter</button>
-                    <a href="{{ route('laporan.export', request()->all()) }}" class="btn btn-success btn-sm px-3 shadow-sm" target="_blank"><i class="fas fa-file-excel me-1"></i> Excel</a>
-                    <a href="{{ route('laporan-putus.index') }}" class="btn btn-outline-primary btn-sm px-3 shadow-sm ms-auto">Lihat Diputus <i class="fas fa-chevron-right ms-1"></i></a>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-dark btn-sm w-100">FILTER</button>
+                </div>
+
+                <div class="col-md-2">
+                    <a href="{{ route('laporan.diterima.export') }}?{{ http_build_query(request()->all()) }}"
+                        class="btn btn-success btn-sm w-100">
+                        <i class="fas fa-file-excel me-1"></i> EXPORT
+                    </a>
+                </div>
+
+                <div class="col-md-2">
+                    <a href="{{ route('laporan.diterima.index') }}" class="btn btn-secondary btn-sm w-100">
+                        <i class="fas fa-sync-alt me-1"></i> RESET
+                    </a>
                 </div>
             </form>
         </div>
     </div>
 
-    {{-- Table Card --}}
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive" style="max-height: 78vh;">
-                <table class="table table-bordered align-middle mb-0">
-                    <thead class="text-center align-middle">
-                        <tr>
-                            <th class="fz-1 sticky-col header-dark">NO</th>
-                            <th class="fz-2 sticky-col header-dark border-end-strong">SATUAN KERJA</th>
+    {{-- TABLE --}}
+    <div class="table-responsive">
+        <table class="table table-rk3">
+            <thead>
+                {{-- Header Utama --}}
+                <tr class="header-gray">
+                    <th rowspan="2" style="width: 30px;">NO</th>
+                    <th rowspan="2" style="min-width: 150px;">PENGADILAN AGAMA</th>
+                    <th colspan="23">A. PERKAWINAN</th>
+                    <th rowspan="2" class="v-text th-fixed">B. Kewarisan</th>
+                    <th rowspan="2" class="v-text th-fixed">C. Wasiat</th>
+                    <th rowspan="2" class="v-text th-fixed">D. Hibah</th>
+                    <th rowspan="2" class="v-text th-fixed">E. Wakaf</th>
+                    <th rowspan="2" class="v-text th-fixed">F. Lain-lain</th>
+                    <th rowspan="2" class="v-text th-fixed">G. Ekonomi Syari'ah</th>
+                    <th rowspan="2" class="v-text th-fixed">H. P3HP/Penetapan Ahli Waris</th>
+                    <th rowspan="2" class="v-text th-fixed">I. Pengampuan</th>
+                    <th rowspan="2" class="v-text th-fixed">J. Perkawinan Campuran</th>
+                    <th rowspan="2" style="min-width: 50px;">JUMLAH</th>
+                </tr>
 
-                            @foreach($jenisPerkara as $alias => $label)
-                            <th class="v-head" title="{{ $label }}"><span>{{ $label }}</span></th>
-                            @endforeach
+                {{-- Header Detail Perkawinan --}}
+                <tr class="header-gray">
+                    <th class="v-text th-fixed">1. Izin Poligami</th>
+                    <th class="v-text th-fixed">2. Pencegahan Perkawinan</th>
+                    <th class="v-text th-fixed">3. Penolakan Perkawinan</th>
+                    <th class="v-text th-fixed">4. Pembatalan Perkawinan</th>
+                    <th class="v-text th-fixed">5. Kelalaian Kewajiban Suami/Istri</th>
+                    <th class="v-text th-fixed">6. Cerai Talak</th>
+                    <th class="v-text th-fixed">7. Cerai Gugat</th>
+                    <th class="v-text th-fixed">8. Harta Bersama</th>
+                    <th class="v-text th-fixed">9. Penguasaan Anak/Hadhanah</th>
+                    <th class="v-text th-fixed">10. Nafkah Anak oleh Ibu</th>
+                    <th class="v-text th-fixed">11. Hak-hak bekas istri</th>
+                    <th class="v-text th-fixed">12. Pengesahan Anak</th>
+                    <th class="v-text th-fixed">13. Pencabutan Kekuasaan Orang Tua</th>
+                    <th class="v-text th-fixed">14. Perwalian</th>
+                    <th class="v-text th-fixed">15. Pencabutan Kekuasaan Wali</th>
+                    <th class="v-text th-fixed">16. Penunjukan orang lain sebagai Wali</th>
+                    <th class="v-text th-fixed">17. Ganti Rugi terhadap Wali</th>
+                    <th class="v-text th-fixed">18. Asal Usul Anak</th>
+                    <th class="v-text th-fixed">19. Penolakan Perkawinan oleh PPN</th>
+                    <th class="v-text th-fixed">20. Itsbat Nikah</th>
+                    <th class="v-text th-fixed">21. Izin Kawin</th>
+                    <th class="v-text th-fixed">22. Dispensasi Kawin</th>
+                    <th class="v-text th-fixed">23. Wali Adhol</th>
+                </tr>
 
-                            <th class="v-head header-blue text-white border-start-strong"><span>TOTAL DITERIMA</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($laporan as $row)
-                        @php $isTotal = ($row->no_urut == 'TOTAL' || $row->satker == 'JUMLAH KESELURUHAN'); @endphp
-                        <tr class="{{ $isTotal ? 'fw-bold sticky-footer' : '' }}">
-                            <td class="text-center fz-1 sticky-col {{ $isTotal ? 'header-dark' : 'bg-white' }}">{{ $row->no_urut }}</td>
-                            <td class="fz-2 sticky-col {{ $isTotal ? 'header-dark' : 'bg-white fw-bold' }} px-3 text-uppercase border-end-strong" style="font-size: 10px;">
-                                {{ $row->satker }}
-                            </td>
+                {{-- Baris Nomor Kolom --}}
+                <tr class="bg-gray-dark fw-bold">
+                    <td>1</td>
+                    <td>2</td>
+                    @for($i = 3; $i <= 35; $i++)
+                        <td>{{ $i }}</td>
+                        @endfor
+                </tr>
+            </thead>
 
-                            @foreach($jenisPerkara as $alias => $label)
-                            <td class="text-center border-sub {{ $isTotal ? 'bg-dark text-white' : '' }}">
-                                {{ number_format($row->$alias) }}
-                            </td>
-                            @endforeach
+            <tbody>
+                @php
+                // Mapping field sesuai dengan controller
+                $kolomPerkawinan = [
+                'izin_poligami',
+                'pencegahan_perkawinan',
+                'penolakan_perkawinan',
+                'pembatalan_perkawinan',
+                'kelalaian_kewajiban',
+                'cerai_talak',
+                'cerai_gugat',
+                'harta_bersama',
+                'penguasaan_anak',
+                'nafkah_anak',
+                'hak_bekas_istri',
+                'asal_usul_anak',
+                'pencabutan_kuasa_ortu',
+                'perwalian',
+                'pencabutan_wali',
+                'penunjukan_wali',
+                'ganti_rugi_wali',
+                'asal_usul_anak', // Untuk kolom 20 (Pengesahan Anak)
+                'penolakan_ppn',
+                'istbat_nikah',
+                'izin_kawin',
+                'dispensasi_kawin',
+                'wali_adhol'
+                ];
 
-                            <td class="text-center fw-bold border-start-strong {{ $isTotal ? 'header-blue text-white' : 'bg-light-blue text-primary' }}">
-                                {{ number_format($row->jml) }}
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                $kolomLain = [
+                'kewarisan',
+                'wasiat',
+                'hibah',
+                'wakaf',
+                'lain_lain',
+                'ekonomi_syariah',
+                'p3hp',
+                'pengampuan',
+                'perkawinan_campuran'
+                ];
+
+                // Filter data tanpa baris total
+                $dataLaporan = collect($laporan ?? [])->filter(function($item) {
+                return $item->satker !== 'JUMLAH KESELURUHAN';
+                })->values();
+
+                // Inisialisasi array total
+                $totals = [
+                'perkawinan' => array_fill(0, 23, 0),
+                'lain' => array_fill(0, 9, 0),
+                'jumlah' => 0
+                ];
+                @endphp
+
+                @forelse($dataLaporan as $index => $row)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td class="text-start px-2">{{ $row->satker ?? '-' }}</td>
+
+                    {{-- Kolom Perkawinan (23 kolom) --}}
+                    @foreach($kolomPerkawinan as $pos => $field)
+                    @php
+                    $nilai = $row->$field ?? 0;
+                    $totals['perkawinan'][$pos] += $nilai;
+                    @endphp
+                    <td>{{ number_format($nilai, 0, ',', '.') }}</td>
+                    @endforeach
+
+                    {{-- Kolom Lainnya (9 kolom) --}}
+                    @foreach($kolomLain as $pos => $field)
+                    @php
+                    $nilai = $row->$field ?? 0;
+                    $totals['lain'][$pos] += $nilai;
+                    @endphp
+                    <td>{{ number_format($nilai, 0, ',', '.') }}</td>
+                    @endforeach
+
+                    {{-- Kolom Jumlah --}}
+                    @php
+                    $totalRow = $row->jml ?? 0;
+                    $totals['jumlah'] += $totalRow;
+                    @endphp
+                    <td class="fw-bold">{{ number_format($totalRow, 0, ',', '.') }}</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="39" class="text-center py-4">
+                        <i class="fas fa-database fa-2x mb-2"></i><br>
+                        Data tidak ditemukan
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+
+            @if(isset($totalKeseluruhan) && $dataLaporan->isNotEmpty())
+            <tfoot class="header-gray fw-bold">
+                <tr>
+                    <td colspan="2" class="text-end">JUMLAH KESELURUHAN</td>
+
+                    {{-- Total Perkawinan --}}
+                    @foreach($totals['perkawinan'] as $total)
+                    <td>{{ number_format($total, 0, ',', '.') }}</td>
+                    @endforeach
+
+                    {{-- Total Lainnya --}}
+                    @foreach($totals['lain'] as $total)
+                    <td>{{ number_format($total, 0, ',', '.') }}</td>
+                    @endforeach
+
+                    {{-- Total Jumlah --}}
+                    <td>{{ number_format($totals['jumlah'], 0, ',', '.') }}</td>
+                </tr>
+            </tfoot>
+            @endif
+        </table>
+    </div>
+
+    {{-- INFO FOOTER --}}
+    <div class="mt-2 small text-muted">
+        <i class="fas fa-info-circle me-1"></i>
+        Total satker: {{ $dataLaporan->count() }} |
+        Total perkara: {{ number_format($totals['jumlah'] ?? 0, 0, ',', '.') }}
     </div>
 </div>
 @endsection
 
-@push('styles')
-<style>
-    /* Global Table Style */
-    .table {
-        font-size: 11px;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
+@push('scripts')
+<script>
+    // Auto clear bulan/triwulan
+    document.getElementById('bulan')?.addEventListener('change', function() {
+        if (this.value) {
+            document.getElementById('triwulan').value = '';
+        }
+    });
 
-    .table td,
-    .table th {
-        padding: 8px 4px !important;
-        border: 1px solid #dee2e6 !important;
-    }
-
-    /* Perfect Center Header */
-    thead th {
-        vertical-align: middle !important;
-        text-align: center !important;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-    }
-
-    /* Header Colors */
-    .header-dark {
-        background-color: #2c3e50 !important;
-        color: #ffffff !important;
-    }
-
-    .header-blue {
-        background-color: #2980b9 !important;
-        color: #ffffff !important;
-    }
-
-    /* Vertical Header Logic */
-    .v-head {
-        height: 250px;
-        min-width: 40px;
-        max-width: 55px;
-        white-space: normal !important;
-        background-color: #2c3e50;
-        color: white;
-        vertical-align: middle !important;
-    }
-
-    .v-head span {
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
-        display: inline-block;
-        text-align: center;
-        line-height: 1.1;
-        height: 100%;
-        margin: 0 auto;
-    }
-
-    /* Sticky Columns */
-    .table-responsive {
-        position: relative;
-        border-radius: 8px;
-        border: 1px solid #dee2e6;
-        overflow: auto;
-    }
-
-    .sticky-col {
-        position: sticky !important;
-        z-index: 10;
-    }
-
-    .fz-1 {
-        left: 0;
-        width: 45px;
-    }
-
-    .fz-2 {
-        left: 45px;
-        min-width: 180px;
-    }
-
-    /* Pertemuan Header & Sticky Col (Kiri Atas) */
-    thead th.sticky-col {
-        z-index: 1100 !important;
-    }
-
-    /* Border Strong - Pemisah Kategori */
-    .border-end-strong {
-        border-right: 3px solid #2c3e50 !important;
-    }
-
-    .border-start-strong {
-        border-left: 3px solid #2c3e50 !important;
-    }
-
-    .border-sub {
-        border-right: 1px solid #dee2e6 !important;
-    }
-
-    /* Row Styling */
-    tbody tr:nth-child(even) td:not(.sticky-col) {
-        background-color: #fcfcfc;
-    }
-
-    tbody tr:hover td {
-        background-color: #f1f7ff !important;
-        transition: 0.1s;
-    }
-
-    .bg-light-blue {
-        background-color: #ebf5fb !important;
-    }
-
-    /* Footer / Total Row Sticky */
-    .sticky-footer td {
-        position: sticky;
-        bottom: 0;
-        z-index: 1000;
-        background-color: #2c3e50 !important;
-        color: white !important;
-    }
-
-    /* PERBAIKAN: Pertemuan Footer & Sticky Col (Kiri Bawah) agar tidak tembus saat scroll */
-    .sticky-footer td.sticky-col {
-        z-index: 1100 !important;
-    }
-</style>
+    document.getElementById('triwulan')?.addEventListener('change', function() {
+        if (this.value) {
+            document.getElementById('bulan').value = '';
+        }
+    });
+</script>
 @endpush

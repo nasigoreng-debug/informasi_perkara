@@ -31,9 +31,15 @@ class User extends Authenticatable
     }
 
     // Helper untuk cek Admin
-    public function isAdmin()
+    public function isSuperAdmin()
     {
         return $this->role_id == 1;
+    }
+
+    // Helper untuk cek Admin
+    public function isAdmin()
+    {
+        return $this->role_id == 2;
     }
 
     // Helper untuk cek Manager ke atas

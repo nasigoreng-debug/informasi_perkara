@@ -31,11 +31,14 @@ class RekapEksekusiController extends Controller
         $dataRaw = $this->rekapService->getRekap($tglAwal, $tglAkhir);
         $dataCollection = collect($dataRaw);
 
-        // Logika Admin vs Satker
-        if ($user->role_id == 1) {
+        // ✅ BEST PRACTICE: Menggunakan helper methods
+        if ($user->canSeeAllData()) {
+            // Super Admin dan Admin bisa lihat semua data
             $data = $dataCollection;
         } else {
+            // User lain hanya lihat data sesuai satker-nya
             $keyword = strtoupper($user->satker->tabel ?? '');
+
             $data = $dataCollection->filter(function ($item) use ($keyword) {
                 $namaSatker = is_object($item) ? $item->satker : ($item['satker'] ?? '');
                 return str_contains(strtoupper($namaSatker), $keyword);
@@ -60,13 +63,12 @@ class RekapEksekusiController extends Controller
         $tglAwal = $request->get('tgl_awal') ?? date('Y-01-01');
         $tglAkhir = $request->get('tgl_akhir') ?? date('Y-12-31');
 
-        if ($user->role_id != 1 && $user->satker) {
+        if (!$user->isSuperAdmin() && !$user->isAdmin()  && $user->satker) {
             $keyword = strtoupper($user->satker->tabel);
             if (!str_contains(strtoupper($satker), $keyword)) {
                 return redirect()->route('laporan.eksekusi.index')->with('error', 'Akses Ditolak!');
             }
         }
-
         // Kita simpan hasil ke variabel $data agar cocok dengan fungsi compact('data')
         $data = $this->rekapService->getDetailPerkara($satker, $jenis, $tglAwal, $tglAkhir);
 

@@ -3,49 +3,47 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Collection;
 use App\Config\SatkerConfig;
 
 class CourtCalendarService
 {
-    /**
-     * Menarik data rekapitulasi wilayah
-     */
-    public function getMonitoringData($tglAwal, $tglAkhir): Collection
+    public function getMonitoringData($tglAwal, $tglAkhir)
     {
         $results = collect();
         foreach (SatkerConfig::SATKERS as $db => $namaSatker) {
             $results->push($this->getDataPerSatker($db, $namaSatker, $tglAwal, $tglAkhir));
         }
-        // Urutkan berdasarkan tunggakan terbanyak
-        return $results->sortByDesc('jumlah')->values();
+
+        return $results->sort(function ($a, $b) {
+            if ($b->persentase != $a->persentase) return $b->persentase <=> $a->persentase;
+            return $b->total <=> $a->total;
+        })->values();
     }
 
-    protected function getDataPerSatker($db, $namaSatker, $tglAwal, $tglAkhir): object
+    protected function getDataPerSatker($db, $namaSatker, $tglAwal, $tglAkhir)
     {
         try {
-            // Cek keberadaan tabel perkara
-            $tableExists = DB::connection('bandung')
-                ->select("SHOW TABLES FROM {$db} LIKE 'perkara'");
+            $total = DB::connection('bandung')->table("{$db}.perkara as p")
+                ->whereBetween('p.tanggal_pendaftaran', [$tglAwal, $tglAkhir])->count();
 
-            if (empty($tableExists)) {
-                return (object) ['satker' => $namaSatker, 'db' => $db, 'jumlah' => 0];
-            }
-
-            $jumlah = DB::connection('bandung')->table("{$db}.perkara as p")
-                ->join("{$db}.perkara_putusan as pp", 'p.perkara_id', '=', 'pp.perkara_id')
+            $belum = DB::connection('bandung')->table("{$db}.perkara as p")
                 ->leftJoin("{$db}.perkara_court_calendar as pcc", 'p.perkara_id', '=', 'pcc.perkara_id')
-                ->whereNull('pcc.rencana_tanggal')
-                ->where(function ($q) {
-                    $q->where('p.proses_terakhir_text', 'LIKE', '%minutasi%')
-                        ->orWhere('p.proses_terakhir_text', 'LIKE', '%Akta Cerai%');
-                })
-                ->whereBetween('pp.tanggal_putusan', [$tglAwal, $tglAkhir])
-                ->count();
+                ->whereBetween('p.tanggal_pendaftaran', [$tglAwal, $tglAkhir])
+                ->whereNull('pcc.rencana_tanggal')->count();
 
-            return (object) ['satker' => $namaSatker, 'db' => $db, 'jumlah' => $jumlah];
+            $sudah = $total - $belum;
+            $persen = $total > 0 ? round(($sudah / $total) * 100, 2) : 0;
+
+            return (object) [
+                'satker' => $namaSatker,
+                'db' => $db,
+                'total' => $total,
+                'sudah' => $sudah,
+                'belum' => $belum,
+                'persentase' => $persen
+            ];
         } catch (\Exception $e) {
-            return (object) ['satker' => $namaSatker, 'db' => $db, 'jumlah' => 0];
+            return (object) ['satker' => $namaSatker, 'db' => $db, 'total' => 0, 'sudah' => 0, 'belum' => 0, 'persentase' => 0];
         }
     }
 }

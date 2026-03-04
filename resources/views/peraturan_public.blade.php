@@ -256,7 +256,7 @@
 
                                 <div class="d-grid gap-2 justify-content-center">
                                     @if($item->dokumen)
-                                    <a href="{{ asset('storage/peraturan/'.$item->dokumen) }}" target="_blank"
+                                    <a href="{{ asset('public/storage/peraturan/'.$item->dokumen) }}" target="_blank"
                                         class="btn btn-danger rounded-pill shadow-sm py-2 fw-bold btn-unduh">
                                         <i class="fas fa-file-pdf me-2"></i> UNDUH PDF
                                     </a>

@@ -6,7 +6,8 @@ use App\Http\Controllers\{
     DashboardController,
     SidangController,
     LaporanKasasiController,
-    LaporanPerkaraController,
+    LaporanPerkaraDiterimaController,  // Ganti dengan controller baru
+    LaporanPerkaraDiputusController,    // Tambah controller baru
     RekapEksekusiController,
     SuratMasukController,
     LaporanBandingController,
@@ -17,7 +18,8 @@ use App\Http\Controllers\{
     SuratKeluarController,
     SuratKeputusanController,
     PengaduanController,
-    PeraturanController
+    PeraturanController,
+    RetensiArsipPerkaraController
 };
 
 /*
@@ -32,6 +34,7 @@ use App\Http\Controllers\{
 // ==========================================
 Route::get('/jadwal-sidang/public', [SidangController::class, 'index_public'])->name('sidang.index_public');
 Route::get('/jdih-ptabandung', [PeraturanController::class, 'index_public'])->name('peraturan.public');
+Route::get('/arsip-perkara/public', [RetensiArsipPerkaraController::class, 'index_public'])->name('arsip.public');
 
 // ==========================================
 // 2. OTENTIKASI (LOGIN & LOGOUT)
@@ -144,19 +147,21 @@ Route::middleware(['auth'])->group(function () {
     });
 
     /**
-     * MODUL: LAPORAN PERKARA & PUTUSAN
+     * MODUL: LAPORAN PERKARA DITERIMA
      */
-    Route::controller(LaporanPerkaraController::class)->group(function () {
-        Route::prefix('laporan-perkara')->name('laporan.')->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('/export', 'export')->name('export');
-        });
-        Route::prefix('laporan-perkara-putus')->name('laporan-putus.')->group(function () {
-            Route::get('/', 'putus')->name('index');
-            Route::get('/export', 'exportPutus')->name('export');
-            Route::get('/putusan-sela', 'PutusanSela')->name('putusan.sela');
-            Route::get('/putusan-sela/export', 'exportPutusanSela')->name('putusan.sela.export');
-        });
+    Route::controller(LaporanPerkaraDiterimaController::class)->prefix('laporan-perkara-diterima')->name('laporan.diterima.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/export', 'export')->name('export');
+        Route::get('/putusan-sela', 'putusanSela')->name('putusan.sela');
+        Route::get('/putusan-sela/export', 'exportPutusanSela')->name('putusan.sela.export');
+    });
+
+    /**
+     * MODUL: LAPORAN PERKARA DIPUTUS
+     */
+    Route::controller(LaporanPerkaraDiputusController::class)->prefix('laporan-perkara-diputus')->name('laporan.diputus.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/export', 'export')->name('export');
     });
 
     /**
@@ -237,12 +242,25 @@ Route::middleware(['auth'])->group(function () {
      * MODUL: HIMPUNAN PERATURAN (SEMA, PERMA, UU)
      */
     Route::controller(PeraturanController::class)->prefix('peraturan')->name('peraturan.')->group(function () {
-        Route::get('/', 'index')->name('index');           // Daftar Peraturan & Monitoring
-        Route::get('/create', 'create')->name('create');   // Form Tambah
-        Route::post('/store', 'store')->name('store');     // Simpan Data
-        Route::get('/edit/{id}', 'edit')->name('edit');     // Form Edit
-        Route::put('/update/{id}', 'update')->name('update'); // Proses Update
-        Route::delete('/delete/{id}', 'destroy')->name('destroy'); // Hapus Data
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/edit/{id}', 'edit')->name('edit');
+        Route::put('/update/{id}', 'update')->name('update');
+        Route::delete('/delete/{id}', 'destroy')->name('destroy');
+    });
+
+    /**
+     * MODUL: ARSIP PERKARA DIGITAL (RETENSI)
+     */
+    Route::controller(RetensiArsipPerkaraController::class)->prefix('retensi-arsip-perkara')->name('retensi-arsip.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/detail/{id}', 'show')->name('show');
+        Route::get('/edit/{id}', 'edit')->name('edit');
+        Route::put('/update/{id}', 'update')->name('update');
+        Route::delete('/delete/{id}', 'destroy')->name('destroy');
     });
 
     Route::get('/activity-log', function () {
