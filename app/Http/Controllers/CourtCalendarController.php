@@ -7,6 +7,7 @@ use App\Services\CourtCalendarService;
 use Illuminate\Support\Facades\DB;
 use App\Config\SatkerConfig;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\ActivityLog; // TAMBAHKAN INI
 
 class CourtCalendarController extends Controller
 {
@@ -17,14 +18,30 @@ class CourtCalendarController extends Controller
         $this->service = $service;
     }
 
+    /**
+     * INDEX - Monitoring Court Calendar
+     */
     public function index(Request $request)
     {
         $tglAwal = $request->get('tgl_awal', date('Y-01-01'));
         $tglAkhir = $request->get('tgl_akhir', date('Y-m-d'));
         $results = $this->service->getMonitoringData($tglAwal, $tglAkhir);
+
+        // ✅ TAMBAHKAN LOG INDEX
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity' => 'Akses Monitoring COURT CALENDAR',
+            'description' => "Periode: $tglAwal s/d $tglAkhir",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
         return view('court_calendar.index', compact('results', 'tglAwal', 'tglAkhir'));
     }
 
+    /**
+     * DETAIL - Lihat Detail Perkara Tanpa Court Calendar
+     */
     public function detail(Request $request, $satker)
     {
         $tglAwal = $request->get('tgl_awal');
@@ -40,12 +57,33 @@ class CourtCalendarController extends Controller
                 ->get();
 
             $namaSatker = SatkerConfig::SATKERS[$satker] ?? strtoupper($satker);
+
+            // ✅ TAMBAHKAN LOG DETAIL
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity' => 'Lihat Detail COURT CALENDAR',
+                'description' => "Satker: $namaSatker ($satker), Periode: $tglAwal s/d $tglAkhir, Total: " . $data->count() . " data",
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
             return view('court_calendar.detail', compact('data', 'namaSatker', 'tglAwal', 'tglAkhir'));
         } catch (\Exception $e) {
+            // ✅ LOG ERROR (Opsional)
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity' => 'Error Detail COURT CALENDAR',
+                'description' => "Satker: $satker - Error: " . $e->getMessage(),
+                'ip_address' => $request->ip()
+            ]);
+
             return "Gagal akses database satker [$satker]. Error: " . $e->getMessage();
         }
     }
 
+    /**
+     * EXPORT DETAIL - Export Excel Detail
+     */
     public function exportDetail(Request $request, $satker)
     {
         try {
@@ -69,11 +107,30 @@ class CourtCalendarController extends Controller
                 'Proses Terakhir' => $item->proses_terakhir_text,
             ]);
 
+            $namaSatker = SatkerConfig::SATKERS[$satker] ?? strtoupper($satker);
+
+            // ✅ TAMBAHKAN LOG EXPORT
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity' => 'Export Excel COURT CALENDAR',
+                'description' => "Satker: $namaSatker ($satker), Periode: $tglAwal s/d $tglAkhir, Total: " . $dataExcel->count() . " data",
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
             return Excel::download(
                 new \App\Exports\CourtCalendarExport($dataExcel, ['NO', 'NOMOR PERKARA', 'TGL DAFTAR', 'JENIS PERKARA', 'PROSES TERAKHIR']),
-                "Detail-CC-{$satker}.xlsx"
+                "Detail-CC-{$satker}_" . date('Ymd_His') . ".xlsx"
             );
         } catch (\Exception $e) {
+            // ✅ LOG ERROR (Opsional)
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity' => 'Error Export COURT CALENDAR',
+                'description' => "Satker: $satker - Error: " . $e->getMessage(),
+                'ip_address' => $request->ip()
+            ]);
+
             return "Gagal Export: " . $e->getMessage();
         }
     }

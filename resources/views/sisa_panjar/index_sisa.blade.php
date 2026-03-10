@@ -1,57 +1,46 @@
 @extends('layouts.app')
-
 @section('content')
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold text-dark mb-0 text-uppercase text-primary">REKAP SISA PANJAR {{ $label }}</h4>
-            <p class="text-muted small mb-0 font-italic">Daftar Satuan Kerja dengan sisa panjar > 6 bulan</p>
+            <h4 class="fw-bold text-primary mb-0">REKAP SISA PANJAR {{ strtoupper($label) }}</h4>
+            <p class="text-muted small">Data Satuan Kerja dengan sisa panjar > 6 bulan</p>
         </div>
-        <a href="{{ route('sisa.panjar.menu') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm bg-white">
-            <i class="fas fa-arrow-left me-1"></i> Kembali ke Menu
-        </a>
+        <a href="{{ route('sisa.panjar.menu') }}" class="btn btn-secondary btn-sm">Kembali</a>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-dark text-white text-center text-uppercase" style="font-size: 0.8rem;">
-                    <tr>
-                        <th class="py-3" width="60">NO</th>
-                        <th class="text-start px-4">SATUAN KERJA</th>
-                        <th>JUMLAH PERKARA</th>
-                        <th>TOTAL SALDO SISA</th>
-                        <th width="150">AKSI</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    @php $grandTotal = 0; @endphp
-                    @foreach($data->groupBy('satker_key') as $satker => $group)
-                    @php $grandTotal += $group->sum('sisa'); @endphp
-                    <tr>
-                        <td class="text-muted small">{{ $loop->iteration }}</td>
-                        <td class="text-start px-4 fw-bold text-dark text-uppercase">{{ $satker }}</td>
-                        <td><span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-1 rounded-pill">{{ $group->count() }} Perkara</span></td>
-                        <td class="fw-bold text-primary">Rp {{ number_format($group->sum('sisa'), 0, ',', '.') }}</td>
-                        <td>
-                            <a href="{{ route('sisa.panjar.detail', ['satker' => $satker, 'jenis' => $jenis]) }}"
-                                class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm fw-bold">
-                                <i class="fas fa-search me-1"></i> DETAIL
-                            </a>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-                <tfoot class="bg-grand-total" style="background-color: #ffff00 !important; font-weight: 800;">
-                    <tr class="text-center text-dark">
-                        <td colspan="2" class="text-start px-4 py-3">TOTAL SELURUH WILAYAH</td>
-                        <td>{{ $data->count() }} Perkara</td>
-                        <td>Rp {{ number_format($grandTotal, 0, ',', '.') }}</td>
-                        <td></td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
+    @if($data->isNotEmpty())
+    <div class="alert alert-info py-2 small">
+        <i class="fa fa-clock"></i> Sinkronisasi Terakhir:
+        <strong>{{ \Carbon\Carbon::parse($data->first()->last_update)->diffForHumans() }}</strong>
+    </div>
+    @endif
+
+    <div class="card border-0 shadow-sm">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>NO</th>
+                    <th>SATUAN KERJA</th>
+                    <th class="text-center">JUMLAH PERKARA</th>
+                    <th class="text-end">TOTAL SALDO</th>
+                    <th class="text-center">AKSI</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($data as $index => $row)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td class="fw-bold">{{ $row->satker_key }}</td>
+                    <td class="text-center">{{ $row->total_perkara }}</td>
+                    <td class="text-end text-danger fw-bold">Rp {{ number_format($row->total_sisa, 0, ',', '.') }}</td>
+                    <td class="text-center">
+                        <a href="{{ route('sisa.panjar.detail', ['satker' => $row->satker_key, 'jenis' => $jenis]) }}" class="btn btn-sm btn-outline-primary">Detail</a>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 </div>
 @endsection

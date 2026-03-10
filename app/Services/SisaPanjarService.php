@@ -35,72 +35,37 @@ class SisaPanjarService
         'NGAMPRAH'
     ];
 
-    public function getSisaPanjarData($jenis = 'banding')
+    public function getSisaPanjarData($jenis)
     {
-        $hasilAkhir = []; // Menggunakan array murni agar RAM server lebih lega dan cepat
-
+        $hasilAkhir = [];
         $config = [
-            'pertama' => ['tahapan' => 10],
+            'pertama' => ['tahapan' => 10, 'tabel' => 'perkara_putusan', 'nomor_atas' => 'nomor_perkara'],
             'banding' => ['tahapan' => 20, 'notif_col' => 'pemberitahuan_putusan_banding', 'tabel' => 'perkara_banding', 'nomor_atas' => 'nomor_perkara_banding'],
             'kasasi'  => ['tahapan' => 30, 'notif_col' => 'pemberitahuan_putusan_kasasi', 'tabel' => 'perkara_kasasi', 'nomor_atas' => 'nomor_perkara_kasasi'],
             'pk'      => ['tahapan' => 40, 'notif_col' => 'pemberitahuan_putusan_pk', 'tabel' => 'perkara_pk', 'nomor_atas' => 'nomor_perkara_pk']
         ];
-
         $cfg = $config[$jenis];
 
         foreach ($this->daftarSatker as $satker) {
             $db = strtolower($satker);
-
-            if ($jenis == 'pertama') {
-                $sql = "SELECT 
-                    '{$satker}' AS satker_key, 
-                    p.nomor_perkara, 
-                    p.nomor_perkara AS nomor_perkara_atas, 
-                    pp.tanggal_putusan AS tgl_putusan, 
-                    pbt.tgl_akhir AS tgl_notif, 
-                    ROUND(DATEDIFF(CURDATE(), pbt.tgl_akhir) / 30, 1) AS selisih_bulan, 
-                    (SELECT SUM(jumlah * jenis_transaksi) FROM {$db}.perkara_biaya WHERE perkara_id = p.perkara_id AND tahapan_id = 10) AS sisa 
+            $sql = "SELECT '{$satker}' AS satker_key, p.nomor_perkara, 
+                    " . ($jenis == 'pertama' ? "p.nomor_perkara" : "pb.{$cfg['nomor_atas']}") . " AS nomor_perkara_atas, 
+                    " . ($jenis == 'pertama' ? "pp.tanggal_putusan" : "pb.putusan_{$jenis}") . " AS tgl_putusan, 
+                    " . ($jenis == 'pertama' ? "pbt.tgl_akhir" : "pb.{$cfg['notif_col']}") . " AS tgl_notif, 
+                    ROUND(DATEDIFF(CURDATE(), " . ($jenis == 'pertama' ? "pbt.tgl_akhir" : "pb.{$cfg['notif_col']}") . ") / 30, 1) AS selisih_bulan, 
+                    biaya.total_sisa AS sisa 
                     FROM {$db}.perkara p 
-                    JOIN {$db}.perkara_putusan pp ON p.perkara_id = pp.perkara_id
-                    JOIN (
-                        SELECT perkara_id, MAX(tanggal_pemberitahuan_putusan) as tgl_akhir 
-                        FROM {$db}.perkara_putusan_pemberitahuan_putusan 
-                        GROUP BY perkara_id
-                    ) pbt ON p.perkara_id = pbt.perkara_id
-                    WHERE pbt.tgl_akhir <= DATE_SUB(CURDATE(), INTERVAL 6 MONTH) 
-                    AND pbt.tgl_akhir IS NOT NULL 
-                    HAVING sisa <> 0";
-            } else {
-                $sql = "SELECT 
-                    '{$satker}' AS satker_key, 
-                    p.nomor_perkara, 
-                    pb.{$cfg['nomor_atas']} AS nomor_perkara_atas, 
-                    pb.putusan_{$jenis} AS tgl_putusan, 
-                    pb.{$cfg['notif_col']} AS tgl_notif, 
-                    ROUND(DATEDIFF(CURDATE(), pb.{$cfg['notif_col']}) / 30, 1) AS selisih_bulan, 
-                    (SELECT SUM(jumlah * jenis_transaksi) FROM {$db}.perkara_biaya WHERE perkara_id = p.perkara_id AND tahapan_id = {$cfg['tahapan']}) AS sisa 
-                    FROM {$db}.perkara p 
-                    JOIN {$db}.{$cfg['tabel']} pb ON p.perkara_id = pb.perkara_id 
-                    WHERE pb.{$cfg['notif_col']} <= DATE_SUB(CURDATE(), INTERVAL 6 MONTH) 
-                    AND pb.{$cfg['notif_col']} IS NOT NULL 
-                    HAVING sisa <> 0";
-            }
-
+                    JOIN {$db}." . ($jenis == 'pertama' ? "perkara_putusan pp ON p.perkara_id = pp.perkara_id" : "{$cfg['tabel']} pb ON p.perkara_id = pb.perkara_id") . "
+                    " . ($jenis == 'pertama' ? "JOIN (SELECT perkara_id, MAX(tanggal_pemberitahuan_putusan) as tgl_akhir FROM {$db}.perkara_putusan_pemberitahuan_putusan GROUP BY perkara_id) pbt ON p.perkara_id = pbt.perkara_id" : "") . "
+                    JOIN (SELECT perkara_id, SUM(jumlah * jenis_transaksi) as total_sisa FROM {$db}.perkara_biaya WHERE tahapan_id = {$cfg['tahapan']} GROUP BY perkara_id) biaya ON p.perkara_id = biaya.perkara_id
+                    WHERE " . ($jenis == 'pertama' ? "pbt.tgl_akhir" : "pb.{$cfg['notif_col']}") . " <= DATE_SUB(CURDATE(), INTERVAL 6 MONTH) AND biaya.total_sisa <> 0";
             try {
-                // Eksekusi satu per satu agar database tidak "nge-hang"
-                $dataSatker = DB::connection('bandung')->select($sql);
-
-                // Gabungkan hasil ke array utama (Sangat cepat di memori PHP)
-                foreach ($dataSatker as $row) {
-                    $hasilAkhir[] = $row;
-                }
+                $res = DB::connection('bandung')->select($sql);
+                $hasilAkhir = array_merge($hasilAkhir, $res);
             } catch (\Exception $e) {
-                // Jika 1 database satker mati, abaikan dan lanjut ke satker berikutnya
                 continue;
             }
         }
-
-        // Ubah jadi collection agar mudah diurutkan dan dikirim ke Blade
-        return collect($hasilAkhir)->sortByDesc('selisih_bulan')->values();
+        return collect($hasilAkhir);
     }
 }

@@ -161,22 +161,17 @@
                 <div class="btn btn-dark w-100 py-2 mt-auto fw-bold rounded-pill">KELOLA USER</div>
             </a>
         </div>
-        @endif
 
-        {{-- INFO UNTUK USER BIASA (MEMBER) --}}
-        @if(Auth::user()->role_id == 3)
-        <div class="col-lg-8 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-            <div class="alert alert-info border-0 shadow-sm p-4 rounded-5 bg-white border-start border-primary border-5">
-                <div class="d-flex gap-3 align-items-center">
-                    <i class="fas fa-info-circle fs-2 text-primary"></i>
-                    <div>
-                        <h6 class="fw-bold mb-1 text-dark">Akses Terbatas Satker Daerah</h6>
-                        <p class="mb-0 text-muted small">
-                            Anda masuk sebagai perwakilan Satker. Menu Administrasi & Laporan dikunci oleh Admin PTA. Silakan gunakan menu Monitoring untuk melihat data perkara Anda.
-                        </p>
-                    </div>
+        {{-- 5. MENU PUSAT KENDALI SYNC (TAMBAHAN BARU) --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+            <a href="{{ route('admin.sync.index') }}" class="welcome-card border-top border-5 border-info">
+                <div class="icon-box bg-info bg-opacity-10 text-info">
+                    <i class="fas fa-sync-alt"></i>
                 </div>
-            </div>
+                <h2 class="card-title text-uppercase text-info">Control Center Sync</h2>
+                <p class="card-desc">Monitoring sinkronisasi data ke database SIPP 26 Satker secara real-time Se-Wilayah PTA Bandung.</p>
+                <div class="btn btn-info w-100 py-2 mt-auto fw-bold rounded-pill text-white">MONITORING DATA</div>
+            </a>
         </div>
         @endif
 

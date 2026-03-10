@@ -35,6 +35,7 @@ class RekapEksekusiController extends Controller
         if ($user->canSeeAllData()) {
             // Super Admin dan Admin bisa lihat semua data
             $data = $dataCollection;
+            $filterInfo = "Semua Satker";
         } else {
             // User lain hanya lihat data sesuai satker-nya
             $keyword = strtoupper($user->satker->tabel ?? '');
@@ -43,17 +44,24 @@ class RekapEksekusiController extends Controller
                 $namaSatker = is_object($item) ? $item->satker : ($item['satker'] ?? '');
                 return str_contains(strtoupper($namaSatker), $keyword);
             });
+            
+            $filterInfo = "Satker: {$user->satker->nama} ({$keyword})";
         }
 
         $summary = $this->rekapService->getSummary($data);
         $allTime = $this->rekapService->getAllTimeSummary();
+
+        // ✅ TAMBAHKAN LOG INDEX
+        $totalData = $data->count();
+        $logMessage = "Melihat Rekap Eksekusi - Periode: {$tglAwal} s/d {$tglAkhir}, {$filterInfo}, Total Satker: {$totalData}";
+        
+        ActivityLog::record('Akses Rekap Eksekusi', 'RekapEksekusi', $logMessage);
 
         return view('eksekusi.index', compact('data', 'summary', 'allTime', 'tglAwal', 'tglAkhir'));
     }
 
     /**
      * Detail Perkara - Proteksi & Log
-     * FIXED: Variabel disamakan menjadi $data agar compact() tidak error
      */
     public function detail(Request $request)
     {
@@ -66,14 +74,31 @@ class RekapEksekusiController extends Controller
         if (!$user->isSuperAdmin() && !$user->isAdmin()  && $user->satker) {
             $keyword = strtoupper($user->satker->tabel);
             if (!str_contains(strtoupper($satker), $keyword)) {
+                
+                // ✅ LOG AKSES DITOLAK
+                ActivityLog::record('Akses Detail DITOLAK', 'RekapEksekusi', 
+                    "User mencoba akses satker {$satker} (jenis: {$jenis}) - Tidak berhak");
+                
                 return redirect()->route('laporan.eksekusi.index')->with('error', 'Akses Ditolak!');
             }
         }
-        // Kita simpan hasil ke variabel $data agar cocok dengan fungsi compact('data')
+        
+        // Kita simpan hasil ke variabel $data
         $data = $this->rekapService->getDetailPerkara($satker, $jenis, $tglAwal, $tglAkhir);
+        
+        // ✅ CEK TIPE DATA dan hitung jumlah dengan benar
+        $totalData = 0;
+        if (is_array($data)) {
+            $totalData = count($data);
+        } elseif ($data instanceof \Illuminate\Support\Collection) {
+            $totalData = $data->count();
+        } elseif (is_object($data)) {
+            $totalData = method_exists($data, 'count') ? $data->count() : 1;
+        }
 
-        // LOG: Catat aktivitas intip detail
-        ActivityLog::record('Lihat Detail', 'RekapEksekusi', "Melihat detail {$jenis} Satker: {$satker}");
+        // ✅ LOG: Catat aktivitas intip detail
+        ActivityLog::record('Lihat Detail', 'RekapEksekusi', 
+            "Melihat detail {$jenis} Satker: {$satker}, Periode: {$tglAwal} s/d {$tglAkhir}, Total Data: {$totalData}");
 
         return view('eksekusi.detail', compact('satker', 'jenis', 'tglAwal', 'tglAkhir', 'data'));
     }
@@ -94,6 +119,7 @@ class RekapEksekusiController extends Controller
             if ($user->role_id == 1) {
                 $data = $dataCollection;
                 $suffix = "pta_bandung_pusat";
+                $filterInfo = "Semua Satker";
             } else {
                 $keyword = strtoupper($user->satker->tabel ?? '');
                 $data = $dataCollection->filter(function ($item) use ($keyword) {
@@ -101,10 +127,13 @@ class RekapEksekusiController extends Controller
                     return str_contains(strtoupper($namaSatker), $keyword);
                 });
                 $suffix = strtolower($user->satker->tabel ?? 'satker');
+                $filterInfo = "Satker: {$user->satker->nama} ({$keyword})";
             }
 
-            // --- CATAT LOG ---
-            ActivityLog::record('Export Data', 'RekapEksekusi', "Export CSV Eksekusi periode {$tglAwal} s/d {$tglAkhir}");
+            // ✅ LOG EXPORT
+            $logMessage = "Export CSV Rekap Eksekusi - Periode: {$tglAwal} s/d {$tglAkhir}, {$filterInfo}, Total Satker: " . $data->count();
+            
+            ActivityLog::record('Export Data', 'RekapEksekusi', $logMessage);
 
             $filename = "rekap_eksekusi_{$suffix}_" . date('Ymd_His') . ".csv";
 
@@ -135,7 +164,13 @@ class RekapEksekusiController extends Controller
                 'Content-Type' => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => "attachment; filename={$filename}",
             ]);
+            
         } catch (\Exception $e) {
+            
+            // ✅ LOG ERROR EKSPOR
+            ActivityLog::record('Error Export Data', 'RekapEksekusi', 
+                "Gagal export periode {$tglAwal} s/d {$tglAkhir} - Error: " . $e->getMessage());
+            
             return redirect()->back()->with('error', 'Gagal ekspor: ' . $e->getMessage());
         }
     }

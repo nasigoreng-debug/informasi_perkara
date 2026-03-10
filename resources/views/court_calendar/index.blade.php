@@ -163,7 +163,7 @@
 @endpush
 
 @section('content')
-<div class="container-wide py-5">
+<div class="container py-5">
 
     {{-- HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">

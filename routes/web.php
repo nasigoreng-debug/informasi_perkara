@@ -6,8 +6,8 @@ use App\Http\Controllers\{
     DashboardController,
     SidangController,
     LaporanKasasiController,
-    LaporanPerkaraDiterimaController,  // Ganti dengan controller baru
-    LaporanPerkaraDiputusController,    // Tambah controller baru
+    LaporanPerkaraDiterimaController,
+    LaporanPerkaraDiputusController,
     RekapEksekusiController,
     SuratMasukController,
     LaporanBandingController,
@@ -19,14 +19,14 @@ use App\Http\Controllers\{
     SuratKeputusanController,
     PengaduanController,
     PeraturanController,
-    RetensiArsipPerkaraController
+    RetensiArsipPerkaraController,
+    SyncMonitoringController
 };
 
 /*
 |--------------------------------------------------------------------------
 | SISTEM INFORMASI PERKARA - PTA BANDUNG
 |--------------------------------------------------------------------------
-| Pengelolaan Route Aplikasi PH-Connection.
 */
 
 // ==========================================
@@ -48,9 +48,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // ==========================================
 Route::middleware(['auth'])->group(function () {
 
-    /**
-     * LANDING PAGES & NAVIGASI UTAMA
-     */
+    /** LANDING PAGES & NAVIGASI UTAMA */
     Route::get('/', function () {
         return view('welcome');
     })->name('welcome');
@@ -71,17 +69,12 @@ Route::middleware(['auth'])->group(function () {
     })->name('errors.under_construction');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    /**
-     * MODUL: MONITORING JADWAL SIDANG
-     */
+    /** MODUL: MONITORING JADWAL SIDANG */
     Route::controller(SidangController::class)->prefix('jadwal-sidang')->name('sidang.')->group(function () {
         Route::get('/', 'index')->name('index');
-        // Route public sudah dipindahkan ke luar
     });
 
-    /**
-     * MODUL: MONITORING COURT CALENDAR
-     */
+    /** MODUL: MONITORING COURT CALENDAR */
     Route::controller(CourtCalendarController::class)->prefix('court-calendar')->name('court-calendar')->group(function () {
         Route::get('/', 'index');
         Route::get('/detail/{satker}', 'detail')->name('.detail');
@@ -89,9 +82,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export-detail/{satker}', 'exportDetail')->name('.export-detail');
     });
 
-    /**
-     * MODUL: LAPORAN KASASI
-     */
+    /** MODUL: LAPORAN KASASI */
     Route::controller(LaporanKasasiController::class)->prefix('kasasi')->name('kasasi.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/detail', 'detail')->name('detail');
@@ -99,9 +90,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export', 'export')->name('export');
     });
 
-    /**
-     * MODUL: SURAT MASUK (PERSURATAN)
-     */
+    /** MODUL: SURAT MASUK */
     Route::controller(SuratMasukController::class)->prefix('surat-masuk')->name('surat.masuk.')->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/', 'index')->name('index');
@@ -115,9 +104,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export-excel', 'exportExcel')->name('exportExcel');
     });
 
-    /**
-     * MODUL: SURAT KELUAR
-     */
+    /** MODUL: SURAT KELUAR */
     Route::controller(SuratKeluarController::class)->prefix('surat-keluar')->name('surat.keluar.')->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/', 'index')->name('index');
@@ -131,9 +118,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export-excel', 'exportExcel')->name('exportExcel');
     });
 
-    /**
-     * MODUL: SURAT KEPUTUSAN (SK)
-     */
+    /** MODUL: SURAT KEPUTUSAN (SK) */
     Route::controller(SuratKeputusanController::class)->prefix('surat-keputusan')->name('sk.')->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/', 'index')->name('index');
@@ -146,36 +131,34 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export-excel', 'exportExcel')->name('exportExcel');
     });
 
-    /**
-     * MODUL: LAPORAN PERKARA DITERIMA
-     */
+    /** MODUL: LAPORAN PERKARA DITERIMA (RK3) */
     Route::controller(LaporanPerkaraDiterimaController::class)->prefix('laporan-perkara-diterima')->name('laporan.diterima.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/export', 'export')->name('export');
-        Route::get('/putusan-sela', 'putusanSela')->name('putusan.sela');
-        Route::get('/putusan-sela/export', 'exportPutusanSela')->name('putusan.sela.export');
+        Route::post('/sync', function () {
+            \Illuminate\Support\Facades\Artisan::queue('sync:perkara-diterima', ['--start' => date('Y-m-d'), '--end' => date('Y-m-d')]);
+            return back()->with('success', 'Sinkronisasi RK3 sedang berjalan.');
+        })->name('sync');
     });
 
-    /**
-     * MODUL: LAPORAN PERKARA DIPUTUS
-     */
+    /** MODUL: LAPORAN PERKARA DIPUTUS (RK4) */
     Route::controller(LaporanPerkaraDiputusController::class)->prefix('laporan-perkara-diputus')->name('laporan.diputus.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/export', 'export')->name('export');
+        Route::get('/sync', function () {
+            \Illuminate\Support\Facades\Artisan::queue('sync:perkara-diputus', ['--start' => date('Y-m-d'), '--end' => date('Y-m-d')]);
+            return back()->with('success', 'Sinkronisasi RK4 sedang berjalan.');
+        })->name('sync');
     });
 
-    /**
-     * MODUL: REKAP EKSEKUSI
-     */
+    /** MODUL: REKAP EKSEKUSI */
     Route::controller(RekapEksekusiController::class)->prefix('eksekusi')->name('laporan.eksekusi.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/export', 'export')->name('export');
         Route::get('/detail', 'detail')->name('detail');
     });
 
-    /**
-     * MODUL: LAPORAN BANDING
-     */
+    /** MODUL: LAPORAN BANDING */
     Route::controller(LaporanBandingController::class)->prefix('laporan/banding')->name('laporan.banding.')->group(function () {
         Route::get('/diterima', 'diterima')->name('diterima');
         Route::get('/detail', 'detail')->name('detail');
@@ -187,9 +170,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/jenis-perkara/export', 'exportJenis')->name('jenis.export');
     });
 
-    /**
-     * MODUL: MONITORING SISA PANJAR
-     */
+    /** MODUL: MONITORING SISA PANJAR */
     Route::controller(SisaPanjarController::class)->prefix('sisa-panjar')->name('sisa.panjar.')->group(function () {
         Route::get('/', 'index')->name('menu');
         Route::get('/pertama', 'SisaPanjarPertama')->name('pertama');
@@ -199,9 +180,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/detail', 'detail')->name('detail');
     });
 
-    /**
-     * MODUL: ADMINISTRASI USER
-     */
+    /** MODUL: ADMINISTRASI USER */
     Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/create', 'create')->name('create');
@@ -211,9 +190,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}/delete', 'destroy')->name('destroy');
     });
 
-    /**
-     * MODUL: AKTA CERAI
-     */
+    /** MODUL: AKTA CERAI */
     Route::controller(AktaCeraiController::class)->prefix('akta-cerai')->name('akta-cerai.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/detail/{satker}', 'detail')->name('detail');
@@ -221,9 +198,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export-detail', 'exportDetail')->name('export-detail');
     });
 
-    /**
-     * MODUL: AKTA PENGADUAN (SIWAS)
-     */
+    /** MODUL: AKTA PENGADUAN (SIWAS) */
     Route::controller(PengaduanController::class)->prefix('pengaduan')->name('pengaduan.')->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/', 'index')->name('index');
@@ -238,9 +213,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/modal-detail/{id}', 'modalDetail')->name('modal-detail');
     });
 
-    /**
-     * MODUL: HIMPUNAN PERATURAN (SEMA, PERMA, UU)
-     */
+    /** MODUL: HIMPUNAN PERATURAN */
     Route::controller(PeraturanController::class)->prefix('peraturan')->name('peraturan.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/create', 'create')->name('create');
@@ -250,9 +223,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/delete/{id}', 'destroy')->name('destroy');
     });
 
-    /**
-     * MODUL: ARSIP PERKARA DIGITAL (RETENSI)
-     */
+    /** MODUL: ARSIP PERKARA DIGITAL */
     Route::controller(RetensiArsipPerkaraController::class)->prefix('retensi-arsip-perkara')->name('retensi-arsip.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/create', 'create')->name('create');
@@ -261,6 +232,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/edit/{id}', 'edit')->name('edit');
         Route::put('/update/{id}', 'update')->name('update');
         Route::delete('/delete/{id}', 'destroy')->name('destroy');
+    });
+
+    /** MODUL: MONITORING SINKRONISASI */
+    Route::prefix('admin/monitoring-sync')->name('admin.sync.')->group(function () {
+        Route::get('/', [SyncMonitoringController::class, 'index'])->name('index');
+        Route::get('/status-json', [SyncMonitoringController::class, 'getStatusJson'])->name('status_json');
+        Route::post('/start-rk4', function () {
+            \Illuminate\Support\Facades\Artisan::queue('sync:perkara-diputus', ['--start' => date('Y-m-01'), '--end' => date('Y-m-d')]);
+            return response()->json(['status' => 'started']);
+        })->name('start_rk4');
     });
 
     Route::get('/activity-log', function () {

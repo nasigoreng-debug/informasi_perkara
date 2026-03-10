@@ -9,7 +9,7 @@ use App\Exports\KasasiExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use App\Models\ActivityLog; 
+use App\Models\ActivityLog;
 
 class LaporanKasasiController extends Controller
 {
@@ -58,6 +58,16 @@ class LaporanKasasiController extends Controller
             return $item;
         });
 
+        // ✅ TAMBAHKAN LOG INDEX
+        $satkerInfo = $user->satker ? $user->satker->nama : 'Semua Satker';
+        $bulanInfo = $bulan ? Carbon::create()->month($bulan)->format('F') : 'Semua Bulan';
+
+        ActivityLog::record(
+            'Akses Monitoring Kasasi',
+            'MonitoringKasasi',
+            "Melihat laporan Kasasi tahun {$tahun}, bulan: {$bulanInfo}, filter: {$satkerInfo}"
+        );
+
         return view('laporan.kasasi.index', compact('data', 'years', 'tahun', 'grandTotal', 'bulan'));
     }
 
@@ -77,6 +87,14 @@ class LaporanKasasiController extends Controller
         if (!$user->isAdmin() && $user->satker) {
             $keyword = strtolower($user->satker->tabel);
             if (!str_contains(strtolower($request->nama_db), $keyword)) {
+
+                // ✅ LOG AKSES DITOLAK
+                ActivityLog::record(
+                    'Upload PDF Kasasi DITOLAK',
+                    'MonitoringKasasi',
+                    "Akses ditolak! User mencoba upload ke satker lain: {$request->nama_db}"
+                );
+
                 return back()->with('error', 'Akses Ditolak! Anda hanya boleh mengunggah dokumen satker Anda sendiri.');
             }
         }
@@ -118,11 +136,11 @@ class LaporanKasasiController extends Controller
                     ]
                 );
 
-                // --- CATAT LOG: Upload PDF ---
+                // ✅ LOG BERHASIL UPLOAD
                 ActivityLog::record(
                     'Upload PDF Kasasi',
                     'MonitoringKasasi',
-                    "Berhasil upload PDF untuk Perkara ID: {$perkara_id} di database: {$nama_db}"
+                    "Berhasil upload PDF untuk Perkara ID: {$perkara_id} di database: {$nama_db}, file: {$filename}"
                 );
 
                 return back()->with('success', 'Dokumen berhasil diunggah.');
@@ -130,6 +148,14 @@ class LaporanKasasiController extends Controller
 
             return back()->with('error', 'Gagal memindahkan file.');
         } catch (\Exception $e) {
+
+            // ✅ LOG ERROR UPLOAD
+            ActivityLog::record(
+                'Error Upload PDF Kasasi',
+                'MonitoringKasasi',
+                "Gagal upload PDF Perkara ID: {$perkara_id}, Error: " . $e->getMessage()
+            );
+
             return back()->with('error', 'Kesalahan: ' . $e->getMessage());
         }
     }
@@ -161,16 +187,18 @@ class LaporanKasasiController extends Controller
             return $item;
         });
 
-        // --- CATAT LOG: Export Excel ---
+        // ✅ LOG EXPORT EXCEL
         $satkerName = $user->satker ? $user->satker->nama : 'Seluruh Satker';
+        $bulanInfo = $bulan ? Carbon::create()->month($bulan)->format('F') : 'Semua Bulan';
+
         ActivityLog::record(
             'Export Excel Kasasi',
             'MonitoringKasasi',
-            "Mendownload laporan Kasasi tahun {$tahun} untuk {$satkerName}"
+            "Mendownload laporan Kasasi tahun {$tahun}, bulan: {$bulanInfo}, filter: {$satkerName}, total data: " . $data->count()
         );
 
         $suffix = $user->satker ? $user->satker->tabel : 'semua';
-        $fileName = "kasasi_" . $suffix . "_" . $tahun . ".xlsx";
+        $fileName = "kasasi_" . $suffix . "_" . $tahun . "_" . date('Ymd_His') . ".xlsx";
 
         return Excel::download(new KasasiExport($data), $fileName);
     }

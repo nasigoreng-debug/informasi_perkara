@@ -6,22 +6,46 @@ use App\Models\Peraturan;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class PeraturanController extends Controller
 {
     /**
      * TAMPILAN INDEX PUBLIC (TANPA LOGIN)
+     * Untuk halaman publik, log bisa dicatat tanpa user_id
      */
     public function index_public(Request $request)
     {
         $query = Peraturan::query();
-        if ($request->search) {
-            $query->where('tentang', 'like', "%{$request->search}%");
+
+        $searchTerm = $request->search;
+        $jenisFilter = $request->jenis;
+
+        if ($searchTerm) {
+            $query->where('tentang', 'like', "%{$searchTerm}%");
         }
-        if ($request->jenis) {
-            $query->where('jenis_peraturan', $request->jenis);
+        if ($jenisFilter) {
+            $query->where('jenis_peraturan', $jenisFilter);
         }
+
         $data = $query->orderBy('tahun', 'desc')->paginate(10);
+
+        // ✅ LOG AKSES PUBLIC (tanpa user_id)
+        $logMessage = "Akses publik JDIH";
+        if ($searchTerm || $jenisFilter) {
+            $logMessage .= " dengan filter";
+            if ($searchTerm) $logMessage .= " - search: '{$searchTerm}'";
+            if ($jenisFilter) $logMessage .= " - jenis: '{$jenisFilter}'";
+        }
+
+        ActivityLog::create([
+            'user_id' => null, // Public access, no user
+            'activity' => 'Akses Public JDIH',
+            'description' => $logMessage,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
         return view('peraturan_public', compact('data'));
     }
 
@@ -53,8 +77,19 @@ class PeraturanController extends Controller
 
         $data = $query->orderBy('tahun', 'desc')->orderBy('id', 'desc')->paginate(10)->withQueryString();
 
-        // Catat Log
-        ActivityLog::record('Akses JDIH', 'Regulasi', 'Membuka daftar himpunan peraturan');
+        // ✅ LOG INDEX dengan detail filter
+        $logMessage = "Membuka daftar himpunan peraturan";
+        if ($request->filled('search')) {
+            $logMessage .= " - Pencarian: '{$request->search}'";
+        }
+        if ($request->filled('jenis')) {
+            $logMessage .= " - Jenis: '{$request->jenis}'";
+        }
+        if ($request->filled('tahun')) {
+            $logMessage .= " - Tahun: {$request->tahun}";
+        }
+
+        ActivityLog::record('Akses JDIH', 'Regulasi', $logMessage);
 
         return view('peraturan.index', compact('data'));
     }
@@ -64,6 +99,9 @@ class PeraturanController extends Controller
      */
     public function create()
     {
+        // ✅ LOG AKSES FORM TAMBAH
+        ActivityLog::record('Akses Form Tambah Peraturan', 'Regulasi', 'Membuka form input peraturan baru');
+
         return view('peraturan.create');
     }
 
@@ -92,7 +130,8 @@ class PeraturanController extends Controller
 
         Peraturan::create($input);
 
-        ActivityLog::record('Tambah Peraturan', 'Regulasi', "Input {$request->jenis_peraturan} No: {$request->no_peraturan}");
+        // ✅ LOG STORE
+        ActivityLog::record('Tambah Peraturan', 'Regulasi', "Input {$request->jenis_peraturan} No: {$request->no_peraturan} Tahun {$request->tahun}");
 
         return redirect()->route('peraturan.index')->with('success', 'Dokumen hukum berhasil ditambahkan!');
     }
@@ -103,6 +142,10 @@ class PeraturanController extends Controller
     public function edit($id)
     {
         $item = Peraturan::findOrFail($id);
+
+        // ✅ LOG AKSES FORM EDIT
+        ActivityLog::record('Akses Form Edit Peraturan', 'Regulasi', "Membuka form edit ID: {$id} - {$item->jenis_peraturan} No: {$item->no_peraturan}");
+
         return view('peraturan.edit', compact('item'));
     }
 
@@ -137,7 +180,13 @@ class PeraturanController extends Controller
 
         $peraturan->update($input);
 
-        ActivityLog::record('Update Peraturan', 'Regulasi', "Mengubah data No: {$peraturan->no_peraturan}");
+        // ✅ LOG UPDATE
+        $logMessage = "Mengubah data ID: {$id} - {$peraturan->jenis_peraturan} No: {$peraturan->no_peraturan}";
+        if ($request->hasFile('dokumen')) {
+            $logMessage .= " (dengan upload dokumen baru)";
+        }
+
+        ActivityLog::record('Update Peraturan', 'Regulasi', $logMessage);
 
         return redirect()->route('peraturan.index')->with('success', 'Dokumen berhasil diperbarui!');
     }
@@ -149,14 +198,20 @@ class PeraturanController extends Controller
     {
         $peraturan = Peraturan::findOrFail($id);
 
+        $info = "{$peraturan->jenis_peraturan} No: {$peraturan->no_peraturan} Tahun {$peraturan->tahun}";
+
         // Hapus file fisiknya
         if ($peraturan->dokumen) {
-            @unlink(storage_path('app/public/peraturan/' . $peraturan->dokumen));
+            $filePath = storage_path('app/public/peraturan/' . $peraturan->dokumen);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
         }
 
         $peraturan->delete();
 
-        ActivityLog::record('Hapus Peraturan', 'Regulasi', "Menghapus ID: {$id}");
+        // ✅ LOG DELETE
+        ActivityLog::record('Hapus Peraturan', 'Regulasi', "Menghapus ID: {$id} - {$info}");
 
         return redirect()->route('peraturan.index')->with('success', 'Dokumen telah dihapus dari sistem!');
     }

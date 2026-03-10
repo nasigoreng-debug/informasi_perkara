@@ -18,7 +18,13 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('kasasi:test')->daily();
+        // Menjalankan sinkronisasi setiap hari jam 01:00 pagi
+        $schedule->command('sync:perkara-diterima')->dailyAt('01:00');
+
+        // Menjalankan sinkronisasi setiap hari jam 02:00 pagi
+        $schedule->command('sync:sisa-panjar')
+            ->dailyAt('02:00')
+            ->appendOutputTo(storage_path('logs/sync_panjar.log'));
     }
 
     protected function commands()

@@ -15,16 +15,20 @@ class TrackVisitors
      */
     public function handle(Request $request, Closure $next)
     {
-        $ip = $request->ip();
-        $date = now()->toDateString();
+        try {
+            $ip = $request->ip();
+            $date = now()->toDateString();
 
-        // Simpan hanya jika IP tersebut belum berkunjung hari ini (agar tidak spam)
-        \App\Models\Visitor::firstOrCreate([
-            'ip_address' => $ip,
-            'visit_date' => $date
-        ], [
-            'user_agent' => $request->userAgent()
-        ]);
+            \App\Models\Visitor::firstOrCreate([
+                'ip_address' => $ip,
+                'visit_date' => $date
+            ], [
+                'user_agent' => $request->userAgent()
+            ]);
+        } catch (\Exception $e) {
+            // Jika DB error, catat di log saja, jangan hentikan aplikasi
+            \Log::warning("Gagal mencatat visitor: " . $e->getMessage());
+        }
 
         return $next($request);
     }
