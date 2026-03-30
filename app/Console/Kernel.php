@@ -22,6 +22,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:perkara-diterima')->dailyAt('01:00');
 
         // Menjalankan sinkronisasi setiap hari jam 02:00 pagi
+        $schedule->command('sync:perkara-diputus')->dailyAt('01:00');
+
+        // Menjalankan sinkronisasi setiap hari jam 03:00 pagi
         $schedule->command('sync:sisa-panjar')
             ->dailyAt('02:00')
             ->appendOutputTo(storage_path('logs/sync_panjar.log'));

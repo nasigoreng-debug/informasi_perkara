@@ -157,7 +157,7 @@
             <p class="card-desc">Arsip perkara aktif dan terbaru dalam sistem.</p>
         </a>
 
-        <a href="#" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.2s">
+        <a href="{{ route('bank.index') }}" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.2s">
             <div class="icon-box bg-info bg-opacity-10 text-info"><i class="fas fa-university"></i></div>
             <h5 class="card-title">Bank Putusan</h5>
             <p class="card-desc">Kumpulan salinan putusan yang telah berkekuatan hukum.</p>

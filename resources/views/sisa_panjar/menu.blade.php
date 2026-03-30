@@ -80,7 +80,7 @@
         @endforeach
     </div>
 
-    <div class="row mt-5 mb-5">
+    <!-- <div class="row mt-5 mb-5">
         <div class="col-12">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="card-header bg-white py-4 border-0 d-flex align-items-center justify-content-between">
@@ -142,7 +142,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 
 <style>

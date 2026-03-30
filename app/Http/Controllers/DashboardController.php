@@ -2,68 +2,169 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\SuratMasuk;
-use App\Models\ActivityLog;
-use App\Models\SidangSiappta;
-use App\Models\Visitor;
-use App\Services\RekapEksekusiService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    protected $rekapService;
-
-    public function __construct(RekapEksekusiService $rekapService)
+    /**
+     * Display dashboard with case monitoring data
+     */
+    public function index(Request $request)
     {
-        $this->middleware('auth');
-        $this->rekapService = $rekapService;
+        // 1. Setup Filter dengan Nama Variabel Sesuai Blade (tgl_awal & tgl_akhir)
+        $tgl_awal = $request->input('tgl_awal', date('Y') . '-01-01');
+        $tgl_akhir = $request->input('tgl_akhir', date('Y-m-d'));
+        $tahun = date('Y', strtotime($tgl_akhir));
+
+        $db = DB::connection('siappta');
+
+        // 2. Query Kartu Statistik Utama
+        $cardData = $this->getCardStatistics($db, $tgl_awal, $tgl_akhir);
+        $beban = ($cardData->sisa_lalu ?? 0) + ($cardData->diterima ?? 0);
+
+        // 3. Query Putusan Sela
+        $putusanSela = $db->table('perkara')
+            ->whereNotNull('tgl_register')
+            ->whereBetween('tgl_putusan_sela', [$tgl_awal, $tgl_akhir])
+            ->count();
+
+        // 4. Query Rekap E-Court vs Manual
+        $rekapEcourt = $this->getEcourtStatistics($db, $tgl_awal, $tgl_akhir);
+
+        // 5. Query Zona Warna (Kecepatan Putusan)
+        $zonaWarna = $this->getZoneStatistics($db, $tgl_awal, $tgl_akhir);
+        $totalPutus = $this->calculateTotalPutus($zonaWarna);
+
+        // 6. Query Rekap Jenis Perkara & Hakim
+        $rekapJenis = $this->getCaseTypeStatistics($db, $tgl_awal, $tgl_akhir);
+
+        return view('dashboard.index', compact(
+            'cardData',
+            'beban',
+            'putusanSela',
+            'rekapEcourt',
+            'zonaWarna',
+            'totalPutus',
+            'tgl_awal',   // <--- Sudah sinkron dengan Blade
+            'tgl_akhir',  // <--- Sudah sinkron dengan Blade
+            'tahun',
+            'rekapJenis'
+        ));
     }
 
-    public function index()
+    /**
+     * Get main card statistics
+     */
+    private function getCardStatistics($db, $tglAwal, $tglAkhir)
     {
-        // 1. Data Grafik Surat (Lokal - Cepat)
-        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-        $dataSurat = [];
-        for ($m = 1; $m <= 12; $m++) {
-            $dataSurat[] = SuratMasuk::whereMonth('tgl_surat', $m)->whereYear('tgl_surat', date('Y'))->count();
+        return $db->table('perkara')
+            ->whereNotNull('tgl_register')
+            ->selectRaw("
+                SUM(CASE WHEN tgl_register < ? AND (tgl_putusan IS NULL OR tgl_putusan >= ?) THEN 1 ELSE 0 END) AS sisa_lalu,
+                SUM(CASE WHEN tgl_register BETWEEN ? AND ? THEN 1 ELSE 0 END) AS diterima,
+                SUM(CASE WHEN tgl_putusan BETWEEN ? AND ? THEN 1 ELSE 0 END) AS selesai,
+                SUM(CASE WHEN tgl_putusan IS NULL OR tgl_putusan > ? THEN 1 ELSE 0 END) AS sisa
+            ", [$tglAwal, $tglAwal, $tglAwal, $tglAkhir, $tglAwal, $tglAkhir, $tglAkhir])
+            ->first();
+    }
+
+    /**
+     * Get E-Court vs Manual statistics
+     */
+    private function getEcourtStatistics($db, $tglAwal, $tglAkhir)
+    {
+        $satkers = [
+            'bandung',
+            'indramayu',
+            'majalengka',
+            'sumber',
+            'ciamis',
+            'tasikmalaya',
+            'karawang',
+            'cimahi',
+            'subang',
+            'sumedang',
+            'purwakarta',
+            'sukabumi',
+            'cianjur',
+            'kuningan',
+            'cibadak',
+            'cirebon',
+            'garut',
+            'bogor',
+            'bekasi',
+            'cibinong',
+            'cikarang',
+            'depok',
+            'tasikkota',
+            'banjar',
+            'soreang',
+            'ngamprah'
+        ];
+
+        $unionQuery = null;
+        foreach ($satkers as $satker) {
+            $query = $db->table("{$satker}.ecourt_banding")->select('nomor_perkara');
+            $unionQuery = $unionQuery ? $unionQuery->unionAll($query) : $query;
         }
 
-        // 2. Data Eksekusi (Real - Jika lambat akan diberi angka 0 agar dashboard tidak blank)
-        try {
-            $dataRaw = $this->rekapService->getRekap(date('Y-01-01'), date('Y-12-31'));
-            $dataCollection = collect($dataRaw);
-            $totalBeban = (int) $dataCollection->sum('BEBAN');
-            $totalSelesai = (int) $dataCollection->sum('SELESAI');
-            $eksekusiSelesai = $totalBeban > 0 ? round(($totalSelesai / $totalBeban) * 100, 1) : 0;
-            $eksekusiSisa = 100 - $eksekusiSelesai;
-        } catch (\Exception $e) {
-            $totalBeban = 0;
-            $totalSelesai = 0;
-            $eksekusiSelesai = 0;
-            $eksekusiSisa = 0;
-        }
+        return $db->table('perkara as p')
+            ->leftJoinSub($unionQuery, 'ec', function ($join) {
+                $join->on(DB::raw('TRIM(p.nomor_perkara_pa)'), '=', DB::raw('TRIM(ec.nomor_perkara)'));
+            })
+            ->whereNotNull('p.tgl_register')
+            ->whereBetween('p.tgl_register', [$tglAwal, $tglAkhir])
+            ->selectRaw("
+                SUM(CASE WHEN ec.nomor_perkara IS NOT NULL THEN 1 ELSE 0 END) as total_ecourt,
+                SUM(CASE WHEN ec.nomor_perkara IS NULL THEN 1 ELSE 0 END) as total_manual
+            ")
+            ->first();
+    }
 
-        // 3. Statistik Kartu
-        $statsSurat = ['total' => SuratMasuk::count(), 'hari_ini' => SuratMasuk::whereDate('created_at', today())->count()];
-        $totalSidang = SidangSiappta::whereDate('tgl_sidang_pertama', today())->count();
-        $visitors = ['today' => Visitor::whereDate('visit_date', today())->count(), 'online' => Visitor::where('updated_at', '>=', now()->subMinutes(5))->count()];
-        $recentLogs = ActivityLog::with('user')->latest()->take(5)->get();
-        $totalUser = User::count();
+    /**
+     * Get zone color statistics (decision speed)
+     */
+    private function getZoneStatistics($db, $tglAwal, $tglAkhir)
+    {
+        return $db->table('perkara')
+            ->whereNotNull('tgl_register')
+            ->whereBetween('tgl_putusan', [$tglAwal, $tglAkhir])
+            ->selectRaw("
+                SUM(CASE WHEN DATEDIFF(tgl_putusan, tgl_register) <= 30 THEN 1 ELSE 0 END) as hijau_tua,
+                SUM(CASE WHEN DATEDIFF(tgl_putusan, tgl_register) BETWEEN 31 AND 60 THEN 1 ELSE 0 END) as hijau_muda,
+                SUM(CASE WHEN DATEDIFF(tgl_putusan, tgl_register) BETWEEN 61 AND 90 THEN 1 ELSE 0 END) as kuning,
+                SUM(CASE WHEN DATEDIFF(tgl_putusan, tgl_register) > 90 THEN 1 ELSE 0 END) as merah
+            ")
+            ->first();
+    }
 
-        return view('dashboard', compact(
-            'statsSurat',
-            'totalSidang',
-            'visitors',
-            'recentLogs',
-            'totalUser',
-            'labels',
-            'dataSurat',
-            'eksekusiSelesai',
-            'eksekusiSisa',
-            'totalBeban',
-            'totalSelesai'
-        ));
+    /**
+     * Calculate total putus from zone statistics
+     */
+    private function calculateTotalPutus($zonaWarna)
+    {
+        return ($zonaWarna->hijau_tua ?? 0) +
+            ($zonaWarna->hijau_muda ?? 0) +
+            ($zonaWarna->kuning ?? 0) +
+            ($zonaWarna->merah ?? 0);
+    }
+
+    /**
+     * Get case type and judge statistics
+     */
+    private function getCaseTypeStatistics($db, $tglAwal, $tglAkhir)
+    {
+        return $db->table('perkara')
+            ->whereNotNull('tgl_register')
+            ->whereBetween('tgl_register', [$tglAwal, $tglAkhir])
+            ->selectRaw("
+                jenis_perkara as jenis,
+                COUNT(*) as total,
+                GROUP_CONCAT(DISTINCT nama_km ORDER BY nama_km SEPARATOR '; ') as hakim_penangani
+            ")
+            ->groupBy('jenis_perkara')
+            ->orderBy('total', 'desc')
+            ->get();
     }
 }

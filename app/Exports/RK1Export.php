@@ -23,7 +23,7 @@ class RK1Export implements FromView, ShouldAutoSize, WithStyles
 
     public function view(): View
     {
-        return view('exports.banding_diterima_excel', [
+        return view('laporan.banding_diterima_excel', [
             'results' => $this->results,
             'tgl_awal' => $this->tgl_awal,
             'tgl_akhir' => $this->tgl_akhir

@@ -66,14 +66,23 @@ class RK2Export implements FromCollection, WithHeadings, WithStyles, ShouldAutoS
         foreach ($this->results as $row) {
             $isTotal = ($row->satker == 'JUMLAH KESELURUHAN');
 
-            // Hitung total rincian dikabulkan menyamping
+            // Hitung total rincian dikabulkan (hanya rincian jenis)
             $totalDikabulkan = 0;
             foreach (array_keys($this->jenisPerkara) as $k) {
                 $totalDikabulkan += $row->$k ?? 0;
             }
 
-            // Hitung Jumlah Putus (Sinkron dengan Web)
-            $jmlPutus = ($row->dicabut ?? 0) + $totalDikabulkan + ($row->ditolak ?? 0) + ($row->tidak_diterima ?? 0) + ($row->gugur ?? 0) + ($row->dicoret ?? 0);
+            // RUMUS FIX: Hanya menghitung Status Akhir (Dicabut + Kuat + Batal + Perbaiki + NO + Tolak + Gugur + Coret)
+            // Tidak menjumlahkan rincian jenis perkara agar tidak double/minus
+            $jmlPutus = ($row->dicabut ?? 0) +
+                ($row->Dikuatkan ?? 0) +
+                ($row->Dibatalkan ?? 0) +
+                ($row->Diperbaiki ?? 0) +
+                ($row->tidak_diterima ?? 0) +
+                ($row->ditolak ?? 0) +
+                ($row->gugur ?? 0) +
+                ($row->dicoret ?? 0);
+
             $sisaAkhir = ($row->beban ?? 0) - $jmlPutus;
 
             $item = [
@@ -85,14 +94,17 @@ class RK2Export implements FromCollection, WithHeadings, WithStyles, ShouldAutoS
                 'dicabut' => $row->dicabut ?? 0,
             ];
 
-            // Isi Rincian Jenis Perkara
+            // Isi Rincian Jenis Perkara (Kolom 7-37)
             foreach (array_keys($this->jenisPerkara) as $k) {
                 $item[$k] = $row->$k ?? 0;
             }
 
-            $item['total_kabul'] = $totalDikabulkan;
-            $item['ditolak'] = $row->ditolak ?? 0;
+            // Tambahkan kolom status baru (38-41) & status lainnya
+            $item['Dikuatkan'] = $row->Dikuatkan ?? 0;
+            $item['Dibatalkan'] = $row->Dibatalkan ?? 0;
+            $item['Diperbaiki'] = $row->Diperbaiki ?? 0;
             $item['tidak_diterima'] = $row->tidak_diterima ?? 0;
+            $item['ditolak'] = $row->ditolak ?? 0;
             $item['gugur'] = $row->gugur ?? 0;
             $item['dicoret'] = $row->dicoret ?? 0;
             $item['jml_putus'] = $jmlPutus;
@@ -108,12 +120,13 @@ class RK2Export implements FromCollection, WithHeadings, WithStyles, ShouldAutoS
     {
         return [
             ['LAPORAN PERKARA BANDING DIPUTUS (RK.2)'],
+            ['PENGADILAN AGAMA SE-JAWA BARAT'],
             ['PERIODE: ' . $this->tgl_awal . ' S/D ' . $this->tgl_akhir],
             [''],
             array_merge(
                 ['NO', 'PENGADILAN AGAMA', 'SISA LALU', 'DITERIMA', 'JUMLAH (BEBAN)', 'DICABUT'],
                 array_values($this->jenisPerkara),
-                ['TOTAL DIKABULKAN', 'DITOLAK', 'TAK DITERIMA', 'GUGUR', 'DICORET', 'JUMLAH PUTUS', 'SISA AKHIR']
+                ['DIKUATKAN', 'DIBATALKAN', 'DIPERBAIKI', 'TAK DITERIMA', 'DITOLAK', 'GUGUR', 'DICORET', 'JUMLAH PUTUS', 'SISA AKHIR']
             )
         ];
     }
@@ -123,24 +136,27 @@ class RK2Export implements FromCollection, WithHeadings, WithStyles, ShouldAutoS
         $lastRow = $sheet->getHighestRow();
         $lastCol = $sheet->getHighestColumn();
 
-        // Title Center
+        // Judul & Periode
         $sheet->mergeCells("A1:{$lastCol}1");
         $sheet->mergeCells("A2:{$lastCol}2");
-        $sheet->getStyle('A1:A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->mergeCells("A3:{$lastCol}3");
+        $sheet->getStyle('A1:A3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
 
-        // Header Styling
-        $sheet->getStyle("A4:{$lastCol}4")->getFont()->setBold(true);
-        $sheet->getStyle("A4:{$lastCol}4")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('E2E2E2');
+        // Header Tabel (Baris 5)
+        $sheet->getStyle("A5:{$lastCol}5")->getFont()->setBold(true)->getColor()->setARGB('FFFFFF');
+        $sheet->getStyle("A5:{$lastCol}5")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("A5:{$lastCol}5")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('2C3E50');
 
-        // Borders
-        $sheet->getStyle("A4:{$lastCol}{$lastRow}")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        // Body Styling
+        $sheet->getStyle("A5:{$lastCol}{$lastRow}")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle("C6:{$lastCol}{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        // Number Alignment
-        $sheet->getStyle("C4:{$lastCol}{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        // Styling Kolom Sisa Akhir (Kolom Terakhir)
+        $sheet->getStyle("{$lastCol}6:{$lastCol}{$lastRow}")->getFont()->setBold(true);
 
-        // Total Row Bold
+        // Baris Total (Baris Terakhir)
         $sheet->getStyle("A{$lastRow}:{$lastCol}{$lastRow}")->getFont()->setBold(true);
-        $sheet->getStyle("A{$lastRow}:{$lastCol}{$lastRow}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('F2F2F2');
+        $sheet->getStyle("A{$lastRow}:{$lastCol}{$lastRow}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('BDC3C7');
     }
 }

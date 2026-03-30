@@ -2,7 +2,6 @@
 
 @section('content')
 <style>
-    /* Identik dengan RK4: Font 8px dan Narrow */
     .table-rk3 {
         font-size: 8px;
         border: 1px solid #000;
@@ -17,7 +16,6 @@
         text-align: center;
     }
 
-    /* Header Vertikal identik RK4 */
     .v-text {
         writing-mode: vertical-rl;
         transform: rotate(180deg);
@@ -44,36 +42,71 @@
         text-align: left !important;
         padding-left: 5px !important;
     }
+
+    .sync-pill {
+        display: inline-flex;
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        padding: 3px 12px;
+        border-radius: 50px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 </style>
 
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h5 class="fw-bold mb-0">LAPORAN PERKARA YANG DITERIMA (RK3)</h5>
-            <small class="text-muted">Periode: {{ \Carbon\Carbon::parse($start)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($end)->format('d/m/Y') }}</small>
+            <div class="d-flex align-items-center mt-1">
+                <small class="text-muted fw-bold me-3">
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    Periode: {{ \Carbon\Carbon::parse($start)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($end)->format('d/m/Y') }}
+                </small>
+
+                @php
+                $lastSync = \DB::table('sync_logs')->where('modul', 'laporan_rk3')->latest('updated_at')->first();
+                @endphp
+
+                @if($lastSync)
+                <div class="sync-pill">
+                    <i class="fas fa-sync-alt fa-spin text-success me-2" style="font-size: 10px;"></i>
+                    <small class="text-muted" style="font-size: 11px;">
+                        Terakhir Sinkron: <strong class="text-dark">{{ \Carbon\Carbon::parse($lastSync->updated_at)->format('d/m/Y H:i') }}</strong>
+                    </small>
+                </div>
+                @endif
+            </div>
         </div>
         <div class="badge bg-primary px-3 py-2">PTA BANDUNG</div>
     </div>
 
-    {{-- Filter Bar Identik RK4 --}}
-    <div class="card mb-3 border-0 shadow-sm">
+    <div class="card mb-3 border-0 shadow-sm rounded border">
         <div class="card-body py-2 bg-light">
-            <form action="{{ route('laporan.diterima.index') }}" method="GET" class="row g-2 align-items-end">
-                <div class="col-md-3">
-                    <label class="small fw-bold">DARI TANGGAL</label>
-                    <input type="date" name="start" class="form-select form-select-sm" value="{{ $start }}">
-                </div>
-                <div class="col-md-3">
-                    <label class="small fw-bold">SAMPAI TANGGAL</label>
-                    <input type="date" name="end" class="form-select form-select-sm" value="{{ $end }}">
+            <form action="{{ route('laporan.diterima.index') }}" method="GET" id="filterForm" class="row g-2 align-items-end">
+                <div class="col-md-2">
+                    <label class="small fw-bold text-muted">DARI TANGGAL</label>
+                    <input type="date" name="start" id="start" class="form-control form-control-sm" value="{{ $start }}">
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-dark btn-sm w-100">
+                    <label class="small fw-bold text-muted">SAMPAI TANGGAL</label>
+                    <input type="date" name="end" id="end" class="form-control form-control-sm" value="{{ $end }}">
+                </div>
+                <div class="col-md-6 d-flex gap-2">
+                    <button type="submit" class="btn btn-dark btn-sm px-4 shadow-sm">
                         <i class="fas fa-filter me-1"></i> FILTER
                     </button>
+
+                    <a href="{{ route('laporan.diterima.index') }}" class="btn btn-outline-secondary btn-sm px-3 shadow-sm bg-white">
+                        <i class="fas fa-undo me-1"></i> RESET FILTER
+                    </a>
+
+                    <button type="button" onclick="window.print()" class="btn btn-outline-danger btn-sm px-3 shadow-sm bg-white">
+                        <i class="fas fa-print me-1"></i> CETAK
+                    </button>
                 </div>
-                <div class="col-md-2">
-                    <a href="#" class="btn btn-success btn-sm w-100">
+                <div class="col-md-2 text-end">
+                    <a href="{{ route('laporan.diterima.export') }}" class="btn btn-success btn-sm w-100 shadow-sm" target="_blank">
                         <i class="fas fa-file-excel me-1"></i> EXCEL
                     </a>
                 </div>
@@ -81,8 +114,8 @@
         </div>
     </div>
 
-    <div class="table-responsive shadow-sm" style="max-height: 80vh;">
-        <table class="table table-rk3 w-100">
+    <div class="table-responsive shadow-sm" style="max-height: 75vh;">
+        <table class="table table-rk3 w-100 mb-0">
             <thead class="sticky-header">
                 <tr class="header-gray">
                     <th rowspan="2" style="width: 25px;">NO</th>
@@ -97,33 +130,27 @@
                 </tr>
             </thead>
             <tbody>
-                @php
-                $grandTotal = array_fill_keys(array_keys($jenisPerkara), 0);
-                $totalSemuaPerkara = 0;
-                @endphp
-
+                @php $grandTotal = array_fill_keys(array_keys($jenisPerkara), 0); $totalSemua = 0; @endphp
                 @foreach($laporan as $index => $row)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td class="text-start-important fw-bold">{{ $row->satker }}</td>
-
+                    <td class="text-start-important fw-bold text-uppercase">{{ $row->satker }}</td>
                     @foreach($jenisPerkara as $key => $label)
-                    @php $grandTotal[$key] += $row->$key; @endphp
-                    <td>{{ number_format($row->$key) }}</td>
+                    @php $nilai = $row->$key ?? 0; $grandTotal[$key] += $nilai; @endphp
+                    <td>{{ $nilai > 0 ? number_format($nilai) : '-' }}</td>
                     @endforeach
-
                     <td class="bg-primary bg-opacity-10 fw-bold">{{ number_format($row->total_baris) }}</td>
-                    @php $totalSemuaPerkara += $row->total_baris; @endphp
+                    @php $totalSemua += $row->total_baris; @endphp
                 </tr>
                 @endforeach
             </tbody>
-            <tfoot class="header-gray sticky-bottom">
-                <tr class="fw-bold">
-                    <td colspan="2">TOTAL SE-WILAYAH JAWA BARAT</td>
+            <tfoot class="header-gray sticky-bottom border-top-2 fw-bold">
+                <tr>
+                    <td colspan="2" class="py-2">TOTAL SE-WILAYAH JAWA BARAT</td>
                     @foreach($jenisPerkara as $key => $label)
                     <td>{{ number_format($grandTotal[$key]) }}</td>
                     @endforeach
-                    <td class="bg-primary text-white">{{ number_format($totalSemuaPerkara) }}</td>
+                    <td class="bg-primary text-white">{{ number_format($totalSemua) }}</td>
                 </tr>
             </tfoot>
         </table>

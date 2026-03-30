@@ -264,7 +264,7 @@
                         <div class="label-accent mb-2">Dokumen</div>
                         <div class="d-flex justify-content-lg-end justify-content-center align-items-center gap-2">
                             @if(!empty($item->file_pdf))
-                            <a href="{{ asset('public/storage/' . ltrim($item->file_pdf, '/')) }}" target="_blank" class="btn btn-success btn-circle shadow-sm" title="Download"><i class="fas fa-file-download"></i></a>
+                            <a href="{{ asset('storage/' . ltrim($item->file_pdf, '/')) }}" target="_blank" class="btn btn-success btn-circle shadow-sm" title="Download"><i class="fas fa-file-download"></i></a>
                             <button class="btn btn-outline-success btn-circle shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadModal{{ $item->unique_id ?? $loop->index }}" title="Edit"><i class="fas fa-edit"></i></button>
                             @else
                             <button class="btn btn-outline-danger btn-circle shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadModal{{ $item->unique_id ?? $loop->index }}" title="Upload"><i class="fas fa-cloud-upload-alt"></i></button>

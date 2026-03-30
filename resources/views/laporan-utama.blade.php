@@ -217,7 +217,7 @@
 
         {{-- PUTUSAN SELA --}}
         <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
-            <a href="" class="menu-card border-bottom border-4" style="color: var(--indigo-mewah); border-color: var(--indigo-mewah) !important;">
+            <a href="{{ route('laporan.banding.jenis') }}" class="menu-card border-bottom border-4" style="color: var(--indigo-mewah); border-color: var(--indigo-mewah) !important;">
                 <div class="icon-box" style="background: rgba(79, 70, 229, 0.1);">
                     <i class="fas fa-scroll"></i>
                 </div>

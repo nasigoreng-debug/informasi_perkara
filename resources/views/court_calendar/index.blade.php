@@ -21,11 +21,6 @@
         letter-spacing: -0.01em;
     }
 
-    .container-wide {
-        max-width: 96%;
-        margin: 0 auto;
-    }
-
     /* Notifikasi Periode */
     .alert-periode {
         background-color: #eff6ff;
@@ -67,15 +62,7 @@
         margin-bottom: 1.5rem;
     }
 
-    input[type="date"] {
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 6px 12px;
-        font-size: 0.9rem;
-        outline: none;
-    }
-
-    /* Table DNA - Grid Kotak Tipis (Classic Clean) */
+    /* Table Grid Kotak Tipis */
     .table-container {
         background: white;
         border: 1px solid var(--border-color);
@@ -99,9 +86,6 @@
         text-transform: uppercase;
         color: #64748b;
         letter-spacing: 0.05em;
-        position: sticky;
-        top: 0;
-        z-index: 10;
     }
 
     .table-grid tbody td {
@@ -109,14 +93,8 @@
         padding: 16px 12px;
         font-size: 0.85rem;
         vertical-align: middle;
-        line-height: 1.5;
     }
 
-    .table-grid tr:hover td {
-        background-color: #f1f5f9;
-    }
-
-    /* Visual Elements */
     .progress-sm {
         height: 8px;
         border-radius: 10px;
@@ -131,12 +109,25 @@
         font-weight: 800;
         font-size: 0.65rem;
         text-transform: uppercase;
-        letter-spacing: 0.02em;
     }
 
-    .bg-tuntas { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
-    .bg-baik { background: #f0f9ff; color: #0ea5e9; border: 1px solid #e0f2fe; }
-    .bg-belum { background: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6; }
+    .bg-tuntas {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #dcfce7;
+    }
+
+    .bg-baik {
+        background: #f0f9ff;
+        color: #0ea5e9;
+        border: 1px solid #e0f2fe;
+    }
+
+    .bg-belum {
+        background: #fff1f2;
+        color: #e11d48;
+        border: 1px solid #ffe4e6;
+    }
 
     .tfoot-dark {
         background: var(--dark-navy);
@@ -144,36 +135,35 @@
         font-weight: 700;
     }
 
-    .tfoot-dark td {
-        border: 1px solid #334155 !important;
-        padding: 18px !important;
-    }
-
     @media print {
-        .no-print, .btn-back, .filter-card, .alert-periode {
+
+        .no-print,
+        .btn-back,
+        .filter-card,
+        .alert-periode {
             display: none !important;
         }
-        .table-container {
-            border: none;
-            box-shadow: none;
+
+        body {
+            background: white;
         }
-        body { background: white; }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="container py-5">
+<div class="container py-5" style="max-width: 96%;">
 
     {{-- HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center">
+            {{-- Sesuaikan link monitoring --}}
             <a href="{{ url('monitoring') }}" class="btn-back me-3 shadow-sm no-print">
                 <i class="bi bi-arrow-left"></i>
             </a>
             <div>
-                <h2 class="fw-800 mb-0" style="color: var(--dark-navy); letter-spacing: -0.02em;">Peringkat Kepatuhan Court Calendar</h2>
-                <p class="text-muted small mb-0 font-italic">Urutan: Persentase Tertinggi & Volume Terima Terbanyak</p>
+                <h2 class="fw-bold mb-0" style="color: var(--dark-navy); letter-spacing: -0.02em;">Peringkat Kepatuhan Court Calendar</h2>
+                <p class="text-muted small mb-0 italic">Monitoring Berdasarkan Pendaftaran Perkara</p>
             </div>
         </div>
         <div class="no-print d-flex gap-2">
@@ -185,7 +175,8 @@
 
     {{-- FILTER FORM --}}
     <div class="filter-card shadow-sm no-print">
-        <form action="{{ route('court-calendar') }}" method="GET" class="row g-3 align-items-end">
+        {{-- Benerin route name (pake titik di akhir sesuai route:list lu) --}}
+        <form action="{{ route('court-calendar.') }}" method="GET" class="row g-3 align-items-end">
             <div class="col-md-3">
                 <label class="small fw-bold text-muted text-uppercase mb-1">Dari Tgl Daftar</label>
                 <input type="date" name="tgl_awal" class="form-control" value="{{ $tglAwal }}">
@@ -199,7 +190,8 @@
                     <button type="submit" class="btn btn-primary fw-bold px-4">
                         <i class="bi bi-filter me-1"></i> FILTER
                     </button>
-                    <a href="{{ route('court-calendar') }}" class="btn btn-light border px-3" title="Reset Filter">
+                    {{-- Benerin petik penutup di sini --}}
+                    <a href="{{ route('court-calendar.') }}" class="btn btn-light border px-3" title="Reset Filter">
                         <i class="bi bi-arrow-clockwise text-primary"></i>
                     </a>
                     <a href="{{ route('court-calendar.export', ['tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir]) }}" target="_blank" class="btn btn-success fw-bold px-4">
@@ -214,9 +206,9 @@
     <div class="alert-periode shadow-sm mb-4">
         <i class="bi bi-info-circle-fill me-3 fs-5"></i>
         <div>
-            Menampilkan hasil monitoring periode: 
-            <span class="fw-bold text-dark">{{ \Carbon\Carbon::parse($tglAwal)->translatedFormat('d F Y') }}</span> 
-            s.d 
+            Menampilkan hasil monitoring periode:
+            <span class="fw-bold text-dark">{{ \Carbon\Carbon::parse($tglAwal)->translatedFormat('d F Y') }}</span>
+            s.d
             <span class="fw-bold text-dark">{{ \Carbon\Carbon::parse($tglAkhir)->translatedFormat('d F Y') }}</span>
         </div>
     </div>
@@ -240,9 +232,9 @@
                     @php $gTotal = 0; $gSudah = 0; $gBelum = 0; @endphp
                     @foreach($results as $index => $row)
                     @php
-                        $gTotal += $row->total;
-                        $gSudah += $row->sudah;
-                        $gBelum += $row->belum;
+                    $gTotal += $row->total;
+                    $gSudah += $row->sudah;
+                    $gBelum += $row->belum;
                     @endphp
                     <tr>
                         <td class="fw-bold text-muted">
@@ -252,7 +244,7 @@
                             {{ $index + 1 }}
                             @endif
                         </td>
-                        <td class="text-start px-4 fw-700 text-uppercase text-primary">{{ $row->satker }}</td>
+                        <td class="text-start px-4 fw-bold text-uppercase text-primary">{{ $row->satker }}</td>
                         <td class="fw-bold">{{ number_format($row->total) }}</td>
                         <td class="text-success fw-bold">{{ number_format($row->sudah) }}</td>
                         <td>
@@ -279,7 +271,7 @@
                                 <div class="progress-sm">
                                     <div class="progress-bar {{ $row->persentase >= 85 ? 'bg-success' : 'bg-danger' }}" style="width: {{ $row->persentase }}%"></div>
                                 </div>
-                                <span class="fw-800 small" style="width: 45px;">{{ $row->persentase }}%</span>
+                                <span class="fw-bold small" style="width: 45px;">{{ $row->persentase }}%</span>
                             </div>
                         </td>
                     </tr>

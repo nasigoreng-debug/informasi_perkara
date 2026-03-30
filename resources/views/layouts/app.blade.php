@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sistem Statistik Perkara Pengadilan Agama">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Panmud Hukum | PTA Bandung')</title>
 
     <link rel="shortcut icon" href="{{ asset('/favicon/favicon.ico') }}">
@@ -157,6 +158,10 @@
             font-size: 0.85rem;
         }
 
+        .user-dropdown .dropdown-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         .header-clock {
             color: #fff;
             text-align: right;
@@ -187,6 +192,23 @@
             padding: 1.5rem 0;
             color: #6c757d;
             font-size: 0.85rem;
+        }
+
+        /* Animasi untuk transisi halaman */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 
@@ -241,6 +263,11 @@
                             <i class="fas fa-chart-line me-1"></i> Dashboard
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('kinerja.index') ? 'active' : '' }}" href="{{ route('kinerja.index') }}">
+                            <i class="fas fa-star me-1"></i> Kinerja Hakim & PP
+                        </a>
+                    </li>
                     @auth
                     @if(Auth::user()->isSuperAdmin())
                     <li class="nav-item">
@@ -250,7 +277,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('activity-log*') ? 'active' : '' }}" href="{{ url('/activity-log') }}">
-                            <i class="fas fa-fingerprint me-1"></i> Log Aktivitas
+                            <i class="fas fa-history me-1"></i> Log Aktivitas
                         </a>
                     </li>
                     @endif
@@ -282,6 +309,10 @@
                             </li>
                         </ul>
                     </div>
+                    @else
+                    <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-sign-in-alt me-1"></i> Login
+                    </a>
                     @endauth
 
                     <div class="d-none d-lg-block header-clock">
@@ -293,7 +324,7 @@
         </div>
     </nav>
 
-    <main>
+    <main class="fade-in">
         @yield('content')
     </main>
 
@@ -309,7 +340,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // --- LOGIKA LOADING SCREEN SULTAN ---
+        // --- LOGIKA LOADING SCREEN ---
         const loader = document.getElementById('loader-wrapper');
 
         // Sembunyikan saat load selesai
@@ -319,7 +350,7 @@
             }, 500);
         });
 
-        // FIX SAKTI: Sembunyikan saat tombol BACK ditekan (Pageshow event)
+        // FIX: Sembunyikan saat tombol BACK ditekan (Pageshow event)
         window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
                 loader.classList.add('loader-hidden');
@@ -327,15 +358,17 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Link navigation
             const links = document.querySelectorAll('a:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not(.no-loader)');
             links.forEach(link => {
                 link.addEventListener('click', function(e) {
-                    if (e.button === 0 && !e.ctrlKey && !e.metaKey && this.getAttribute('href') !== null) {
+                    if (e.button === 0 && !e.ctrlKey && !e.metaKey && this.getAttribute('href') !== null && this.getAttribute('href') !== '#') {
                         loader.classList.remove('loader-hidden');
                     }
                 });
             });
 
+            // Form submission
             const forms = document.querySelectorAll('form:not(.no-loader)');
             forms.forEach(form => {
                 form.addEventListener('submit', function() {
@@ -367,7 +400,7 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // --- LOGIKA SWEETALERT2 ---
+        // --- SWEETALERT2 ---
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -386,15 +419,33 @@
         @if(session('error'))
         Swal.fire({
             icon: 'error',
-            title: 'Waduh!',
-            text: "{{ session('error') }}"
+            title: 'Oops!',
+            text: "{{ session('error') }}",
+            confirmButtonColor: '#3085d6'
         });
         @endif
 
-        function confirmDelete(id) {
+        @if(session('warning'))
+        Swal.fire({
+            icon: 'warning',
+            title: 'Perhatian',
+            text: "{{ session('warning') }}",
+            confirmButtonColor: '#f0ad4e'
+        });
+        @endif
+
+        @if(session('info'))
+        Toast.fire({
+            icon: 'info',
+            title: "{{ session('info') }}"
+        });
+        @endif
+
+        // Fungsi global untuk konfirmasi hapus
+        window.confirmDelete = function(id) {
             Swal.fire({
                 title: 'Yakin mau hapus?',
-                text: "Data yang dihapus tidak bisa dikembalikan, Pak!",
+                text: "Data yang dihapus tidak bisa dikembalikan!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -407,8 +458,8 @@
                     loader.classList.remove('loader-hidden');
                     document.getElementById('delete-form-' + id).submit();
                 }
-            })
-        }
+            });
+        };
     </script>
 
     @stack('scripts')

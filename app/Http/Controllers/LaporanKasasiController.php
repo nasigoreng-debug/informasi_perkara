@@ -68,7 +68,7 @@ class LaporanKasasiController extends Controller
             "Melihat laporan Kasasi tahun {$tahun}, bulan: {$bulanInfo}, filter: {$satkerInfo}"
         );
 
-        return view('laporan.kasasi.index', compact('data', 'years', 'tahun', 'grandTotal', 'bulan'));
+        return view('kasasi.index', compact('data', 'years', 'tahun', 'grandTotal', 'bulan'));
     }
 
     /**

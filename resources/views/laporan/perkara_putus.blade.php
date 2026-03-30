@@ -46,35 +46,77 @@
         text-align: left !important;
         padding-left: 5px !important;
     }
+
+    /* Style Notif Terakhir Sinkron */
+    .sync-pill {
+        display: inline-flex;
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        padding: 3px 12px;
+        border-radius: 50px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 </style>
 
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h5 class="fw-bold mb-0">LAPORAN KEADAAN PERKARA YANG DIPUTUS (RK4)</h5>
-            <small class="text-muted">Periode: {{ \Carbon\Carbon::parse($start)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($end)->format('d/m/Y') }}</small>
+            <h5 class="fw-bold mb-0 text-uppercase">LAPORAN KEADAAN PERKARA YANG DIPUTUS (RK4)</h5>
+            <div class="d-flex align-items-center mt-1">
+                <small class="text-muted fw-bold me-3">
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    Periode: {{ \Carbon\Carbon::parse($start)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($end)->format('d/m/Y') }}
+                </small>
+
+                {{-- Logika Penarikan Waktu Terakhir Sinkron --}}
+                @php
+                $lastSync = \DB::table('sync_logs')
+                ->where('modul', 'like', '%rk4%')
+                ->latest('updated_at')
+                ->first();
+                @endphp
+
+                @if($lastSync)
+                <div class="sync-pill">
+                    <i class="fas fa-sync-alt fa-spin text-success me-2" style="font-size: 10px;"></i>
+                    <small class="text-muted" style="font-size: 11px;">
+                        Terakhir Sinkron: <strong class="text-dark">{{ \Carbon\Carbon::parse($lastSync->updated_at)->format('d/m/Y H:i') }}</strong>
+                    </small>
+                </div>
+                @endif
+            </div>
         </div>
-        <div class="badge bg-primary px-3 py-2">PTA BANDUNG</div>
+        <div class="badge bg-primary px-3 py-2 shadow-sm rounded-pill">PTA BANDUNG</div>
     </div>
 
-    <div class="card mb-3 border-0 shadow-sm">
+    <div class="card mb-3 border-0 shadow-sm rounded border">
         <div class="card-body py-2 bg-light">
             <form action="{{ route('laporan.diputus.index') }}" method="GET" class="row g-2 align-items-end">
-                <div class="col-md-3">
-                    <label class="small fw-bold">TANGGAL MULAI</label>
-                    <input type="date" name="start" class="form-select form-select-sm" value="{{ $start }}">
-                </div>
-                <div class="col-md-3">
-                    <label class="small fw-bold">TANGGAL SELESAI</label>
-                    <input type="date" name="end" class="form-select form-select-sm" value="{{ $end }}">
+                <div class="col-md-2">
+                    <label class="small fw-bold text-muted text-uppercase" style="font-size: 10px;">Tanggal Mulai</label>
+                    <input type="date" name="start" class="form-control form-control-sm" value="{{ $start }}">
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-dark btn-sm w-100">
+                    <label class="small fw-bold text-muted text-uppercase" style="font-size: 10px;">Tanggal Selesai</label>
+                    <input type="date" name="end" class="form-control form-control-sm" value="{{ $end }}">
+                </div>
+                <div class="col-md-6 d-flex gap-2">
+                    <button type="submit" class="btn btn-dark btn-sm px-4 shadow-sm">
                         <i class="fas fa-filter me-1"></i> FILTER
                     </button>
+
+                    {{-- TOMBOL RESET FILTER --}}
+                    <a href="{{ route('laporan.diputus.index') }}" class="btn btn-outline-secondary btn-sm px-3 shadow-sm bg-white">
+                        <i class="fas fa-undo me-1"></i> RESET FILTER
+                    </a>
+
+                    <button type="button" onclick="window.print()" class="btn btn-outline-danger btn-sm px-3 shadow-sm bg-white">
+                        <i class="fas fa-print me-1"></i> CETAK
+                    </button>
                 </div>
-                <div class="col-md-2">
-                    <a href="{{ route('laporan.diputus.export', ['start'=>$start, 'end'=>$end]) }}" class="btn btn-success btn-sm w-100">
+                <div class="col-md-2 text-end">
+                    <a href="{{ route('laporan.diputus.export', ['start'=>$start, 'end'=>$end]) }}" class="btn btn-success btn-sm w-100 shadow-sm">
                         <i class="fas fa-file-excel me-1"></i> EXCEL
                     </a>
                 </div>
@@ -115,22 +157,22 @@
 
                 @foreach($laporan as $row)
                 <tr>
-                    <td>{{ $row->no_urut }}</td>
-                    <td class="text-start-important fw-bold">{{ $row->satker }}</td>
-                    <td>{{ number_format($row->sisa_tahun_lalu) }}</td>
-                    <td>{{ number_format($row->diterima) }}</td>
-                    <td class="bg-kuning">{{ number_format($row->beban) }}</td>
-                    <td>{{ number_format($row->dicabut) }}</td>
+                    <td class="bg-light">{{ $row->no_urut }}</td>
+                    <td class="text-start-important fw-bold text-uppercase">{{ $row->satker }}</td>
+                    <td>{{ $row->sisa_tahun_lalu > 0 ? number_format($row->sisa_tahun_lalu) : '-' }}</td>
+                    <td>{{ $row->diterima > 0 ? number_format($row->diterima) : '-' }}</td>
+                    <td class="bg-kuning fw-bold text-dark">{{ $row->beban > 0 ? number_format($row->beban) : '-' }}</td>
+                    <td>{{ $row->dicabut > 0 ? number_format($row->dicabut) : '-' }}</td>
 
                     @foreach($jenisPerkara as $key => $label)
-                    @php $t_kabul[$key] += $row->$key; @endphp
-                    <td>{{ $row->$key }}</td>
+                    @php $t_kabul[$key] += ($row->$key ?? 0); @endphp
+                    <td>{{ ($row->$key ?? 0) > 0 ? number_format($row->$key) : '-' }}</td>
                     @endforeach
 
-                    <td>{{ number_format($row->ditolak) }}</td>
-                    <td>{{ number_format($row->tidak_diterima) }}</td>
-                    <td>{{ number_format($row->gugur) }}</td>
-                    <td>{{ number_format($row->dicoret) }}</td>
+                    <td>{{ $row->ditolak > 0 ? number_format($row->ditolak) : '-' }}</td>
+                    <td>{{ $row->tidak_diterima > 0 ? number_format($row->tidak_diterima) : '-' }}</td>
+                    <td>{{ $row->gugur > 0 ? number_format($row->gugur) : '-' }}</td>
+                    <td>{{ $row->dicoret > 0 ? number_format($row->dicoret) : '-' }}</td>
                     <td class="bg-primary bg-opacity-10 fw-bold">{{ number_format($row->jml) }}</td>
                     <td class="bg-danger bg-opacity-10 fw-bold">{{ number_format($row->sisa) }}</td>
                 </tr>
@@ -141,12 +183,12 @@
                 @endphp
                 @endforeach
             </tbody>
-            <tfoot class="header-gray sticky-bottom">
-                <tr class="fw-bold">
+            <tfoot class="header-gray sticky-bottom border-top-2 fw-bold">
+                <tr>
                     <td colspan="2">TOTAL SE-WILAYAH JAWA BARAT</td>
                     <td>{{ number_format($t_sisa_lalu) }}</td>
                     <td>{{ number_format($t_terima) }}</td>
-                    <td class="bg-kuning">{{ number_format($t_beban) }}</td>
+                    <td class="bg-kuning text-dark">{{ number_format($t_beban) }}</td>
                     <td>{{ number_format($t_cabut) }}</td>
                     @foreach($jenisPerkara as $key => $label)
                     <td>{{ number_format($t_kabul[$key]) }}</td>
