@@ -151,7 +151,7 @@
             <p class="card-desc">Database arsip perkara lama versi digital.</p>
         </a>
 
-        <a href="#" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.1s">
+        <a href="{{ route('arsip-aktif.index') }}" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.1s">
             <div class="icon-box bg-success bg-opacity-10 text-success"><i class="fas fa-box-open"></i></div>
             <h5 class="card-title">Arsip Perkara<br><small class="text-muted">2019 - 2026</small></h5>
             <p class="card-desc">Arsip perkara aktif dan terbaru dalam sistem.</p>

@@ -24,7 +24,8 @@ use App\Http\Controllers\{
     RK2Controller,
     JenisPerkaraBandingController,
     KinerjaController,
-    BankPutusanController
+    BankPutusanController,
+    ArsipAktifController
 };
 
 /*
@@ -348,4 +349,22 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     Route::get('/bank-putusan', [BankPutusanController::class, 'index'])->name('bank.index');
     Route::post('/bank-putusan/upload', [BankPutusanController::class, 'upload'])->name('bank.upload');
+
+    Route::prefix('arsip-aktif')->name('arsip-aktif.')->group(function () {
+
+        // Halaman Utama & Filter
+        Route::get('/', [ArsipAktifController::class, 'index'])->name('index');
+
+        // Simpan Data Baru (Input Manual & Upload PDF/RAR)
+        Route::post('/store', [ArsipAktifController::class, 'store'])->name('store');
+
+        // Edit Data (Opsional jika Abang mau buat fitur edit nanti)
+        Route::get('/edit/{id}', [ArsipAktifController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [ArsipAktifController::class, 'update'])->name('update');
+
+        // Hapus Data
+        Route::delete('/delete/{id}', [ArsipAktifController::class, 'destroy'])->name('destroy');
+
+        Route::get('/get-perkara', [ArsipAktifController::class, 'getPerkaraSiappta'])->name('get-perkara');
+    });
 });
