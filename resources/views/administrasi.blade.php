@@ -179,7 +179,7 @@
             <p class="card-desc">Log arsip digital seluruh surat masuk.</p>
         </a>
 
-        <a href="{{ route('surat.keluar.index') }}" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.1s">
+        <a href="{{ route('surat.keluar.dashboard') }}" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.1s">
             <div class="icon-box bg-success bg-opacity-10 text-success"><i class="fas fa-paper-plane"></i></div>
             <h5 class="card-title">Surat Keluar</h5>
             <p class="card-desc">Log arsip digital seluruh surat keluar.</p>

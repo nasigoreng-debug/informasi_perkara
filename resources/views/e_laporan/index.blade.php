@@ -2,14 +2,13 @@
 
 @section('content')
 <style>
-    /* Tema Dasar */
+    /* --- STYLE ASLI ABANG --- */
     .bg-navy {
         background-color: #0d1b2a !important;
         color: white;
         border-bottom: 3px solid #ffc107;
     }
 
-    /* Widget Rekap Pimpinan */
     .rekap-card {
         border-radius: 8px;
         color: #fff;
@@ -33,7 +32,6 @@
         letter-spacing: 0.5px;
     }
 
-    /* Styling Tabel Monitoring */
     .table-monitoring {
         font-size: 10.5px;
         border-collapse: separate;
@@ -75,31 +73,25 @@
         text-transform: uppercase;
     }
 
-    /* Warna Baris (Standar Eksekutif) */
     .row-hijau {
         background-color: #198754 !important;
         color: #fff !important;
     }
 
-    /* Tepat Waktu */
     .row-kuning {
         background-color: #ffc107 !important;
         color: #000 !important;
     }
 
-    /* Lengkap Terlambat */
     .row-biru {
         background-color: #0dcaf0 !important;
         color: #000 !important;
     }
 
-    /* Belum Lengkap */
     .row-merah {
         background-color: #dc3545 !important;
         color: #fff !important;
     }
-
-    /* Belum Isi */
 
     .table-monitoring td {
         vertical-align: middle;
@@ -108,7 +100,6 @@
         border: 1px solid #6c757d;
     }
 
-    /* Label Tanggal agar lebih rapi */
     .tgl-badge {
         font-size: 10.5px;
         display: block;
@@ -121,35 +112,121 @@
         margin-top: 1px;
     }
 
-    /* Badge Status */
     .status-badge {
         font-weight: 800;
         font-size: 10px;
         display: block;
         letter-spacing: 0.3px;
     }
+
+    /* --- CSS PRINT (AGAR GAK KEPOTONG) --- */
+    @media print {
+        @page {
+            size: landscape;
+            margin: 0.5cm;
+        }
+
+        nav,
+        .navbar,
+        .btn,
+        .no-print,
+        form {
+            display: none !important;
+        }
+
+        .container-fluid {
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .table-responsive {
+            overflow: visible !important;
+            max-height: none !important;
+        }
+
+        .table-monitoring {
+            font-size: 7.2pt !important;
+            width: 100% !important;
+            border: 0.5pt solid #333 !important;
+        }
+
+        .table-monitoring th,
+        .table-monitoring td {
+            padding: 1.5px !important;
+            border: 0.5pt solid #333 !important;
+        }
+
+        .sticky-col {
+            position: static !important;
+        }
+
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .print-only {
+            display: block !important;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    }
+
+    .print-only {
+        display: none;
+    }
 </style>
 
 <div class="container-fluid pb-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
-        <h4 class="mb-0 font-weight-bold text-dark"><i class="fas fa-satellite-dish mr-2 text-primary"></i> MONITORING KEPATUHAN KONFIRMASI E-LAPORAN</h4>
-        <form method="GET" class="form-inline bg-white p-2 rounded shadow-sm border">
-            <span class="mr-2 font-weight-bold text-muted small">PERIODE:</span>
-            <select name="bulan" class="form-control form-control-sm mr-2 font-weight-bold" style="width: 120px;">
-                @foreach([1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'] as $m => $nama)
-                <option value="{{ $m }}" {{ $bulanSelected == $m ? 'selected' : '' }}>{{ $nama }}</option>
-                @endforeach
-            </select>
-            <select name="tahun" class="form-control form-control-sm mr-2 font-weight-bold" style="width: 90px;">
-                @for($y = date('Y')-2; $y <= date('Y'); $y++)
-                    <option value="{{ $y }}" {{ $tahunSelected == $y ? 'selected' : '' }}>{{ $y }}</option>
-                    @endfor
-            </select>
-            <button type="submit" class="btn btn-sm btn-dark px-4 font-weight-bold"><i class="fas fa-search mr-1"></i> FILTER</button>
-        </form>
+    <div class="print-only">
+        <h3 style="margin-bottom: 0; font-weight: bold;">LAPORAN MONITORING KEPATUHAN E-LAPORAN</h3>
+        <p>PTA BANDUNG - PERIODE: {{ strtoupper(\Carbon\Carbon::create()->month($bulanSelected)->isoFormat('MMMM')) }} {{ $tahunSelected }}</p>
+        <hr style="border: 1px solid #000;">
     </div>
 
+    {{-- HEADER & FILTER (TINGGI SEJAJAR 32PX) --}}
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-2 no-print">
+        <h4 class="mb-0 font-weight-bold text-dark" style="font-size: 1.2rem;">
+            <i class="fas fa-satellite-dish mr-2 text-primary"></i> MONITORING KEPATUHAN KONFIRMASI E-LAPORAN
+        </h4>
+
+        <div class="d-flex align-items-center">
+            <button onclick="window.print()" class="btn btn-danger btn-sm font-weight-bold mr-2 shadow-sm" style="height: 32px; font-size: 11px; padding: 0 15px; display: flex; align-items: center; border-radius: 4px;">
+                <i class="fas fa-print mr-2"></i> CETAK
+            </button>
+
+            <form method="GET" class="form-inline bg-white p-1 rounded shadow-sm border" style="height: 32px; display: flex; align-items: center;">
+                <div class="input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent border-0 font-weight-bold text-muted" style="font-size: 10px;">PERIODE:</span>
+                    </div>
+                    <select name="bulan" class="form-control border-0 font-weight-bold" style="width: 105px; height: 24px; font-size: 11px; cursor: pointer;">
+                        @foreach([1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'] as $m => $nama)
+                        <option value="{{ $m }}" {{ $bulanSelected == $m ? 'selected' : '' }}>{{ $nama }}</option>
+                        @endforeach
+                    </select>
+                    <select name="tahun" class="form-control border-0 font-weight-bold" style="width: 75px; height: 24px; font-size: 11px; cursor: pointer; border-left: 1px solid #ddd !important;">
+                        @for($y = date('Y')-2; $y <= date('Y'); $y++)
+                            <option value="{{ $y }}" {{ $tahunSelected == $y ? 'selected' : '' }}>{{ $y }}</option>
+                            @endfor
+                    </select>
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-dark btn-sm px-3 ml-1" style="height: 24px; line-height: 1; border-radius: 4px;">
+                            <i class="fas fa-search fa-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Widget Rekap --}}
     <div class="row mb-3">
         <div class="col-md-3">
             <div class="rekap-card" style="background-color: #198754;">
@@ -178,12 +255,12 @@
     </div>
 
     <div class="card shadow border-0">
-        <div class="card-header bg-navy py-2">
+        <div class="card-header bg-navy py-2 no-print">
             <h6 class="mb-0 font-weight-bold"><i class="fas fa-list-ol mr-2"></i> PERINGKAT SATUAN KERJA</h6>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive" style="max-height: 70vh;">
-                <table class="table table-bordered table-monitoring mb-0">
+                <table class="table table-bordered table-monitoring mb-0 text-center">
                     <thead>
                         <tr>
                             <th class="sticky-col sticky-no">RANK</th>
@@ -199,7 +276,7 @@
                         @php
                         $rowColor = ''; $labelStatus = '';
                         switch($row->status_kepatuhan) {
-                        case 'TEPAT_WAKTU': $rowColor = 'row-hijau'; $labelStatus = 'TEPAT WAKTU'; break;
+                        case 'TEPAT_WAKTU': $rowColor = 'row-hijau'; $labelStatus = 'LENGKAP & TEPAT WAKTU'; break;
                         case 'LENGKAP_TERLAMBAT': $rowColor = 'row-kuning'; $labelStatus = 'LENGKAP TERLAMBAT'; break;
                         case 'BELUM_LENGKAP': $rowColor = 'row-biru'; $labelStatus = 'BELUM LENGKAP'; break;
                         case 'BELUM_ISI': $rowColor = 'row-merah'; $labelStatus = 'BELUM ISI'; break;
@@ -208,7 +285,6 @@
                         <tr class="{{ $rowColor }}">
                             <td class="text-center sticky-col sticky-no {{ $rowColor }}">{{ $key + 1 }}</td>
                             <td class="sticky-col sticky-satker {{ $rowColor }}"><b>{{ strtoupper($row->satker) }}</b></td>
-
                             @foreach($lipas as $l)
                             <td class="text-center">
                                 @if($row->$l)
@@ -219,7 +295,6 @@
                                 @endif
                             </td>
                             @endforeach
-
                             <td class="text-center font-weight-bold" style="font-size: 13px;">{{ $row->kelengkapan }}/27</td>
                             <td class="text-center"><span class="status-badge">{{ $labelStatus }}</span></td>
                         </tr>
