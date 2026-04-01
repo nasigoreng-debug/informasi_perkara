@@ -80,7 +80,7 @@
                 ['label' => 'Beban Kerja', 'val' => $beban, 'grad' => 'var(--info-gradient)', 'icon' => 'fa-tasks'],
                 ['label' => 'Putusan Sela', 'val' => $putusanSela, 'grad' => 'var(--warning-gradient)', 'icon' => 'fa-gavel'],
                 ['label' => 'Selesai', 'val' => $cardData->selesai, 'grad' => 'var(--success-gradient)', 'icon' => 'fa-check-double'],
-                ['label' => 'Sisa Aktif', 'val' => $cardData->sisa, 'grad' => 'var(--danger-gradient)', 'icon' => 'fa-hourglass-half'],
+                ['label' => 'Sisa', 'val' => $cardData->sisa, 'grad' => 'var(--danger-gradient)', 'icon' => 'fa-hourglass-half'],
             ];
             @endphp
             @foreach($cards as $idx => $c)
@@ -121,7 +121,7 @@
             <div class="col-lg-7">
                 <div class="card chart-card h-100">
                     <div class="chart-header d-flex justify-content-between align-items-center border-0">
-                        <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-tachometer-alt me-2"></i>Zona Kecepatan Putus</h6>
+                        <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-tachometer-alt me-2"></i>Waktu Putus</h6>
                         <div class="small fw-bold text-muted">Total: {{ number_format($totalPutus) }}</div>
                     </div>
                     <div class="card-body">

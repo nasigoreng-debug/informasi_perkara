@@ -17,7 +17,6 @@
         border-bottom-left-radius: 50px;
         border-bottom-right-radius: 50px;
         margin-top: -20px;
-        /* Menempel ke navbar */
     }
 
     .main-container {
@@ -80,8 +79,8 @@
 <header class="hero-header text-center">
     <div class="container px-4">
         <div class="animate__animated animate__fadeInDown">
-            <h1 class="fw-bold mb-2">Panel Monitoring</h1>
-            <p class="opacity-75 mx-auto mb-0" style="max-width: 600px; font-size: 0.95rem;">
+            <h1 class="fw-bold mb-2 text-white">Panel Monitoring</h1>
+            <p class="opacity-75 mx-auto mb-0 text-white" style="max-width: 600px; font-size: 0.95rem;">
                 Pantau data operasional dan administrasi perkara secara real-time wilayah hukum PTA Bandung.
             </p>
         </div>
@@ -167,15 +166,27 @@
             </a>
         </div>
 
+        {{-- 7. MONITORING E-LAPORAN (NEW) --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.35s">
+            <a href="{{ route('monitoring.index') }}" class="menu-card">
+                <div class="icon-box bg-indigo bg-opacity-10" style="color: #6610f2; background-color: rgba(102, 16, 242, 0.1);">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h5 class="card-title text-uppercase">Monitoring E-Laporan</h5>
+                <p class="card-desc">Pantau kedisiplinan dan rangking kepatuhan 27 LIPA Satker se-Jawa Barat.</p>
+                <div class="btn btn-sm rounded-pill w-100 mt-auto fw-bold text-white" style="background-color: #6610f2; border-color: #6610f2;">Lihat Detail</div>
+            </a>
+        </div>
+
         @else
-        {{-- TAMPILAN JIKA LOGIN SEBAGAI USER BIASA (SATKER DAERAH) --}}
+        {{-- TAMPILAN JIKA LOGIN SEBAGAI USER BIASA --}}
         <div class="col-12 animate__animated animate__fadeIn" style="animation-delay: 0.4s">
             <div class="alert alert-light border-0 shadow-sm p-4 rounded-4 text-center">
                 <div class="d-flex flex-column align-items-center">
                     <i class="fas fa-lock text-muted fs-2 mb-3"></i>
                     <h6 class="fw-bold text-dark">Akses Terbatas</h6>
                     <p class="mb-0 text-muted small" style="max-width: 500px;">
-                        Menu monitoring lanjutan (Eksekusi, Sidang, Sisa Panjar) hanya dapat diakses oleh Administrator PTA Bandung.
+                        Menu monitoring lanjutan hanya dapat diakses oleh Administrator PTA Bandung.
                     </p>
                 </div>
             </div>

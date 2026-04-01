@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\{
     AuthController,
     DashboardController,
@@ -25,7 +26,8 @@ use App\Http\Controllers\{
     JenisPerkaraBandingController,
     KinerjaController,
     BankPutusanController,
-    ArsipAktifController
+    ArsipAktifController,
+    MonitoringElaporanController
 };
 
 /*
@@ -35,38 +37,41 @@ use App\Http\Controllers\{
 */
 
 // ==========================================
-// 1. ROUTE PUBLIC (TANPA LOGIN)
+// 1. PUBLIC ROUTES (NO AUTHENTICATION)
 // ==========================================
 Route::get('/jadwal-sidang/public', [SidangController::class, 'index_public'])->name('sidang.index_public');
 Route::get('/jdih-ptabandung', [PeraturanController::class, 'index_public'])->name('peraturan.public');
 Route::get('/arsip-perkara/public', [RetensiArsipPerkaraController::class, 'index_public'])->name('arsip.public');
 
 // ==========================================
-// 2. OTENTIKASI (LOGIN & LOGOUT)
+// 2. AUTHENTICATION ROUTES
 // ==========================================
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ==========================================
-// 3. AREA PRIVAT (Hanya User Terautentikasi)
+// 3. PRIVATE ROUTES (AUTHENTICATED USERS ONLY)
 // ==========================================
 Route::middleware(['auth'])->group(function () {
+
     // ==========================================
-    // LANDING PAGES & NAVIGASI UTAMA
+    // LANDING PAGES & MAIN NAVIGATION
     // ==========================================
     Route::get('/', fn() => view('welcome'))->name('welcome');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/monitoring', fn() => view('monitoring'))->name('monitoring');
     Route::get('/laporan-utama', fn() => view('laporan-utama'))->name('laporan-utama');
     Route::get('/administrasi', fn() => view('administrasi'))->name('administrasi');
-    Route::get('/sisa-panjar', fn() => view('sisa_panjar_menu'))->name('sisa.panjar.menu');
-    Route::get('/under', fn() => view('errors.under_construction'))->name('errors.under_construction');
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/kinerja', [KinerjaController::class, 'index'])->name('kinerja.index');
     Route::get('/activity-log', fn() => view('activity_log'))->name('activity.log');
+    Route::get('/under', fn() => view('errors.under_construction'))->name('errors.under_construction');
+
+    // Sisa Panjar Menu
+    Route::get('/sisa-panjar', fn() => view('sisa_panjar_menu'))->name('sisa.panjar.menu');
 
     // ==========================================
-    // MODUL: MONITORING JADWAL SIDANG
+    // MODULE: COURT SCHEDULE MONITORING
     // ==========================================
     Route::controller(SidangController::class)
         ->prefix('jadwal-sidang')
@@ -76,7 +81,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: MONITORING COURT CALENDAR
+    // MODULE: COURT CALENDAR MONITORING
     // ==========================================
     Route::controller(CourtCalendarController::class)
         ->prefix('court-calendar')
@@ -89,7 +94,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: LAPORAN KASASI
+    // MODULE: CASSATION REPORT
     // ==========================================
     Route::controller(LaporanKasasiController::class)
         ->prefix('kasasi')
@@ -102,7 +107,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: SURAT MASUK
+    // MODULE: INCOMING MAIL
     // ==========================================
     Route::controller(SuratMasukController::class)
         ->prefix('surat-masuk')
@@ -121,7 +126,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: SURAT KELUAR
+    // MODULE: OUTGOING MAIL
     // ==========================================
     Route::controller(SuratKeluarController::class)
         ->prefix('surat-keluar')
@@ -140,7 +145,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: SURAT KEPUTUSAN (SK)
+    // MODULE: DECREE LETTER (SK)
     // ==========================================
     Route::controller(SuratKeputusanController::class)
         ->prefix('surat-keputusan')
@@ -158,7 +163,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: LAPORAN PERKARA DITERIMA (RK3)
+    // MODULE: RECEIVED CASES REPORT (RK3)
     // ==========================================
     Route::controller(LaporanPerkaraDiterimaController::class)
         ->prefix('laporan-perkara-diterima')
@@ -176,7 +181,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: LAPORAN PERKARA DIPUTUS (RK4)
+    // MODULE: DECIDED CASES REPORT (RK4)
     // ==========================================
     Route::controller(LaporanPerkaraDiputusController::class)
         ->prefix('laporan-perkara-diputus')
@@ -194,7 +199,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: REKAP EKSEKUSI
+    // MODULE: EXECUTION SUMMARY
     // ==========================================
     Route::controller(RekapEksekusiController::class)
         ->prefix('eksekusi')
@@ -206,35 +211,34 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: LAPORAN BANDING (RK1 & RK2 Separated)
+    // MODULE: APPEAL REPORTS (RK1 & RK2)
     // ==========================================
-    Route::prefix('laporan/banding')
-        ->name('laporan.banding.')
-        ->group(function () {
-            // RK1 - Perkara Diterima
-            Route::controller(RK1Controller::class)->group(function () {
-                Route::get('/diterima', 'index')->name('diterima');
-                Route::get('/detail', 'detail')->name('detail');
-                Route::get('/diterima/export', 'export')->name('diterima.export');
-            });
+    Route::prefix('laporan/banding')->name('laporan.banding.')->group(function () {
 
-            // RK2 - Perkara Diputus
-            Route::controller(RK2Controller::class)->group(function () {
-                Route::get('/putus', 'index')->name('putus');
-                Route::get('/putus/detail', 'detail')->name('putus.detail');
-                Route::get('/putus/export', 'export')->name('putus.export');
-            });
-
-            // Rute Khusus Statistik Jenis Perkara
-            Route::controller(JenisPerkaraBandingController::class)->group(function () {
-                Route::get('/jenis-perkara', 'index')->name('jenis');
-                Route::get('/jenis-perkara/export', 'export')->name('jenis.export');
-                Route::get('/jenis-perkara/detail/{id_jenis}', 'detail')->name('jenis.detail');
-            });
+        // RK1 - Received Appeal Cases
+        Route::controller(RK1Controller::class)->group(function () {
+            Route::get('/diterima', 'index')->name('diterima');
+            Route::get('/detail', 'detail')->name('detail');
+            Route::get('/diterima/export', 'export')->name('diterima.export');
         });
 
+        // RK2 - Decided Appeal Cases
+        Route::controller(RK2Controller::class)->group(function () {
+            Route::get('/putus', 'index')->name('putus');
+            Route::get('/putus/detail', 'detail')->name('putus.detail');
+            Route::get('/putus/export', 'export')->name('putus.export');
+        });
+
+        // Case Type Statistics
+        Route::controller(JenisPerkaraBandingController::class)->group(function () {
+            Route::get('/jenis-perkara', 'index')->name('jenis');
+            Route::get('/jenis-perkara/export', 'export')->name('jenis.export');
+            Route::get('/jenis-perkara/detail/{id_jenis}', 'detail')->name('jenis.detail');
+        });
+    });
+
     // ==========================================
-    // MODUL: MONITORING SISA PANJAR
+    // MODULE: REMAINING ADVANCE FUNDS MONITORING
     // ==========================================
     Route::controller(SisaPanjarController::class)
         ->prefix('sisa-panjar')
@@ -249,7 +253,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: ADMINISTRASI USER
+    // MODULE: USER ADMINISTRATION
     // ==========================================
     Route::controller(UserController::class)
         ->prefix('users')
@@ -264,7 +268,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: AKTA CERAI
+    // MODULE: DIVORCE DECREE
     // ==========================================
     Route::controller(AktaCeraiController::class)
         ->prefix('akta-cerai')
@@ -277,7 +281,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: AKTA PENGADUAN (SIWAS)
+    // MODULE: COMPLAINTS (SIWAS)
     // ==========================================
     Route::controller(PengaduanController::class)
         ->prefix('pengaduan')
@@ -297,7 +301,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: HIMPUNAN PERATURAN
+    // MODULE: REGULATIONS COLLECTION
     // ==========================================
     Route::controller(PeraturanController::class)
         ->prefix('peraturan')
@@ -312,7 +316,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: ARSIP PERKARA DIGITAL
+    // MODULE: DIGITAL CASE ARCHIVES
     // ==========================================
     Route::controller(RetensiArsipPerkaraController::class)
         ->prefix('retensi-arsip-perkara')
@@ -328,7 +332,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: MONITORING SINKRONISASI
+    // MODULE: SYNCHRONIZATION MONITORING
     // ==========================================
     Route::prefix('admin/monitoring-sync')
         ->name('admin.sync.')
@@ -345,26 +349,25 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODUL: BANK PUTUSAN
+    // MODULE: DECISION BANK
     // ==========================================
     Route::get('/bank-putusan', [BankPutusanController::class, 'index'])->name('bank.index');
     Route::post('/bank-putusan/upload', [BankPutusanController::class, 'upload'])->name('bank.upload');
 
+    // ==========================================
+    // MODULE: ACTIVE ARCHIVES
+    // ==========================================
     Route::prefix('arsip-aktif')->name('arsip-aktif.')->group(function () {
-
-        // Halaman Utama & Filter
         Route::get('/', [ArsipAktifController::class, 'index'])->name('index');
-
-        // Simpan Data Baru (Input Manual & Upload PDF/RAR)
         Route::post('/store', [ArsipAktifController::class, 'store'])->name('store');
-
-        // Edit Data (Opsional jika Abang mau buat fitur edit nanti)
         Route::get('/edit/{id}', [ArsipAktifController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [ArsipAktifController::class, 'update'])->name('update');
-
-        // Hapus Data
         Route::delete('/delete/{id}', [ArsipAktifController::class, 'destroy'])->name('destroy');
-
         Route::get('/get-perkara', [ArsipAktifController::class, 'getPerkaraSiappta'])->name('get-perkara');
     });
+
+    // ==========================================
+    // MODULE: E-REPORT MONITORING
+    // ==========================================
+    Route::get('/monitoring-elaporan', [MonitoringElaporanController::class, 'index'])->name('monitoring.index');
 });

@@ -386,7 +386,7 @@
         $('#v_t_putus').text(d.tgl_putusan || '-');
         $('#v_t_kpa').text(d.tgl_kirim_pa || '-');
         $('#v_petugas').text((d.nama_km || '-') + ' / ' + (d.nama_pp || '-'));
-        $('#v_amar').html(d.amar_putusan || 'AMAR BELUM TERSEDIA.');
+        $('#v_amar').html(d.keterangan || 'AMAR BELUM TERSEDIA.');
         $('#v_tgl_masuk').text(d.tgl_masuk);
         $('#v_lokasi').text('LEMARI: ' + d.no_lemari + ' | LACI: ' + d.no_laci + ' | BOX: ' + d.no_box);
         $('#v_f_penyerah').text(d.penyerah);
