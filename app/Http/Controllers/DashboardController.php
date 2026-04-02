@@ -7,9 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    /**
-     * Satker list for E-Court union queries
-     */
     private $satkers = [
         'bandung',
         'indramayu',
@@ -48,8 +45,11 @@ class DashboardController extends Controller
         $db = DB::connection('siappta');
 
         $cardData = $this->getCardStatistics($db, $tgl_awal, $tgl_akhir);
+
+        // BEBAN = SISA LALU + DITERIMA
         $beban = ($cardData->sisa_lalu ?? 0) + ($cardData->diterima ?? 0);
 
+        // INFO PUTUSAN SELA
         $putusanSela = $db->table('perkara')
             ->whereNotNull('tgl_register')
             ->whereBetween('tgl_putusan_sela', [$tgl_awal, $tgl_akhir])
@@ -59,6 +59,15 @@ class DashboardController extends Controller
         $zonaWarna = $this->getZoneStatistics($db, $tgl_awal, $tgl_akhir);
         $totalPutus = $this->calculateTotalPutus($zonaWarna);
         $rekapJenis = $this->getCaseTypeStatistics($db, $tgl_awal, $tgl_akhir);
+
+        $jenisPutus = $db->table('perkara')
+            ->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])
+            ->selectRaw("
+                SUM(CASE WHEN jenis_putus_text = 'Dikuatkan' THEN 1 ELSE 0 END) as dikuatkan,
+                SUM(CASE WHEN jenis_putus_text = 'Dibatalkan' THEN 1 ELSE 0 END) as dibatalkan,
+                SUM(CASE WHEN jenis_putus_text = 'Tidak dapat diterima' THEN 1 ELSE 0 END) as n_o,
+                SUM(CASE WHEN jenis_putus_text = 'Dicabut' THEN 1 ELSE 0 END) as dicabut
+            ")->first();
 
         return view('dashboard.index', compact(
             'cardData',
@@ -70,7 +79,8 @@ class DashboardController extends Controller
             'tgl_awal',
             'tgl_akhir',
             'tahun',
-            'rekapJenis'
+            'rekapJenis',
+            'jenisPutus'
         ));
     }
 
@@ -84,7 +94,6 @@ class DashboardController extends Controller
         $db = DB::connection('siappta');
         $query = $db->table('perkara')->whereNotNull('tgl_register');
 
-        // Logic Filter Kategori Berdasarkan Klik
         switch ($type) {
             case 'sisa_lalu':
                 $query->where('tgl_register', '<', $tgl_awal)
@@ -100,8 +109,7 @@ class DashboardController extends Controller
                     $q->where('tgl_register', '<', $tgl_awal)
                         ->where(function ($sq) use ($tgl_awal) {
                             $sq->whereNull('tgl_putusan')->orWhere('tgl_putusan', '>=', $tgl_awal);
-                        })
-                        ->orWhereBetween('tgl_register', [$tgl_awal, $tgl_akhir]);
+                        })->orWhereBetween('tgl_register', [$tgl_awal, $tgl_akhir]);
                 });
                 break;
             case 'putusan_sela':
@@ -115,44 +123,45 @@ class DashboardController extends Controller
                     $q->whereNull('tgl_putusan')->orWhere('tgl_putusan', '>', $tgl_akhir);
                 });
                 break;
-            case '0_30':
-                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])
-                    ->whereRaw('DATEDIFF(tgl_putusan, tgl_register) <= 30');
+            case 'dikuatkan':
+                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])->where('jenis_putus_text', 'Dikuatkan');
                 break;
-            case '31_60':
-                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])
-                    ->whereRaw('DATEDIFF(tgl_putusan, tgl_register) BETWEEN 31 AND 60');
+            case 'dibatalkan':
+                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])->where('jenis_putus_text', 'Dibatalkan');
                 break;
-            case '61_90':
-                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])
-                    ->whereRaw('DATEDIFF(tgl_putusan, tgl_register) BETWEEN 61 AND 90');
+            case 'n_o':
+                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])->where('jenis_putus_text', 'Tidak dapat diterima');
                 break;
-            case '90_up':
-                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])
-                    ->whereRaw('DATEDIFF(tgl_putusan, tgl_register) > 90');
+            case 'dicabut':
+                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])->where('jenis_putus_text', 'Dicabut');
                 break;
             case 'per_jenis':
-                $query->whereBetween('tgl_register', [$tgl_awal, $tgl_akhir])
-                    ->where('jenis_perkara', $jenis);
+                $query->whereBetween('tgl_register', [$tgl_awal, $tgl_akhir])->where('jenis_perkara', $jenis);
                 break;
+                // Case zona waktu lainnya...
         }
-
-        // Eksekusi Query: Ambil nomor banding dan nomor tingkat pertama
+        // ... di dalam fungsi detail ...
         $data = $query->select(
-            'nomor_perkara_banding',      // Nomor Banding
-            'nomor_perkara_pa',   // Nomor PA
+            'nomor_perkara_banding', // Ini yang bener sesuai tabel lu
+            'nomor_perkara_pa',      // Ini juga bener
+            'jenis_perkara',
+            'nama_pembanding',
+            'nama_terbanding',
+            'nama_satker',
             'tgl_register',
             'tgl_putusan',
-            'jenis_perkara',
-            'nama_km'
+            'tgl_putusan_sela',
+            'jenis_putus_text',
+            'nama_km',
+            'nama_pp',
+            'tgl_minutasi',
+            'tgl_kirim_pa',
+            'tgl_upload'
         )->get();
 
         return view('dashboard.detail', compact('data', 'type', 'tgl_awal', 'tgl_akhir', 'jenis'));
     }
 
-    /**
-     * Helper to get Union Query for E-Court across satkers
-     */
     private function getEcourtUnion($db)
     {
         $unionQuery = null;
@@ -165,15 +174,13 @@ class DashboardController extends Controller
 
     private function getCardStatistics($db, $tglAwal, $tglAkhir)
     {
-        return $db->table('perkara')
-            ->whereNotNull('tgl_register')
+        return $db->table('perkara')->whereNotNull('tgl_register')
             ->selectRaw("
                 SUM(CASE WHEN tgl_register < ? AND (tgl_putusan IS NULL OR tgl_putusan >= ?) THEN 1 ELSE 0 END) AS sisa_lalu,
                 SUM(CASE WHEN tgl_register BETWEEN ? AND ? THEN 1 ELSE 0 END) AS diterima,
                 SUM(CASE WHEN tgl_putusan BETWEEN ? AND ? THEN 1 ELSE 0 END) AS selesai,
                 SUM(CASE WHEN tgl_putusan IS NULL OR tgl_putusan > ? THEN 1 ELSE 0 END) AS sisa
-            ", [$tglAwal, $tglAwal, $tglAwal, $tglAkhir, $tglAwal, $tglAkhir, $tglAkhir])
-            ->first();
+            ", [$tglAwal, $tglAwal, $tglAwal, $tglAkhir, $tglAwal, $tglAkhir, $tglAkhir])->first();
     }
 
     private function getEcourtStatistics($db, $tglAwal, $tglAkhir)
@@ -183,46 +190,30 @@ class DashboardController extends Controller
             ->leftJoinSub($unionQuery, 'ec', function ($join) {
                 $join->on(DB::raw('TRIM(p.nomor_perkara_pa)'), '=', DB::raw('TRIM(ec.nomor_perkara)'));
             })
-            ->whereNotNull('p.tgl_register')
-            ->whereBetween('p.tgl_register', [$tglAwal, $tglAkhir])
-            ->selectRaw("
-                SUM(CASE WHEN ec.nomor_perkara IS NOT NULL THEN 1 ELSE 0 END) as total_ecourt,
-                SUM(CASE WHEN ec.nomor_perkara IS NULL THEN 1 ELSE 0 END) as total_manual
-            ")
+            ->whereNotNull('p.tgl_register')->whereBetween('p.tgl_register', [$tglAwal, $tglAkhir])
+            ->selectRaw("SUM(CASE WHEN ec.nomor_perkara IS NOT NULL THEN 1 ELSE 0 END) as total_ecourt, SUM(CASE WHEN ec.nomor_perkara IS NULL THEN 1 ELSE 0 END) as total_manual")
             ->first();
     }
 
     private function getZoneStatistics($db, $tglAwal, $tglAkhir)
     {
-        return $db->table('perkara')
-            ->whereNotNull('tgl_register')
-            ->whereBetween('tgl_putusan', [$tglAwal, $tglAkhir])
+        return $db->table('perkara')->whereNotNull('tgl_register')->whereBetween('tgl_putusan', [$tglAwal, $tglAkhir])
             ->selectRaw("
                 SUM(CASE WHEN DATEDIFF(tgl_putusan, tgl_register) <= 30 THEN 1 ELSE 0 END) as hijau_tua,
                 SUM(CASE WHEN DATEDIFF(tgl_putusan, tgl_register) BETWEEN 31 AND 60 THEN 1 ELSE 0 END) as hijau_muda,
-                SUM(CASE WHEN DATEDIFF(tgl_putusan, tgl_register) BETWEEN 61 AND 90 THEN 1 ELSE 0 END) as kuning,
                 SUM(CASE WHEN DATEDIFF(tgl_putusan, tgl_register) > 90 THEN 1 ELSE 0 END) as merah
-            ")
-            ->first();
+            ")->first();
     }
 
     private function calculateTotalPutus($zonaWarna)
     {
-        return ($zonaWarna->hijau_tua ?? 0) + ($zonaWarna->hijau_muda ?? 0) + ($zonaWarna->kuning ?? 0) + ($zonaWarna->merah ?? 0);
+        return ($zonaWarna->hijau_tua ?? 0) + ($zonaWarna->hijau_muda ?? 0) + ($zonaWarna->merah ?? 0);
     }
 
     private function getCaseTypeStatistics($db, $tglAwal, $tglAkhir)
     {
-        return $db->table('perkara')
-            ->whereNotNull('tgl_register')
-            ->whereBetween('tgl_register', [$tglAwal, $tglAkhir])
-            ->selectRaw("
-                jenis_perkara as jenis,
-                COUNT(*) as total,
-                GROUP_CONCAT(DISTINCT nama_km ORDER BY nama_km SEPARATOR '; ') as hakim_penangani
-            ")
-            ->groupBy('jenis_perkara')
-            ->orderBy('total', 'desc')
-            ->get();
+        return $db->table('perkara')->whereNotNull('tgl_register')->whereBetween('tgl_register', [$tglAwal, $tglAkhir])
+            ->selectRaw("jenis_perkara as jenis, COUNT(*) as total, GROUP_CONCAT(DISTINCT nama_km ORDER BY nama_km SEPARATOR '; ') as hakim_penangani")
+            ->groupBy('jenis_perkara')->orderBy('total', 'desc')->get();
     }
 }
