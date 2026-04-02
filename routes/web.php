@@ -42,6 +42,7 @@ use App\Http\Controllers\{
 Route::get('/jadwal-sidang/public', [SidangController::class, 'index_public'])->name('sidang.index_public');
 Route::get('/jdih-ptabandung', [PeraturanController::class, 'index_public'])->name('peraturan.public');
 Route::get('/arsip-perkara/public', [RetensiArsipPerkaraController::class, 'index_public'])->name('arsip.public');
+Route::get('/dashboard-public', [DashboardController::class, 'index_public'])->name('dashboard.public');
 
 // ==========================================
 // 2. AUTHENTICATION ROUTES
