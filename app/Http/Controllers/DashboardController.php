@@ -8,35 +8,56 @@ use Illuminate\Support\Facades\DB;
 class DashboardController extends Controller
 {
     /**
-     * Display dashboard with case monitoring data
+     * Satker list for E-Court union queries
      */
+    private $satkers = [
+        'bandung',
+        'indramayu',
+        'majalengka',
+        'sumber',
+        'ciamis',
+        'tasikmalaya',
+        'karawang',
+        'cimahi',
+        'subang',
+        'sumedang',
+        'purwakarta',
+        'sukabumi',
+        'cianjur',
+        'kuningan',
+        'cibadak',
+        'cirebon',
+        'garut',
+        'bogor',
+        'bekasi',
+        'cibinong',
+        'cikarang',
+        'depok',
+        'tasikkota',
+        'banjar',
+        'soreang',
+        'ngamprah'
+    ];
+
     public function index(Request $request)
     {
-        // 1. Setup Filter dengan Nama Variabel Sesuai Blade (tgl_awal & tgl_akhir)
         $tgl_awal = $request->input('tgl_awal', date('Y') . '-01-01');
         $tgl_akhir = $request->input('tgl_akhir', date('Y-m-d'));
         $tahun = date('Y', strtotime($tgl_akhir));
 
         $db = DB::connection('siappta');
 
-        // 2. Query Kartu Statistik Utama
         $cardData = $this->getCardStatistics($db, $tgl_awal, $tgl_akhir);
         $beban = ($cardData->sisa_lalu ?? 0) + ($cardData->diterima ?? 0);
 
-        // 3. Query Putusan Sela
         $putusanSela = $db->table('perkara')
             ->whereNotNull('tgl_register')
             ->whereBetween('tgl_putusan_sela', [$tgl_awal, $tgl_akhir])
             ->count();
 
-        // 4. Query Rekap E-Court vs Manual
         $rekapEcourt = $this->getEcourtStatistics($db, $tgl_awal, $tgl_akhir);
-
-        // 5. Query Zona Warna (Kecepatan Putusan)
         $zonaWarna = $this->getZoneStatistics($db, $tgl_awal, $tgl_akhir);
         $totalPutus = $this->calculateTotalPutus($zonaWarna);
-
-        // 6. Query Rekap Jenis Perkara & Hakim
         $rekapJenis = $this->getCaseTypeStatistics($db, $tgl_awal, $tgl_akhir);
 
         return view('dashboard.index', compact(
@@ -46,16 +67,102 @@ class DashboardController extends Controller
             'rekapEcourt',
             'zonaWarna',
             'totalPutus',
-            'tgl_awal',   // <--- Sudah sinkron dengan Blade
-            'tgl_akhir',  // <--- Sudah sinkron dengan Blade
+            'tgl_awal',
+            'tgl_akhir',
             'tahun',
             'rekapJenis'
         ));
     }
 
+    public function detail(Request $request)
+    {
+        $tgl_awal = $request->input('tgl_awal');
+        $tgl_akhir = $request->input('tgl_akhir');
+        $type = $request->input('type');
+        $jenis = $request->input('jenis');
+
+        $db = DB::connection('siappta');
+        $query = $db->table('perkara')->whereNotNull('tgl_register');
+
+        // Logic Filter Kategori Berdasarkan Klik
+        switch ($type) {
+            case 'sisa_lalu':
+                $query->where('tgl_register', '<', $tgl_awal)
+                    ->where(function ($q) use ($tgl_awal) {
+                        $q->whereNull('tgl_putusan')->orWhere('tgl_putusan', '>=', $tgl_awal);
+                    });
+                break;
+            case 'diterima':
+                $query->whereBetween('tgl_register', [$tgl_awal, $tgl_akhir]);
+                break;
+            case 'beban_kerja':
+                $query->where(function ($q) use ($tgl_awal, $tgl_akhir) {
+                    $q->where('tgl_register', '<', $tgl_awal)
+                        ->where(function ($sq) use ($tgl_awal) {
+                            $sq->whereNull('tgl_putusan')->orWhere('tgl_putusan', '>=', $tgl_awal);
+                        })
+                        ->orWhereBetween('tgl_register', [$tgl_awal, $tgl_akhir]);
+                });
+                break;
+            case 'putusan_sela':
+                $query->whereBetween('tgl_putusan_sela', [$tgl_awal, $tgl_akhir]);
+                break;
+            case 'selesai':
+                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir]);
+                break;
+            case 'sisa':
+                $query->where(function ($q) use ($tgl_akhir) {
+                    $q->whereNull('tgl_putusan')->orWhere('tgl_putusan', '>', $tgl_akhir);
+                });
+                break;
+            case '0_30':
+                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])
+                    ->whereRaw('DATEDIFF(tgl_putusan, tgl_register) <= 30');
+                break;
+            case '31_60':
+                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])
+                    ->whereRaw('DATEDIFF(tgl_putusan, tgl_register) BETWEEN 31 AND 60');
+                break;
+            case '61_90':
+                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])
+                    ->whereRaw('DATEDIFF(tgl_putusan, tgl_register) BETWEEN 61 AND 90');
+                break;
+            case '90_up':
+                $query->whereBetween('tgl_putusan', [$tgl_awal, $tgl_akhir])
+                    ->whereRaw('DATEDIFF(tgl_putusan, tgl_register) > 90');
+                break;
+            case 'per_jenis':
+                $query->whereBetween('tgl_register', [$tgl_awal, $tgl_akhir])
+                    ->where('jenis_perkara', $jenis);
+                break;
+        }
+
+        // Eksekusi Query: Ambil nomor banding dan nomor tingkat pertama
+        $data = $query->select(
+            'nomor_perkara_banding',      // Nomor Banding
+            'nomor_perkara_pa',   // Nomor PA
+            'tgl_register',
+            'tgl_putusan',
+            'jenis_perkara',
+            'nama_km'
+        )->get();
+
+        return view('dashboard.detail', compact('data', 'type', 'tgl_awal', 'tgl_akhir', 'jenis'));
+    }
+
     /**
-     * Get main card statistics
+     * Helper to get Union Query for E-Court across satkers
      */
+    private function getEcourtUnion($db)
+    {
+        $unionQuery = null;
+        foreach ($this->satkers as $satker) {
+            $q = $db->table("{$satker}.ecourt_banding")->select('nomor_perkara');
+            $unionQuery = $unionQuery ? $unionQuery->unionAll($q) : $q;
+        }
+        return $unionQuery;
+    }
+
     private function getCardStatistics($db, $tglAwal, $tglAkhir)
     {
         return $db->table('perkara')
@@ -69,46 +176,9 @@ class DashboardController extends Controller
             ->first();
     }
 
-    /**
-     * Get E-Court vs Manual statistics
-     */
     private function getEcourtStatistics($db, $tglAwal, $tglAkhir)
     {
-        $satkers = [
-            'bandung',
-            'indramayu',
-            'majalengka',
-            'sumber',
-            'ciamis',
-            'tasikmalaya',
-            'karawang',
-            'cimahi',
-            'subang',
-            'sumedang',
-            'purwakarta',
-            'sukabumi',
-            'cianjur',
-            'kuningan',
-            'cibadak',
-            'cirebon',
-            'garut',
-            'bogor',
-            'bekasi',
-            'cibinong',
-            'cikarang',
-            'depok',
-            'tasikkota',
-            'banjar',
-            'soreang',
-            'ngamprah'
-        ];
-
-        $unionQuery = null;
-        foreach ($satkers as $satker) {
-            $query = $db->table("{$satker}.ecourt_banding")->select('nomor_perkara');
-            $unionQuery = $unionQuery ? $unionQuery->unionAll($query) : $query;
-        }
-
+        $unionQuery = $this->getEcourtUnion($db);
         return $db->table('perkara as p')
             ->leftJoinSub($unionQuery, 'ec', function ($join) {
                 $join->on(DB::raw('TRIM(p.nomor_perkara_pa)'), '=', DB::raw('TRIM(ec.nomor_perkara)'));
@@ -122,9 +192,6 @@ class DashboardController extends Controller
             ->first();
     }
 
-    /**
-     * Get zone color statistics (decision speed)
-     */
     private function getZoneStatistics($db, $tglAwal, $tglAkhir)
     {
         return $db->table('perkara')
@@ -139,20 +206,11 @@ class DashboardController extends Controller
             ->first();
     }
 
-    /**
-     * Calculate total putus from zone statistics
-     */
     private function calculateTotalPutus($zonaWarna)
     {
-        return ($zonaWarna->hijau_tua ?? 0) +
-            ($zonaWarna->hijau_muda ?? 0) +
-            ($zonaWarna->kuning ?? 0) +
-            ($zonaWarna->merah ?? 0);
+        return ($zonaWarna->hijau_tua ?? 0) + ($zonaWarna->hijau_muda ?? 0) + ($zonaWarna->kuning ?? 0) + ($zonaWarna->merah ?? 0);
     }
 
-    /**
-     * Get case type and judge statistics
-     */
     private function getCaseTypeStatistics($db, $tglAwal, $tglAkhir)
     {
         return $db->table('perkara')

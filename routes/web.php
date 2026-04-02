@@ -60,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     Route::get('/', fn() => view('welcome'))->name('welcome');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/detail', [DashboardController::class, 'detail'])->name('dashboard.detail');
     Route::get('/monitoring', fn() => view('monitoring'))->name('monitoring');
     Route::get('/laporan-utama', fn() => view('laporan-utama'))->name('laporan-utama');
     Route::get('/administrasi', fn() => view('administrasi'))->name('administrasi');
