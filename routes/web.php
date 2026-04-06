@@ -34,47 +34,83 @@ use App\Http\Controllers\{
 |--------------------------------------------------------------------------
 | SISTEM INFORMASI PERKARA - PTA BANDUNG
 |--------------------------------------------------------------------------
+| File ini mengatur semua endpoint URL yang tersedia dalam aplikasi.
+| Route dibagi berdasarkan:
+| 1. Route publik (tanpa autentikasi)
+| 2. Route autentikasi (login/logout)
+| 3. Route privat (memerlukan login)
+|--------------------------------------------------------------------------
 */
 
 // ==========================================
-// 1. PUBLIC ROUTES (NO AUTHENTICATION)
+// 1. ROUTE PUBLIK (TIDAK PERLU LOGIN)
 // ==========================================
+// Route publik untuk melihat jadwal sidang tanpa login
 Route::get('/jadwal-sidang/public', [SidangController::class, 'index_public'])->name('sidang.index_public');
+
+// Route publik untuk melihat JDIH (Jaringan Dokumentasi dan Informasi Hukum) PTA Bandung
 Route::get('/jdih-ptabandung', [PeraturanController::class, 'index_public'])->name('peraturan.public');
+
+// Route publik untuk melihat arsip perkara
 Route::get('/arsip-perkara/public', [RetensiArsipPerkaraController::class, 'index_public'])->name('arsip.public');
+
+// Route publik untuk melihat dashboard tanpa login
 Route::get('/dashboard-public', [DashboardController::class, 'index_public'])->name('dashboard.public');
 
 // ==========================================
-// 2. AUTHENTICATION ROUTES
+// 2. ROUTE AUTENTIKASI (LOGIN/LOGOUT)
 // ==========================================
+// Menampilkan halaman login
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+
+// Memproses data login
 Route::post('/login', [AuthController::class, 'login']);
+
+// Memproses logout (keluar dari sistem)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ==========================================
-// 3. PRIVATE ROUTES (AUTHENTICATED USERS ONLY)
+// 3. ROUTE PRIVAT (HARUS LOGIN TERLEBIH DAHULU)
 // ==========================================
 Route::middleware(['auth'])->group(function () {
 
     // ==========================================
-    // LANDING PAGES & MAIN NAVIGATION
+    // HALAMAN UTAMA & NAVIGASI
     // ==========================================
+    // Halaman selamat datang (landing page setelah login)
     Route::get('/', fn() => view('welcome'))->name('welcome');
+
+    // Dashboard utama aplikasi
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Halaman detail dashboard
     Route::get('/dashboard/detail', [DashboardController::class, 'detail'])->name('dashboard.detail');
+
+    // Halaman monitoring
     Route::get('/monitoring', fn() => view('monitoring'))->name('monitoring');
+
+    // Halaman laporan utama
     Route::get('/laporan-utama', fn() => view('laporan-utama'))->name('laporan-utama');
+
+    // Halaman administrasi
     Route::get('/administrasi', fn() => view('administrasi'))->name('administrasi');
+
+    // Halaman kinerja
     Route::get('/kinerja', [KinerjaController::class, 'index'])->name('kinerja.index');
+
+    // Halaman log aktivitas pengguna
     Route::get('/activity-log', fn() => view('activity_log'))->name('activity.log');
+
+    // Halaman dalam pengembangan
     Route::get('/under', fn() => view('errors.under_construction'))->name('errors.under_construction');
 
-    // Sisa Panjar Menu
+    // Halaman menu sisa panjar
     Route::get('/sisa-panjar', fn() => view('sisa_panjar_menu'))->name('sisa.panjar.menu');
 
     // ==========================================
-    // MODULE: COURT SCHEDULE MONITORING
+    // MODUL: JADWAL SIDANG
     // ==========================================
+    // Digunakan untuk memantau jadwal persidangan
     Route::controller(SidangController::class)
         ->prefix('jadwal-sidang')
         ->name('sidang.')
@@ -83,8 +119,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: COURT CALENDAR MONITORING
+    // MODUL: KALENDER PENGADILAN
     // ==========================================
+    // Memantau kalender kegiatan pengadilan per satuan kerja
     Route::controller(CourtCalendarController::class)
         ->prefix('court-calendar')
         ->name('court-calendar.')
@@ -96,8 +133,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: CASSATION REPORT
+    // MODUL: LAPORAN KASASI
     // ==========================================
+    // Mengelola laporan perkara kasasi (tingkat kasasi di Mahkamah Agung)
     Route::controller(LaporanKasasiController::class)
         ->prefix('kasasi')
         ->name('kasasi.')
@@ -109,8 +147,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: INCOMING MAIL
+    // MODUL: SURAT MASUK
     // ==========================================
+    // Mengelola surat-surat yang masuk ke instansi
     Route::controller(SuratMasukController::class)
         ->prefix('surat-masuk')
         ->name('surat.masuk.')
@@ -128,8 +167,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: OUTGOING MAIL
+    // MODUL: SURAT KELUAR
     // ==========================================
+    // Mengelola surat-surat yang keluar dari instansi
     Route::controller(SuratKeluarController::class)
         ->prefix('surat-keluar')
         ->name('surat.keluar.')
@@ -147,8 +187,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: DECREE LETTER (SK)
+    // MODUL: SURAT KEPUTUSAN (SK)
     // ==========================================
+    // Mengelola surat keputusan yang diterbitkan
     Route::controller(SuratKeputusanController::class)
         ->prefix('surat-keputusan')
         ->name('sk.')
@@ -165,8 +206,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: RECEIVED CASES REPORT (RK3)
+    // MODUL: LAPORAN PERKARA DITERIMA (RK3)
     // ==========================================
+    // Laporan perkara yang diterima di pengadilan tingkat pertama
     Route::controller(LaporanPerkaraDiterimaController::class)
         ->prefix('laporan-perkara-diterima')
         ->name('laporan.diterima.')
@@ -183,8 +225,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: DECIDED CASES REPORT (RK4)
+    // MODUL: LAPORAN PERKARA DIPUTUS (RK4)
     // ==========================================
+    // Laporan perkara yang telah diputus oleh pengadilan
     Route::controller(LaporanPerkaraDiputusController::class)
         ->prefix('laporan-perkara-diputus')
         ->name('laporan.diputus.')
@@ -201,8 +244,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: EXECUTION SUMMARY
+    // MODUL: REKAP EKSEKUSI
     // ==========================================
+    // Rekapitulasi pelaksanaan putusan perkara
     Route::controller(RekapEksekusiController::class)
         ->prefix('eksekusi')
         ->name('laporan.eksekusi.')
@@ -213,25 +257,26 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: APPEAL REPORTS (RK1 & RK2)
+    // MODUL: LAPORAN BANDING (RK1 & RK2)
     // ==========================================
+    // Laporan perkara banding (tingkat banding di Pengadilan Tinggi)
     Route::prefix('laporan/banding')->name('laporan.banding.')->group(function () {
 
-        // RK1 - Received Appeal Cases
+        // RK1 - Perkara Banding yang Diterima
         Route::controller(RK1Controller::class)->group(function () {
             Route::get('/diterima', 'index')->name('diterima');
             Route::get('/detail', 'detail')->name('detail');
             Route::get('/diterima/export', 'export')->name('diterima.export');
         });
 
-        // RK2 - Decided Appeal Cases
+        // RK2 - Perkara Banding yang Diputus
         Route::controller(RK2Controller::class)->group(function () {
             Route::get('/putus', 'index')->name('putus');
             Route::get('/putus/detail', 'detail')->name('putus.detail');
             Route::get('/putus/export', 'export')->name('putus.export');
         });
 
-        // Case Type Statistics
+        // Statistik Jenis Perkara Banding
         Route::controller(JenisPerkaraBandingController::class)->group(function () {
             Route::get('/jenis-perkara', 'index')->name('jenis');
             Route::get('/jenis-perkara/export', 'export')->name('jenis.export');
@@ -240,8 +285,9 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // ==========================================
-    // MODULE: REMAINING ADVANCE FUNDS MONITORING
+    // MODUL: SISA PANJAR
     // ==========================================
+    // Memantau sisa uang panjar perkara (uang muka biaya perkara)
     Route::controller(SisaPanjarController::class)
         ->prefix('sisa-panjar')
         ->name('sisa.panjar.')
@@ -255,8 +301,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: USER ADMINISTRATION
+    // MODUL: MANAJEMEN PENGGUNA
     // ==========================================
+    // Mengelola user/pengguna aplikasi
     Route::controller(UserController::class)
         ->prefix('users')
         ->name('users.')
@@ -270,8 +317,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: DIVORCE DECREE
+    // MODUL: AKTA CERAI
     // ==========================================
+    // Mengelola akta perceraian yang diterbitkan
     Route::controller(AktaCeraiController::class)
         ->prefix('akta-cerai')
         ->name('akta-cerai.')
@@ -283,8 +331,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: COMPLAINTS (SIWAS)
+    // MODUL: PENGADUAN (SIWAS)
     // ==========================================
+    // Mengelola pengaduan masyarakat (Sistem Pengawasan)
     Route::controller(PengaduanController::class)
         ->prefix('pengaduan')
         ->name('pengaduan.')
@@ -303,8 +352,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: REGULATIONS COLLECTION
+    // MODUL: PERATURAN (JDIH)
     // ==========================================
+    // Mengelola koleksi peraturan perundang-undangan
     Route::controller(PeraturanController::class)
         ->prefix('peraturan')
         ->name('peraturan.')
@@ -318,8 +368,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: DIGITAL CASE ARCHIVES
+    // MODUL: ARSIP DIGITAL PERKARA
     // ==========================================
+    // Mengelola retensi/penyimpanan arsip perkara secara digital
     Route::controller(RetensiArsipPerkaraController::class)
         ->prefix('retensi-arsip-perkara')
         ->name('retensi-arsip.')
@@ -334,8 +385,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: SYNCHRONIZATION MONITORING
+    // MODUL: MONITORING SINKRONISASI DATA
     // ==========================================
+    // Memantau proses sinkronisasi data dari berbagai sumber
     Route::prefix('admin/monitoring-sync')
         ->name('admin.sync.')
         ->group(function () {
@@ -351,14 +403,16 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ==========================================
-    // MODULE: DECISION BANK
+    // MODUL: BANK PUTUSAN
     // ==========================================
+    // Mengumpulkan dan mengelola putusan-putusan pengadilan
     Route::get('/bank-putusan', [BankPutusanController::class, 'index'])->name('bank.index');
     Route::post('/bank-putusan/upload', [BankPutusanController::class, 'upload'])->name('bank.upload');
 
     // ==========================================
-    // MODULE: ACTIVE ARCHIVES
+    // MODUL: ARSIP AKTIF
     // ==========================================
+    // Mengelola arsip perkara yang masih aktif
     Route::prefix('arsip-aktif')->name('arsip-aktif.')->group(function () {
         Route::get('/', [ArsipAktifController::class, 'index'])->name('index');
         Route::post('/store', [ArsipAktifController::class, 'store'])->name('store');
@@ -369,7 +423,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // ==========================================
-    // MODULE: E-REPORT MONITORING
+    // MODUL: MONITORING E-LAPORAN
     // ==========================================
+    // Memantau laporan elektronik yang masuk
     Route::get('/monitoring-elaporan', [MonitoringElaporanController::class, 'index'])->name('monitoring.index');
 });
