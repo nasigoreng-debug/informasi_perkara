@@ -1,225 +1,169 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMAND CENTER PTA BANDUNG - TV 16:9</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+@extends('layouts.app')
 
-    <style>
-        :root {
-            --bg-dark: #0f172a; --card-bg: #1e293b; --accent-blue: #38bdf8;
-            --accent-green: #10b981; --accent-red: #ef4444; --accent-yellow: #f59e0b;
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: var(--bg-dark); 
-            color: #f8fafc; 
-            height: 100vh; 
-            width: 100vw;
-            overflow: hidden; 
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .header-nav { 
-            height: 12vh; 
-            background: rgba(30, 41, 59, 0.8); 
-            backdrop-filter: blur(10px); 
-            border-bottom: 3px solid var(--accent-blue); 
-            padding: 0 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .main-content { 
-            flex: 1; 
-            padding: 2vh; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 2vh;
-        }
+@section('content')
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-        .row-top { height: 22vh; }
-        .stat-box-main { 
-            background: var(--card-bg); 
-            border-radius: 20px; 
-            padding: 1.5vh; 
-            border: 1px solid rgba(255,255,255,0.05); 
-            height: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center;
-            text-align: center;
-        }
-        
-        .label-top { font-size: 0.8rem; font-weight: 700; color: #94a3b8; letter-spacing: 2px; }
-        .value-main { font-size: 4.5rem; font-weight: 800; line-height: 1; margin: 0.5vh 0; }
-        
-        .row-bottom { flex: 1; min-height: 0; } 
-        .box-detail { background: var(--card-bg); border-radius: 20px; padding: 2vh; border: 1px solid rgba(255,255,255,0.05); height: 100%; }
+<style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f0f2f5; }
+    :root {
+        --pta-blue: #4e73df; --pta-indigo: #6610f2; --pta-success: #00b894;
+        --pta-warning: #f1c40f; --pta-danger: #ff7675; --glass: rgba(255, 255, 255, 0.9);
+    }
+    .header-glass {
+        background: var(--glass); backdrop-filter: blur(10px); border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+    }
+    .stat-card-premium {
+        border: none; border-radius: 20px; color: white; position: relative; overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); height: 100%;
+    }
+    .stat-card-premium:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
+    .card-icon-bg { position: absolute; right: -10px; top: -10px; font-size: 4rem; opacity: 0.15; transform: rotate(15deg); }
+    .putus-box {
+        background: #ffffff; border-radius: 20px; padding: 1.2rem; border: 1px solid #edf2f7;
+        transition: all 0.3s ease; text-align: center;
+    }
+    .putus-box:hover { background: #f8faff; border-color: var(--pta-blue); transform: translateY(-3px); }
+    .putus-indicator { width: 35px; height: 4px; border-radius: 10px; margin: 8px auto; }
+</style>
 
-        /* Table High Contrast */
-        .table-scroll-container { height: 45vh; overflow: hidden; margin-top: 1vh; }
-        .table-public-custom { width: 100%; color: #f8fafc !important; border-collapse: collapse; }
-        .table-public-custom tr { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .table-public-custom tr:nth-child(even) { background: rgba(255,255,255,0.02); }
-        .table-public-custom td { padding: 1.8vh 10px; font-size: 1.4rem; font-weight: 600; }
-
-        #clock { font-size: 2.5rem; font-weight: 800; color: var(--accent-blue); }
-        .pulse { width: 12px; height: 12px; background: var(--accent-green); border-radius: 50%; display: inline-block; animation: pulse-dot 2s infinite; }
-        @keyframes pulse-dot { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
-        .footer-bar { height: 6vh; background: #000; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; color: #64748b; border-top: 1px solid #1e293b; }
-    </style>
-</head>
-<body>
-
-    <div class="header-nav">
+<div class="container-fluid py-4">
+    {{-- Header --}}
+    <div class="header-glass p-4 mb-4 d-flex flex-wrap align-items-center justify-content-between">
         <div>
-            <h2 class="fw-800 mb-0 text-white">SIAPPTA <span class="text-info">COMMAND CENTER</span></h2>
-            <div class="small fw-600 opacity-50"><i class="fas fa-university me-1 text-info"></i> PTA BANDUNG</div>
+            <h2 class="fw-800 text-dark mb-1" style="letter-spacing: -1px;">Sistem Monitoring Perkara</h2>
+            <p class="text-muted small mb-0"><i class="fas fa-university me-1"></i> PTA Bandung — <span class="text-primary fw-600">Periode {{ $tahun }}</span></p>
         </div>
-        <div class="text-end">
-            <div id="clock">00:00:00</div>
-            <div class="small fw-700 text-uppercase text-white"><span class="pulse me-1"></span> Monitoring Realtime</div>
-        </div>
+        <form action="{{ route('dashboard') }}" method="GET" id="filterForm" class="d-flex gap-2">
+            <input type="hidden" name="tgl_awal" id="tgl_awal" value="{{ $tgl_awal }}">
+            <input type="hidden" name="tgl_akhir" id="tgl_akhir" value="{{ $tgl_akhir }}">
+            <div class="bg-light p-1 rounded-3 d-flex">
+                <button type="button" class="btn btn-sm btn-light quick-period border-0 me-1" data-period="month">Bulan</button>
+                <button type="button" class="btn btn-sm btn-light quick-period border-0" data-period="year">Tahun</button>
+            </div>
+            <div class="d-flex align-items-center bg-light rounded-3 px-2 border">
+                <input type="date" class="form-control form-control-sm bg-transparent border-0" id="display_tgl_awal" value="{{ $tgl_awal }}">
+                <span class="mx-1 text-muted">-</span>
+                <input type="date" class="form-control form-control-sm bg-transparent border-0" id="display_tgl_akhir" value="{{ $tgl_akhir }}">
+            </div>
+            <button type="submit" class="btn btn-primary rounded-3 px-4 fw-600">Terapkan</button>
+        </form>
     </div>
 
-    <div class="main-content">
-        <div class="row g-3 row-top text-center">
-            @php
-                $ratio = $beban > 0 ? round(($cardData->selesai / $beban) * 100, 1) : 0;
-                $cards = [
-                    ['l' => 'SISA LALU', 'v' => $cardData->sisa_lalu, 'c' => '#94a3b8', 'p' => 100],
-                    ['l' => 'DITERIMA', 'v' => $cardData->diterima, 'c' => '#38bdf8', 'p' => 100],
-                    ['l' => 'BEBAN KERJA', 'v' => $beban, 'c' => '#818cf8', 'p' => 100],
-                    ['l' => 'PUTUSAN SELA', 'v' => $putusanSela, 'c' => '#f472b6', 'p' => 100],
-                    ['l' => 'PENYELESAIAN', 'v' => $cardData->selesai, 'c' => '#10b981', 'p' => $ratio],
-                    ['l' => 'SISA AKHIR', 'v' => $cardData->sisa, 'c' => '#f59e0b', 'p' => (100-$ratio)],
-                ];
-            @endphp
-            @foreach($cards as $c)
-            <div class="col text-center">
-                <div class="stat-box-main shadow-lg">
-                    <div class="label-top">{{ $c['l'] }}</div>
-                    <div class="value-main" style="color: {{ $c['c'] }}">{{ number_format($c['v'] ?? 0) }}</div>
-                    <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px;">
-                        <div style="height: 100%; width: {{ $c['p'] }}%; background: {{ $c['c'] }}; border-radius: 10px;"></div>
+    {{-- ALUR PERKARA IDEAL (6 CARDS) --}}
+    <div class="row g-3 mb-4 text-white">
+        @php
+            $mainStats = [
+                ['l' => 'Sisa Lalu', 'v' => $cardData->sisa_lalu, 't' => 'sisa_lalu', 'c' => '#636e72', 'i' => 'fa-history'],
+                ['l' => 'Diterima', 'v' => $cardData->diterima, 't' => 'diterima', 'c' => '#0984e3', 'i' => 'fa-file-download'],
+                ['l' => 'Beban Kerja', 'v' => $beban, 't' => 'beban_kerja', 'c' => '#6c5ce7', 'i' => 'fa-briefcase'],
+                ['l' => 'Putusan Sela', 'v' => $putusanSela, 't' => 'putusan_sela', 'c' => '#d63031', 'i' => 'fa-gavel'],
+                ['l' => 'Selesai', 'v' => $cardData->selesai, 't' => 'selesai', 'c' => '#00b894', 'i' => 'fa-check-double'],
+                ['l' => 'Sisa Akhir', 'v' => $cardData->sisa, 't' => 'sisa', 'c' => '#fdb827', 'i' => 'fa-hourglass-end'],
+            ];
+        @endphp
+        @foreach($mainStats as $stat)
+        <div class="col-xl-2 col-md-4 col-6">
+            <a href="{{ route('dashboard.detail', ['type' => $stat['t'], 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="text-decoration-none">
+                <div class="card stat-card-premium p-3" style="background: {{ $stat['c'] }}">
+                    <div class="position-relative z-index-1">
+                        <div class="small text-uppercase fw-700 opacity-75" style="font-size: 9px;">{{ $stat['l'] }}</div>
+                        <h3 class="fw-800 mb-0 mt-1">{{ number_format($stat['v'] ?? 0) }}</h3>
                     </div>
+                    <i class="fas {{ $stat['i'] }} card-icon-bg"></i>
                 </div>
-            </div>
-            @endforeach
+            </a>
         </div>
+        @endforeach
+    </div>
 
-        <div class="row g-3 row-bottom">
-            <div class="col-md-4">
-                <div class="d-flex flex-column h-100 gap-3">
-                    <div class="box-detail flex-grow-1">
-                        <h5 class="fw-800 mb-3 text-info"><i class="fas fa-gavel me-2"></i>STATUS PUTUSAN</h5>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+                    <h5 class="fw-800 text-dark mb-4 text-start">Statistik Jenis Putusan</h5>
+                    <div class="row g-3">
                         @php
-                            $amars = [
-                                ['l' => 'Dikuatkan', 'v' => $jenisPutus->dikuatkan, 'c' => '#38bdf8'],
-                                ['l' => 'Dibatalkan', 'v' => $jenisPutus->dibatalkan, 'c' => '#ef4444'],
-                                ['l' => 'Tidak dapat diterima', 'v' => $jenisPutus->n_o, 'c' => '#2dd4bf'],
-                                ['l' => 'Dicabut', 'v' => $jenisPutus->dicabut, 'c' => '#f59e0b'],
+                            $jp = [
+                                ['l' => 'Dikuatkan', 'v' => $jenisPutus->dikuatkan, 't' => 'dikuatkan', 'c' => '#4e73df'],
+                                ['l' => 'Dibatalkan', 'v' => $jenisPutus->dibatalkan, 't' => 'dibatalkan', 'c' => '#ff7675'],
+                                ['l' => 'N.O', 'v' => $jenisPutus->n_o, 't' => 'n_o', 'c' => '#00cec9'],
+                                ['l' => 'Dicabut', 'v' => $jenisPutus->dicabut, 't' => 'dicabut', 'c' => '#f1c40f'],
                             ];
                         @endphp
-                        @foreach($amars as $a)
-                        <div class="d-flex justify-content-between align-items-center mb-2 p-3 rounded-4" style="background: rgba(255,255,255,0.03); border-left: 5px solid {{ $a['c'] }}; height: 6.5vh;">
-                            <span class="fw-700 fs-5">{{ $a['l'] }}</span>
-                            <span class="h2 fw-800 mb-0" style="color: {{ $a['c'] }}">{{ number_format($a['v'] ?? 0) }}</span>
+                        @foreach($jp as $putus)
+                        <div class="col-3">
+                            <a href="{{ route('dashboard.detail', ['type' => $putus['t'], 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="text-decoration-none text-dark">
+                                <div class="putus-box">
+                                    <div class="small fw-700 text-muted" style="font-size: 9px;">{{ $putus['l'] }}</div>
+                                    <h4 class="fw-800 mb-0 mt-1">{{ number_format($putus['v'] ?? 0) }}</h4>
+                                    <div class="putus-indicator" style="background: {{ $putus['c'] }}"></div>
+                                </div>
+                            </a>
                         </div>
                         @endforeach
                     </div>
-                    <div class="box-detail" style="height: 18vh;">
-                        <h5 class="fw-800 mb-2 text-info small"><i class="fas fa-laptop-house me-2"></i>E-COURT VS MANUAL</h5>
-                        <div class="d-flex justify-content-around align-items-center h-100">
-                            <div class="text-center">
-                                <div class="h3 fw-800 text-info mb-0">{{ $rekapEcourt->total_ecourt ?? 0 }}</div>
-                                <div class="small fw-bold opacity-50" style="font-size: 0.7rem;">E-COURT</div>
-                            </div>
-                            <div class="vr opacity-20"></div>
-                            <div class="text-center">
-                                <div class="h3 fw-800 text-secondary mb-0">{{ $rekapEcourt->total_manual ?? 0 }}</div>
-                                <div class="small fw-bold opacity-50" style="font-size: 0.7rem;">MANUAL</div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="mt-4" style="height: 250px;"><canvas id="chartPremium"></canvas></div>
                 </div>
             </div>
-
-            <div class="col-md-5">
-                <div class="box-detail">
-                    <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2">
-                        <h5 class="fw-800 text-info mb-0 text-uppercase"><i class="fas fa-list-ul me-2"></i>Beban Per Jenis Perkara</h5>
-                        <span class="badge bg-primary rounded-pill px-3 fw-bold">TAHUN {{ $tahun }}</span>
-                    </div>
-                    <div class="table-scroll-container" id="scroll-box">
-                        <table class="table-public-custom">
-                            <tbody>
-                                @foreach($rekapJenis as $row)
-                                <tr>
-                                    <td>{{ $row->jenis }}</td>
-                                    <td class="text-end fw-800 text-info">{{ $row->total }} <span class="small opacity-50 fw-600" style="font-size: 0.8rem;">PERKARA</span></td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            
+            <div class="row g-3 text-white text-center">
+                <div class="col-md-4"><a href="{{ route('dashboard.detail', ['type' => '0_30', 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="text-decoration-none text-white"><div class="p-3 rounded-4 shadow-sm" style="background: #00b894;"><span class="small fw-bold d-block">0-30 Hari</span><span class="h4 fw-800">{{ $zonaWarna->hijau_tua }}</span></div></a></div>
+                <div class="col-md-4"><a href="{{ route('dashboard.detail', ['type' => '31_60', 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="text-decoration-none text-white"><div class="p-3 rounded-4 shadow-sm" style="background: #f1c40f;"><span class="small fw-bold d-block">31-60 Hari</span><span class="h4 fw-800">{{ $zonaWarna->hijau_muda }}</span></div></a></div>
+                <div class="col-md-4"><a href="{{ route('dashboard.detail', ['type' => '90_up', 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="text-decoration-none text-white"><div class="p-3 rounded-4 shadow-sm" style="background: #ff7675;"><span class="small fw-bold d-block">> 90 Hari</span><span class="h4 fw-800">{{ $zonaWarna->merah }}</span></div></a></div>
             </div>
+        </div>
 
-            <div class="col-md-3">
-                <div class="box-detail d-flex flex-column justify-content-between text-center">
-                    <h5 class="fw-800 text-info text-uppercase">Durasi Putus</h5>
-                    <div>
-                        <div class="display-6 fw-800 text-success mb-0">{{ $zonaWarna->hijau_tua }}</div>
-                        <div class="small fw-bold opacity-50">0-30 HARI</div>
-                    </div>
-                    <div>
-                        <div class="display-6 fw-800 text-warning mb-0">{{ $zonaWarna->hijau_muda }}</div>
-                        <div class="small fw-bold opacity-50">31-90 HARI</div>
-                    </div>
-                    <div>
-                        <div class="display-6 fw-800 text-danger mb-0">{{ $zonaWarna->merah }}</div>
-                        <div class="small fw-bold opacity-50">> 90 HARI</div>
-                    </div>
-                    <div class="mt-2 p-3 rounded-4 bg-dark">
-                        <div class="small text-muted mb-1">PRODUKTIVITAS</div>
-                        <div class="h3 fw-800 text-info mb-0">{{ $ratio }}%</div>
-                    </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-0"><h6 class="m-0 fw-800 text-dark">Rekap Jenis Perkara</h6></div>
+                <div class="card-body p-0 overflow-auto" style="max-height: 500px;">
+                    <table class="table table-hover align-middle mb-0">
+                        <tbody>
+                            @foreach($rekapJenis as $item)
+                            <tr>
+                                <td class="px-4 py-3"><div class="fw-700 text-dark" style="font-size: 11px;">{{ $item->jenis }}</div></td>
+                                <td class="text-center px-4"><a href="{{ route('dashboard.detail', ['type' => 'per_jenis', 'jenis' => $item->jenis, 'tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-sm btn-light fw-800 rounded-pill px-3" style="font-size: 10px;">{{ $item->total }}</a></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="footer-bar">
-        <span><i class="fas fa-sync-alt fa-spin me-2 text-info"></i>Auto Update Aktif (5m)</span>
-        <span class="fw-700 text-white opacity-75 text-uppercase">SIAPPTA Command Center — PTA Bandung</span>
-        <span class="text-white">Update: {{ date('H:i:s') }}</span>
-    </div>
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formatYMD = (d) => d.toISOString().split('T')[0];
+        const form = document.getElementById('filterForm'), inAwal = document.getElementById('tgl_awal'), inAkhir = document.getElementById('tgl_akhir');
+        
+        document.querySelectorAll('.quick-period').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const p = this.dataset.period, today = new Date(); let start = new Date();
+                if(p === 'month') start = new Date(today.getFullYear(), today.getMonth(), 1);
+                else if(p === 'year') start = new Date(today.getFullYear(), 0, 1);
+                inAwal.value = formatYMD(start); inAkhir.value = formatYMD(today); form.submit();
+            });
+        });
 
-    <script>
-        function updateTime() {
-            const now = new Date();
-            const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', options).replace(/\./g, ':');
-            setTimeout(updateTime, 1000);
-        }
-        updateTime();
-        setTimeout(() => { location.reload(); }, 300000);
-        const box = document.getElementById('scroll-box');
-        function startScroll() {
-            box.scrollTop += 1;
-            if (box.scrollTop + box.clientHeight >= box.scrollHeight) box.scrollTop = 0;
-        }
-        setInterval(startScroll, 45);
-    </script>
-</body>
-</html>
+        form.addEventListener('submit', () => { 
+            inAwal.value = document.getElementById('display_tgl_awal').value; 
+            inAkhir.value = document.getElementById('display_tgl_akhir').value; 
+        });
+
+        new Chart(document.getElementById('chartPremium').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'],
+                datasets: [{ label: 'Putus', data: [15, 28, 22, 10, 0, 0, 0, 0, 0, 0, 0, 0], borderColor: '#4e73df', borderWidth: 3, tension: 0.4, fill: true, backgroundColor: 'rgba(78, 115, 223, 0.1)' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+    });
+</script>
+@endpush
+@endsection

@@ -178,6 +178,18 @@
             </a>
         </div>
 
+        {{-- 8. MONITORING KEDISIPLINAN USER (NEW) --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+            <a href="{{ route('input.index') }}" class="menu-card">
+                <div class="icon-box bg-dark bg-opacity-10 text-dark">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h5 class="card-title text-uppercase">Kedisiplinan User</h5>
+                <p class="card-desc">Monitoring penggunaan akun Admin vs Personal dalam penginputan data SIPP.</p>
+                <div class="btn btn-outline-dark btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+            </a>
+        </div>
+
         @else
         {{-- TAMPILAN JIKA LOGIN SEBAGAI USER BIASA --}}
         <div class="col-12 animate__animated animate__fadeIn" style="animation-delay: 0.4s">
