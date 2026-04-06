@@ -106,7 +106,7 @@
                     </button>
                 </div>
                 <div class="col-md-2 text-end">
-                    <a href="{{ route('laporan.diterima.export') }}" class="btn btn-success btn-sm w-100 shadow-sm" target="_blank">
+                    <a href="{{ route('laporan.diterima.export', ['start' => $start, 'end' => $end]) }}" class="btn btn-success btn-sm w-100 shadow-sm" target="_blank">
                         <i class="fas fa-file-excel me-1"></i> EXCEL
                     </a>
                 </div>
