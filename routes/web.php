@@ -393,5 +393,8 @@ Route::middleware(['auth'])->group(function () {
         [PerkaraTepatWaktuController::class, 'showDetail']
     )->name('perkara.tepatwaktu.detail');
 
+    // ---------------------------------------------------------------------
+    // MODUL: AMAR MONITORING
+    // ---------------------------------------------------------------------
     Route::get('/monitoring-amar', [AmarMonitoringController::class, 'index'])->name('monitoring.amar');
 });

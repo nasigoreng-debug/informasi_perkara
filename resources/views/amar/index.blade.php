@@ -3,15 +3,21 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center d-print-none">
-            <h5 class="mb-0">
-                <i class="fas fa-exclamation-triangle me-2 text-warning"></i> Monitoring Amar Putusan Tidak Lengkap
-            </h5>
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center d-print-none py-3">
             <div class="d-flex align-items-center gap-3">
+                <a href="{{ route('monitoring') }}" class="btn btn-outline-light btn-sm" title="Kembali ke Dashboard">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali
+                </a>
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2 text-warning"></i> Monitoring Amar Putusan Tidak Lengkap
+                </h5>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
                 <button onclick="window.print()" class="btn btn-danger btn-sm fw-bold shadow">
                     <i class="fas fa-print me-1"></i> CETAK LAPORAN
                 </button>
-                <div class="bg-warning text-dark px-3 py-1 rounded fw-bold">
+                <div class="bg-warning text-dark px-3 py-1 rounded fw-bold shadow-sm">
                     Total: {{ $data->count() }} Temuan
                 </div>
             </div>
@@ -59,7 +65,6 @@
                         @forelse($data as $key => $row)
                         @php
                         $amar = $row->amar_putusan;
-                        // Identifikasi jenis kesalahan
                         $isResidu = str_contains($amar, '...') ||
                         str_contains($amar, '#') ||
                         str_contains($amar, '.......');
@@ -81,7 +86,7 @@
                                 </div>
                                 @if($isResidu && !$isKosong)
                                 <div class="mt-1 text-danger fw-bold d-print-none" style="font-size: 0.75rem;">
-                                    <i class="fas fa-exclamation-triangle"></i> Terdeteksi Residu Template
+                                    <i class="fas fa-exclamation-triangle"></i> Terdeteksi Tidak Lengkap
                                 </div>
                                 @endif
                             </td>
@@ -105,7 +110,6 @@
 </div>
 
 <style>
-    /* Styling di Layar Browser */
     .bg-issue {
         background-color: #fff9e6 !important;
     }
@@ -123,7 +127,6 @@
         padding: 8px !important;
     }
 
-    /* Pengaturan Khusus Cetak (Print) */
     @media print {
         @page {
             size: A4 landscape;

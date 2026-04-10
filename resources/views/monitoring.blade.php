@@ -14,8 +14,6 @@
         --pink-custom: #e83e8c;
         --purple-custom: #6f42c1;
         --cyan-custom: #0dcaf0;
-        --brown-custom: #8B4513;
-        --navy-custom: #000080;
         --coral-custom: #ff6b6b;
     }
 
@@ -80,7 +78,7 @@
         line-height: 1.5;
     }
 
-    /* Custom Color Classes */
+    /* Custom Color Classes for Icon Boxes */
     .bg-indigo-light {
         background-color: rgba(102, 16, 242, 0.1);
         color: var(--indigo-custom);
@@ -106,123 +104,46 @@
         color: var(--purple-custom);
     }
 
-    .bg-cyan-light {
-        background-color: rgba(13, 202, 240, 0.1);
-        color: var(--cyan-custom);
-    }
-
-    .bg-brown-light {
-        background-color: rgba(139, 69, 19, 0.1);
-        color: var(--brown-custom);
-    }
-
-    .bg-navy-light {
-        background-color: rgba(0, 0, 128, 0.1);
-        color: var(--navy-custom);
-    }
-
     .bg-coral-light {
         background-color: rgba(255, 107, 107, 0.1);
         color: var(--coral-custom);
     }
 
-    .btn-indigo {
-        background-color: var(--indigo-custom);
-        border-color: var(--indigo-custom);
-        color: white;
+    /* UNIFORM BUTTON STYLES */
+    .btn-custom {
+        border: none;
+        color: white !important;
+        transition: all 0.3s ease;
     }
 
-    .btn-indigo:hover {
-        background-color: #520dc2;
-        color: white;
+    .btn-custom:hover {
+        filter: brightness(0.9);
+        transform: scale(1.02);
+    }
+
+    /* Specific Button Colors */
+    .btn-indigo {
+        background-color: var(--indigo-custom);
     }
 
     .btn-teal {
         background-color: var(--teal-custom);
-        border-color: var(--teal-custom);
-        color: white;
-    }
-
-    .btn-teal:hover {
-        background-color: #009678;
-        color: white;
     }
 
     .btn-orange {
         background-color: var(--orange-custom);
-        border-color: var(--orange-custom);
-        color: white;
-    }
-
-    .btn-orange:hover {
-        background-color: #e06a0c;
-        color: white;
     }
 
     .btn-pink {
         background-color: var(--pink-custom);
-        border-color: var(--pink-custom);
-        color: white;
-    }
-
-    .btn-pink:hover {
-        background-color: #c2185b;
-        color: white;
     }
 
     .btn-purple {
         background-color: var(--purple-custom);
-        border-color: var(--purple-custom);
-        color: white;
-    }
-
-    .btn-purple:hover {
-        background-color: #5a32a3;
-        color: white;
-    }
-
-    .btn-cyan {
-        background-color: var(--cyan-custom);
-        border-color: var(--cyan-custom);
-        color: #000;
-    }
-
-    .btn-cyan:hover {
-        background-color: #0bb5d8;
-        color: #000;
-    }
-
-    .btn-brown {
-        background-color: var(--brown-custom);
-        border-color: var(--brown-custom);
-        color: white;
-    }
-
-    .btn-brown:hover {
-        background-color: #6b3410;
-        color: white;
-    }
-
-    .btn-navy {
-        background-color: var(--navy-custom);
-        border-color: var(--navy-custom);
-        color: white;
-    }
-
-    .btn-navy:hover {
-        background-color: #000060;
-        color: white;
     }
 
     .btn-coral {
         background-color: var(--coral-custom);
-        border-color: var(--coral-custom);
-        color: white;
-    }
-
-    .btn-coral:hover {
-        background-color: #e05555;
-        color: white;
     }
 </style>
 @endpush
@@ -244,7 +165,7 @@
 <main class="main-container container px-4">
     <div class="row g-4 justify-content-center">
 
-        {{-- 1. MONITORING KASASI (PRIMARY/BLUE) --}}
+        {{-- 1. MONITORING KASASI --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp">
             <a href="{{ route('kasasi.index') }}" class="menu-card">
                 <div class="icon-box bg-primary bg-opacity-10 text-primary">
@@ -252,12 +173,12 @@
                 </div>
                 <h5 class="card-title text-uppercase">Monitoring Kasasi</h5>
                 <p class="card-desc">Informasi permohonan perkara kasasi Satker se-Jawa Barat.</p>
-                <div class="btn btn-outline-primary btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+                <div class="btn btn-primary btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
         @if(Auth::user()->canSeeAllData())
-        {{-- 2. MONITORING EKSEKUSI (INFO/CYAN) --}}
+        {{-- 2. MONITORING EKSEKUSI --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
             <a href="{{ route('laporan.eksekusi.index') }}" class="menu-card">
                 <div class="icon-box bg-info bg-opacity-10 text-info">
@@ -265,11 +186,11 @@
                 </div>
                 <h5 class="card-title text-uppercase">Monitoring Eksekusi</h5>
                 <p class="card-desc">Rekapitulasi data penyelesaian perkara eksekusi Satker se-Jawa Barat.</p>
-                <div class="btn btn-outline-info btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+                <div class="btn btn-info btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom text-white">Lihat Detail</div>
             </a>
         </div>
 
-        {{-- 3. JADWAL SIDANG (SUCCESS/GREEN) --}}
+        {{-- 3. JADWAL SIDANG --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.15s">
             <a href="{{ route('sidang.index') }}" class="menu-card">
                 <div class="icon-box bg-success bg-opacity-10 text-success">
@@ -277,11 +198,11 @@
                 </div>
                 <h5 class="card-title text-uppercase">Jadwal Sidang</h5>
                 <p class="card-desc">Informasi agenda persidangan harian di wilayah hukum PTA Bandung.</p>
-                <div class="btn btn-outline-success btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+                <div class="btn btn-success btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
-        {{-- 4. SISA PANJAR (DANGER/RED) --}}
+        {{-- 4. SISA PANJAR --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
             <a href="{{ route('sisa.panjar.menu') }}" class="menu-card">
                 <div class="icon-box bg-danger bg-opacity-10 text-danger">
@@ -289,11 +210,11 @@
                 </div>
                 <h5 class="card-title text-uppercase">Sisa Panjar</h5>
                 <p class="card-desc">Transparansi pengelolaan sisa panjar biaya perkara wilayah PTA.</p>
-                <div class="btn btn-outline-danger btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+                <div class="btn btn-danger btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
-        {{-- 5. COURT CALENDAR (WARNING/YELLOW) --}}
+        {{-- 5. COURT CALENDAR --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.25s">
             <a href="{{ route('court-calendar.') }}" class="menu-card">
                 <div class="icon-box bg-warning bg-opacity-10 text-warning">
@@ -301,11 +222,11 @@
                 </div>
                 <h5 class="card-title text-uppercase">Court Calendar</h5>
                 <p class="card-desc">Pantau kepatuhan pengisian Court Calendar pada aplikasi SIPP Satker.</p>
-                <div class="btn btn-outline-warning btn-sm rounded-pill w-100 mt-auto fw-bold text-dark">Lihat Detail</div>
+                <div class="btn btn-warning btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom text-dark">Lihat Detail</div>
             </a>
         </div>
 
-        {{-- 6. AKTA CERAI (WARNING/YELLOW - BEDA SHADE, PAKAI ORANGE) --}}
+        {{-- 6. AKTA CERAI --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
             <a href="{{ route('akta-cerai.index') }}" class="menu-card">
                 <div class="icon-box bg-orange-light">
@@ -313,11 +234,11 @@
                 </div>
                 <h5 class="card-title text-uppercase">Akta Cerai</h5>
                 <p class="card-desc">Pantau kepatuhan penerbitan akta cerai di wilayah PTA Bandung.</p>
-                <div class="btn btn-orange btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+                <div class="btn btn-orange btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
-        {{-- 7. MONITORING E-LAPORAN (INDIGO) --}}
+        {{-- 7. MONITORING E-LAPORAN --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.35s">
             <a href="{{ route('monitoring.index') }}" class="menu-card">
                 <div class="icon-box bg-indigo-light">
@@ -325,11 +246,11 @@
                 </div>
                 <h5 class="card-title text-uppercase">Monitoring E-Laporan</h5>
                 <p class="card-desc">Pantau kedisiplinan dan rangking kepatuhan 27 LIPA Satker se-Jawa Barat.</p>
-                <div class="btn btn-indigo btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+                <div class="btn btn-indigo btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
-        {{-- 8. KEDISIPLINAN USER (DARK) --}}
+        {{-- 8. KEDISIPLINAN USER --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
             <a href="{{ route('input.index') }}" class="menu-card">
                 <div class="icon-box bg-dark bg-opacity-10 text-dark">
@@ -337,11 +258,11 @@
                 </div>
                 <h5 class="card-title text-uppercase">Kedisiplinan User</h5>
                 <p class="card-desc">Monitoring penggunaan akun Admin vs Personal dalam penginputan data SIPP.</p>
-                <div class="btn btn-outline-dark btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+                <div class="btn btn-dark btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
-        {{-- 9. PERKARA TEPAT WAKTU (TEAL) --}}
+        {{-- 9. PERKARA TEPAT WAKTU --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.45s">
             <a href="{{ route('perkara.tepat_waktu') }}" class="menu-card">
                 <div class="icon-box bg-teal-light">
@@ -349,31 +270,43 @@
                 </div>
                 <h5 class="card-title text-uppercase">Perkara Tepat Waktu</h5>
                 <p class="card-desc">Monitoring penyelesaian perkara tepat waktu sesuai target yang ditentukan.</p>
-                <div class="btn btn-teal btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+                <div class="btn btn-teal btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
-        {{-- 10. KONTROL ALAMAT PIHAK (PINK) --}}
+        {{-- 10. KONTROL ALAMAT PIHAK --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
-            <a href="https://kabayan.pta-bandung.go.id/e_laporan/control_alamat" class="menu-card" target="_blank" rel="noopener noreferrer">
+            <a href="https://kabayan.pta-bandung.go.id/e_laporan/control_alamat" class="menu-card" target="_blank">
                 <div class="icon-box bg-pink-light">
                     <i class="fas fa-map-marker-alt"></i>
                 </div>
                 <h5 class="card-title text-uppercase">Kontrol Alamat Pihak</h5>
                 <p class="card-desc">Monitoring kelengkapan data alamat pihak.</p>
-                <div class="btn btn-pink btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+                <div class="btn btn-pink btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
-        {{-- 11. KONTROL DATA DISPENSASI KAWIN (PURPLE) --}}
+        {{-- 11. KONTROL DATA DISPENSASI KAWIN --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.55s">
-            <a href="https://kabayan.pta-bandung.go.id/e_laporan/control_dk" class="menu-card" target="_blank" rel="noopener noreferrer">
+            <a href="https://kabayan.pta-bandung.go.id/e_laporan/control_dk" class="menu-card" target="_blank">
                 <div class="icon-box bg-purple-light">
                     <i class="fas fa-child"></i>
                 </div>
                 <h5 class="card-title text-uppercase">Kontrol Data Dispensasi Kawin</h5>
                 <p class="card-desc">Monitoring kelengkapan data perkara dispensasi kawin.</p>
-                <div class="btn btn-purple btn-sm rounded-pill w-100 mt-auto fw-bold">Lihat Detail</div>
+                <div class="btn btn-purple btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
+            </a>
+        </div>
+
+        {{-- 12. MONITORING AMAR PUTUSAN TIDAK LENGKAP --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.6s">
+            <a href="{{ route('monitoring.amar') }}" class="menu-card">
+                <div class="icon-box bg-coral-light">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h5 class="card-title text-uppercase">Amar Putusan Tidak Lengkap</h5>
+                <p class="card-desc">Pantau residu template atau amar putusan yang belum dilengkapi Satker.</p>
+                <div class="btn btn-coral btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
