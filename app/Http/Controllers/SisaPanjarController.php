@@ -73,6 +73,7 @@ class SisaPanjarController extends Controller
         $listPerkara = DB::table('rekap_sisa_panjar')
             ->where('jenis', $jenis)
             ->where('satker_key', $satker)
+            ->distinct() // Menghilangkan baris yang semua kolomnya sama persis
             ->orderByDesc('selisih_bulan')
             ->get();
 

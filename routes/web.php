@@ -28,7 +28,9 @@ use App\Http\Controllers\{
     BankPutusanController,
     ArsipAktifController,
     MonitoringElaporanController,
-    InputDataController
+    InputDataController,
+    PerkaraTepatWaktuController,
+    AmarMonitoringController
 };
 
 /*
@@ -62,7 +64,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // 3. ROUTE PRIVAT (HARUS LOGIN TERLEBIH DAHULU)
 // =========================================================================
 Route::middleware(['auth'])->group(function () {
-
     // ---------------------------------------------------------------------
     // HALAMAN UTAMA & NAVIGASI
     // ---------------------------------------------------------------------
@@ -221,7 +222,6 @@ Route::middleware(['auth'])->group(function () {
     // MODUL: LAPORAN BANDING (RK1 & RK2)
     // ---------------------------------------------------------------------
     Route::prefix('laporan/banding')->name('laporan.banding.')->group(function () {
-
         // RK1 - Perkara Banding yang Diterima
         Route::controller(RK1Controller::class)->group(function () {
             Route::get('/diterima', 'index')->name('diterima');
@@ -383,4 +383,15 @@ Route::middleware(['auth'])->group(function () {
     // ---------------------------------------------------------------------
     Route::get('/input-perkara', [InputDataController::class, 'index'])->name('input.index');
     Route::get('/input-perkara/detail', [InputDataController::class, 'detail'])->name('input.detail');
+
+    // ---------------------------------------------------------------------
+    // MODUL: PERKARA TEPAT WAKTU
+    // ---------------------------------------------------------------------
+    Route::get('/perkara-tepat-waktu', [PerkaraTepatWaktuController::class, 'index'])->name('perkara.tepat_waktu');
+    Route::get(
+        '/laporan/perkara-tepat-waktu/detail/{koneksi_satker}',
+        [PerkaraTepatWaktuController::class, 'showDetail']
+    )->name('perkara.tepatwaktu.detail');
+
+    Route::get('/monitoring-amar', [AmarMonitoringController::class, 'index'])->name('monitoring.amar');
 });
