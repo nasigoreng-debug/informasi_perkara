@@ -30,7 +30,8 @@ use App\Http\Controllers\{
     MonitoringElaporanController,
     InputDataController,
     PerkaraTepatWaktuController,
-    AmarMonitoringController
+    AmarMonitoringController,
+    MediasiController
 };
 
 /*
@@ -397,4 +398,10 @@ Route::middleware(['auth'])->group(function () {
     // MODUL: AMAR MONITORING
     // ---------------------------------------------------------------------
     Route::get('/monitoring-amar', [AmarMonitoringController::class, 'index'])->name('monitoring.amar');
+
+    // ---------------------------------------------------------------------
+    // MODUL: MEDIASI
+    // ---------------------------------------------------------------------
+    Route::get('/mediasi', [MediasiController::class, 'index'])->name('mediasi.index');
+    Route::get('/mediasi/export', [MediasiController::class, 'export'])->name('mediasi.export');
 });

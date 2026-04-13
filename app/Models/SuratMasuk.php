@@ -6,11 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class SuratMasuk extends Model
 {
-    // Nama koneksi harus sama dengan kunci di config/database.php
     protected $connection = 'db_pm_hukum';
     protected $table = 'tb_surat_masuk';
-
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'no_indeks',
@@ -22,6 +20,20 @@ class SuratMasuk extends Model
         'keterangan',
         'tgl_masuk_pan',
         'tgl_masuk_umum',
-        'lampiran'
+        'lampiran',
+        'created_by',
+        'updated_by'
     ];
+
+    // Relasi ke User (pembuat)
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    // Relasi ke User (terakhir diupdate)
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SuratMasuk;
 use App\Models\ActivityLog;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -39,7 +40,7 @@ class SuratMasukController extends Controller
      */
     public function index(Request $request)
     {
-        $query = SuratMasuk::query();
+        $query = SuratMasuk::with(['creator', 'updater']);
         $isFiltering = $request->filled('search') || ($request->filled('from_date') && $request->filled('to_date'));
 
         if ($request->filled('search')) {
@@ -71,32 +72,37 @@ class SuratMasukController extends Controller
 
     public function create()
     {
-        // Tetap ambil saran indeks terakhir, tapi user bebas ubah di form
         $lastSurat = SuratMasuk::orderBy('id', 'desc')->first();
         $nextIndeks = $lastSurat ? (int)$lastSurat->no_indeks + 1 : 1;
+        $users = User::orderBy('name')->get();
 
-        return view('surat.surat_masuk.create', compact('nextIndeks'));
+        return view('surat.surat_masuk.create', compact('nextIndeks', 'users'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'no_indeks'  => 'required', // Validasi UNIQUE DIHAPUS agar BEBAS
+            'no_indeks'  => 'required',
             'no_surat'   => 'required',
+            'tgl_masuk_pan'   => 'required|date',
+            'tgl_masuk_umum'   => 'required|date',
             'tgl_surat'  => 'required|date',
             'asal_surat' => 'required',
             'perihal'    => 'required',
+            'disposisi'    => 'required',
+            'keterangan'    => 'required',
             'lampiran'   => 'nullable|mimes:pdf,docx,jpg,png|max:10240'
         ]);
 
         if ($request->hasFile('lampiran')) {
             $file = $request->file('lampiran');
-            $filename = time() . '_' . Str::slug($request->no_surat) . '.' . $file->getClientOriginalExtension();
-
-            // Simpan ke storage/app/public/surat_masuk
+            $filename = uniqid() . '_' . Str::slug($request->no_surat) . '.' . $file->getClientOriginalExtension();
             $file->storeAs('surat_masuk', $filename, 'public');
             $validated['lampiran'] = $filename;
         }
+
+        $validated['created_by'] = auth()->id();
+        $validated['updated_by'] = auth()->id();
 
         $surat = SuratMasuk::create($validated);
 
@@ -107,8 +113,10 @@ class SuratMasukController extends Controller
 
     public function edit($id)
     {
-        $surat = SuratMasuk::findOrFail($id);
-        return view('surat.surat_masuk.edit', compact('surat'));
+        $surat = SuratMasuk::with(['creator', 'updater'])->findOrFail($id);
+        $users = User::orderBy('name')->get();
+
+        return view('surat.surat_masuk.edit', compact('surat', 'users'));
     }
 
     public function update(Request $request, $id)
@@ -116,27 +124,29 @@ class SuratMasukController extends Controller
         $surat = SuratMasuk::findOrFail($id);
 
         $validated = $request->validate([
-            'no_indeks'  => 'required', // Validasi UNIQUE DIHAPUS agar BEBAS
+            'no_indeks'  => 'required',
             'no_surat'   => 'required',
+            'tgl_masuk_pan'   => 'required|date',
+            'tgl_masuk_umum'   => 'required|date',
             'tgl_surat'  => 'required|date',
             'asal_surat' => 'required',
             'perihal'    => 'required',
+            'disposisi'    => 'required',
+            'keterangan'    => 'required',
             'lampiran'   => 'nullable|mimes:pdf,docx,jpg,png|max:10240'
         ]);
 
         if ($request->hasFile('lampiran')) {
-            // Hapus file lama jika ada
             if ($surat->lampiran) {
                 Storage::disk('public')->delete('surat_masuk/' . $surat->lampiran);
             }
-
             $file = $request->file('lampiran');
-            $filename = time() . '_' . Str::slug($request->no_surat) . '.' . $file->getClientOriginalExtension();
+            $filename = uniqid() . '_' . Str::slug($request->no_surat) . '.' . $file->getClientOriginalExtension();
             $file->storeAs('surat_masuk', $filename, 'public');
-
             $validated['lampiran'] = $filename;
         }
 
+        $validated['updated_by'] = auth()->id();
         $surat->update($validated);
 
         ActivityLog::record('Update Surat Masuk', 'SuratMasuk', "Mengubah data surat No: {$surat->no_surat}");

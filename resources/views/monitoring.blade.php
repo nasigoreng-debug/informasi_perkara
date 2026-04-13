@@ -15,6 +15,8 @@
         --purple-custom: #6f42c1;
         --cyan-custom: #0dcaf0;
         --coral-custom: #ff6b6b;
+        --mint-custom: #00d2d3;
+        /* Warna Baru untuk Mediasi */
     }
 
     .hero-header {
@@ -78,7 +80,29 @@
         line-height: 1.5;
     }
 
-    /* Custom Color Classes for Icon Boxes */
+    /* Custom Color Classes */
+    .bg-mint-light {
+        background-color: rgba(0, 210, 211, 0.1);
+        color: var(--mint-custom);
+    }
+
+    .btn-mint {
+        background-color: var(--mint-custom);
+        color: white !important;
+    }
+
+    .btn-custom {
+        border: none;
+        color: white !important;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        filter: brightness(0.9);
+        transform: scale(1.02);
+    }
+
+    /* Re-use existing classes from your snippet */
     .bg-indigo-light {
         background-color: rgba(102, 16, 242, 0.1);
         color: var(--indigo-custom);
@@ -109,19 +133,6 @@
         color: var(--coral-custom);
     }
 
-    /* UNIFORM BUTTON STYLES */
-    .btn-custom {
-        border: none;
-        color: white !important;
-        transition: all 0.3s ease;
-    }
-
-    .btn-custom:hover {
-        filter: brightness(0.9);
-        transform: scale(1.02);
-    }
-
-    /* Specific Button Colors */
     .btn-indigo {
         background-color: var(--indigo-custom);
     }
@@ -178,6 +189,7 @@
         </div>
 
         @if(Auth::user()->canSeeAllData())
+
         {{-- 2. MONITORING EKSEKUSI --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
             <a href="{{ route('laporan.eksekusi.index') }}" class="menu-card">
@@ -202,8 +214,20 @@
             </a>
         </div>
 
-        {{-- 4. SISA PANJAR --}}
+        {{-- 4. MONITORING MEDIASI (MENU BARU) --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+            <a href="{{ route('mediasi.index') }}" class="menu-card">
+                <div class="icon-box bg-mint-light">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+                <h5 class="card-title text-uppercase">Monitoring Mediasi</h5>
+                <p class="card-desc">Rekapitulasi keberhasilan mediasi dan kinerja mediator Satker se-Jawa Barat.</p>
+                <div class="btn btn-mint btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
+            </a>
+        </div>
+
+        {{-- 5. SISA PANJAR --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.25s">
             <a href="{{ route('sisa.panjar.menu') }}" class="menu-card">
                 <div class="icon-box bg-danger bg-opacity-10 text-danger">
                     <i class="fas fa-wallet"></i>
@@ -214,8 +238,8 @@
             </a>
         </div>
 
-        {{-- 5. COURT CALENDAR --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.25s">
+        {{-- 6. COURT CALENDAR --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
             <a href="{{ route('court-calendar.') }}" class="menu-card">
                 <div class="icon-box bg-warning bg-opacity-10 text-warning">
                     <i class="fas fa-tasks"></i>
@@ -226,8 +250,8 @@
             </a>
         </div>
 
-        {{-- 6. AKTA CERAI --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+        {{-- 7. AKTA CERAI --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.35s">
             <a href="{{ route('akta-cerai.index') }}" class="menu-card">
                 <div class="icon-box bg-orange-light">
                     <i class="fas fa-certificate"></i>
@@ -238,8 +262,8 @@
             </a>
         </div>
 
-        {{-- 7. MONITORING E-LAPORAN --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.35s">
+        {{-- 8. MONITORING E-LAPORAN --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
             <a href="{{ route('monitoring.index') }}" class="menu-card">
                 <div class="icon-box bg-indigo-light">
                     <i class="fas fa-chart-line"></i>
@@ -250,8 +274,8 @@
             </a>
         </div>
 
-        {{-- 8. KEDISIPLINAN USER --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+        {{-- 9. KEDISIPLINAN USER --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.45s">
             <a href="{{ route('input.index') }}" class="menu-card">
                 <div class="icon-box bg-dark bg-opacity-10 text-dark">
                     <i class="fas fa-user-shield"></i>
@@ -262,8 +286,8 @@
             </a>
         </div>
 
-        {{-- 9. PERKARA TEPAT WAKTU --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.45s">
+        {{-- 10. PERKARA TEPAT WAKTU --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
             <a href="{{ route('perkara.tepat_waktu') }}" class="menu-card">
                 <div class="icon-box bg-teal-light">
                     <i class="fas fa-stopwatch"></i>
@@ -274,32 +298,32 @@
             </a>
         </div>
 
-        {{-- 10. KONTROL ALAMAT PIHAK --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
+        {{-- 11. KONTROL ALAMAT PIHAK --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.55s">
             <a href="https://kabayan.pta-bandung.go.id/e_laporan/control_alamat" class="menu-card" target="_blank">
                 <div class="icon-box bg-pink-light">
                     <i class="fas fa-map-marker-alt"></i>
                 </div>
                 <h5 class="card-title text-uppercase">Kontrol Alamat Pihak</h5>
-                <p class="card-desc">Monitoring kelengkapan data alamat pihak.</p>
+                <p class="card-desc">Monitoring kelengkapan data alamat pihak pada aplikasi SIPP.</p>
                 <div class="btn btn-pink btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
-        {{-- 11. KONTROL DATA DISPENSASI KAWIN --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.55s">
+        {{-- 12. KONTROL DATA DISPENSASI KAWIN --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.6s">
             <a href="https://kabayan.pta-bandung.go.id/e_laporan/control_dk" class="menu-card" target="_blank">
                 <div class="icon-box bg-purple-light">
                     <i class="fas fa-child"></i>
                 </div>
                 <h5 class="card-title text-uppercase">Kontrol Data Dispensasi Kawin</h5>
-                <p class="card-desc">Monitoring kelengkapan data perkara dispensasi kawin.</p>
+                <p class="card-desc">Monitoring kelengkapan data perkara dispensasi kawin secara berkala.</p>
                 <div class="btn btn-purple btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
-        {{-- 12. MONITORING AMAR PUTUSAN TIDAK LENGKAP --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.6s">
+        {{-- 13. MONITORING AMAR PUTUSAN TIDAK LENGKAP --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.65s">
             <a href="{{ route('monitoring.amar') }}" class="menu-card">
                 <div class="icon-box bg-coral-light">
                     <i class="fas fa-exclamation-triangle"></i>

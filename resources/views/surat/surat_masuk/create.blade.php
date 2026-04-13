@@ -26,30 +26,78 @@
                                     <span class="badge badge-soft-primary mb-2">Langkah 1</span>
                                     <h6 class="font-weight-bold text-dark text-uppercase letter-spacing-1">Identitas Surat</h6>
                                 </div>
-                                
+
                                 <div class="form-group mb-4">
-                                    <label class="label-modern">Nomor Indeks</label>
+                                    <label class="label-modern">Nomor Indeks <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text bg-light border-right-0"><i class="fas fa-hashtag text-muted"></i></span>
                                         </div>
-                                        <input type="number" name="no_indeks" class="form-control modern-input" value="{{ $nextIndeks }}" required>
+                                        <input type="number" name="no_indeks" class="form-control modern-input @error('no_indeks') is-invalid @enderror" value="{{ old('no_indeks', $nextIndeks) }}" required>
                                     </div>
+                                    <small class="text-muted form-text">*Indeks bebas, bisa diisi sesuai kebutuhan</small>
+                                    @error('no_indeks')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="form-group mb-4">
-                                    <label class="label-modern">Nomor Surat Resmi</label>
-                                    <input type="text" name="no_surat" class="form-control modern-input shadow-none" placeholder="Contoh: W10-A/123/HK.05/I/2026" required>
+                                    <label class="label-modern">Nomor Surat Resmi <span class="text-danger">*</span></label>
+                                    <input type="text" name="no_surat" class="form-control modern-input @error('no_surat') is-invalid @enderror" value="{{ old('no_surat') }}" placeholder="Contoh: W10-A/123/HK.05/I/2026" required>
+                                    @error('no_surat')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="form-group mb-4">
-                                    <label class="label-modern">Tanggal Surat</label>
-                                    <input type="date" name="tgl_surat" class="form-control modern-input" value="{{ date('Y-m-d') }}" required>
+                                    <label class="label-modern">Tanggal Surat <span class="text-danger">*</span></label>
+                                    <input type="date" name="tgl_surat" class="form-control modern-input @error('tgl_surat') is-invalid @enderror" value="{{ old('tgl_surat', date('Y-m-d')) }}" required>
+                                    @error('tgl_surat')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="label-modern">Asal Instansi</label>
-                                    <input type="text" name="asal_surat" class="form-control modern-input" placeholder="Nama Instansi Pengirim" required>
+                                    <label class="label-modern">Asal Instansi <span class="text-danger">*</span></label>
+                                    <select name="asal_surat" class="form-control modern-input @error('asal_surat') is-invalid @enderror" required>
+                                        <option value="">--Pilih Instansi Asal--</option>
+                                        <option value="Advokat" {{ old('asal_surat') == 'Advokat' ? 'selected' : '' }}>Advokat</option>
+                                        <option value="Badan Pengawasan MA RI" {{ old('asal_surat') == 'Badan Pengawasan MA RI' ? 'selected' : '' }}>Badan Pengawasan MA RI</option>
+                                        <option value="Pengadilan Agama Bandung" {{ old('asal_surat') == 'Pengadilan Agama Bandung' ? 'selected' : '' }}>Pengadilan Agama Bandung</option>
+                                        <option value="Pengadilan Agama Bekasi" {{ old('asal_surat') == 'Pengadilan Agama Bekasi' ? 'selected' : '' }}>Pengadilan Agama Bekasi</option>
+                                        <option value="Pengadilan Agama Bogor" {{ old('asal_surat') == 'Pengadilan Agama Bogor' ? 'selected' : '' }}>Pengadilan Agama Bogor</option>
+                                        <option value="Pengadilan Agama Ciamis" {{ old('asal_surat') == 'Pengadilan Agama Ciamis' ? 'selected' : '' }}>Pengadilan Agama Ciamis</option>
+                                        <option value="Pengadilan Agama Cianjur" {{ old('asal_surat') == 'Pengadilan Agama Cianjur' ? 'selected' : '' }}>Pengadilan Agama Cianjur</option>
+                                        <option value="Pengadilan Agama Cibadak" {{ old('asal_surat') == 'Pengadilan Agama Cibadak' ? 'selected' : '' }}>Pengadilan Agama Cibadak</option>
+                                        <option value="Pengadilan Agama Cibinong" {{ old('asal_surat') == 'Pengadilan Agama Cibinong' ? 'selected' : '' }}>Pengadilan Agama Cibinong</option>
+                                        <option value="Pengadilan Agama Cikarang" {{ old('asal_surat') == 'Pengadilan Agama Cikarang' ? 'selected' : '' }}>Pengadilan Agama Cikarang</option>
+                                        <option value="Pengadilan Agama Cimahi" {{ old('asal_surat') == 'Pengadilan Agama Cimahi' ? 'selected' : '' }}>Pengadilan Agama Cimahi</option>
+                                        <option value="Pengadilan Agama Cirebon" {{ old('asal_surat') == 'Pengadilan Agama Cirebon' ? 'selected' : '' }}>Pengadilan Agama Cirebon</option>
+                                        <option value="Pengadilan Agama Depok" {{ old('asal_surat') == 'Pengadilan Agama Depok' ? 'selected' : '' }}>Pengadilan Agama Depok</option>
+                                        <option value="Pengadilan Agama Direktorat Jenderal Badan Peradilan Agama" {{ old('asal_surat') == 'Pengadilan Agama Direktorat Jenderal Badan Peradilan Agama' ? 'selected' : '' }}>Pengadilan Agama Direktorat Jenderal Badan Peradilan Agama</option>
+                                        <option value="Pengadilan Agama Garut" {{ old('asal_surat') == 'Pengadilan Agama Garut' ? 'selected' : '' }}>Pengadilan Agama Garut</option>
+                                        <option value="Pengadilan Agama Indramayu" {{ old('asal_surat') == 'Pengadilan Agama Indramayu' ? 'selected' : '' }}>Pengadilan Agama Indramayu</option>
+                                        <option value="Pengadilan Agama Instansi Lain" {{ old('asal_surat') == 'Pengadilan Agama Instansi Lain' ? 'selected' : '' }}>Pengadilan Agama Instansi Lain</option>
+                                        <option value="Pengadilan Agama Karawang" {{ old('asal_surat') == 'Pengadilan Agama Karawang' ? 'selected' : '' }}>Pengadilan Agama Karawang</option>
+                                        <option value="Pengadilan Agama Kota Banjar" {{ old('asal_surat') == 'Pengadilan Agama Kota Banjar' ? 'selected' : '' }}>Pengadilan Agama Kota Banjar</option>
+                                        <option value="Pengadilan Agama Kota Tasikmalaya" {{ old('asal_surat') == 'Pengadilan Agama Kota Tasikmalaya' ? 'selected' : '' }}>Pengadilan Agama Kota Tasikmalaya</option>
+                                        <option value="Pengadilan Agama Kuningan" {{ old('asal_surat') == 'Pengadilan Agama Kuningan' ? 'selected' : '' }}>Pengadilan Agama Kuningan</option>
+                                        <option value="Pengadilan Agama Lain-lain" {{ old('asal_surat') == 'Pengadilan Agama Lain-lain' ? 'selected' : '' }}>Pengadilan Agama Lain-lain</option>
+                                        <option value="Pengadilan Agama Mahkamah Agung Republik Indonesia" {{ old('asal_surat') == 'Pengadilan Agama Mahkamah Agung Republik Indonesia' ? 'selected' : '' }}>Pengadilan Agama Mahkamah Agung Republik Indonesia</option>
+                                        <option value="Pengadilan Agama Majalengka" {{ old('asal_surat') == 'Pengadilan Agama Majalengka' ? 'selected' : '' }}>Pengadilan Agama Majalengka</option>
+                                        <option value="Pengadilan Agama Ngamprah" {{ old('asal_surat') == 'Pengadilan Agama Ngamprah' ? 'selected' : '' }}>Pengadilan Agama Ngamprah</option>
+                                        <option value="Pengadilan Agama Prinsipal" {{ old('asal_surat') == 'Pengadilan Agama Prinsipal' ? 'selected' : '' }}>Pengadilan Agama Prinsipal</option>
+                                        <option value="Pengadilan Agama Purwakarta" {{ old('asal_surat') == 'Pengadilan Agama Purwakarta' ? 'selected' : '' }}>Pengadilan Agama Purwakarta</option>
+                                        <option value="Pengadilan Agama Soreang" {{ old('asal_surat') == 'Pengadilan Agama Soreang' ? 'selected' : '' }}>Pengadilan Agama Soreang</option>
+                                        <option value="Pengadilan Agama Subang" {{ old('asal_surat') == 'Pengadilan Agama Subang' ? 'selected' : '' }}>Pengadilan Agama Subang</option>
+                                        <option value="Pengadilan Agama Sukabumi" {{ old('asal_surat') == 'Pengadilan Agama Sukabumi' ? 'selected' : '' }}>Pengadilan Agama Sukabumi</option>
+                                        <option value="Pengadilan Agama Sumber" {{ old('asal_surat') == 'Pengadilan Agama Sumber' ? 'selected' : '' }}>Pengadilan Agama Sumber</option>
+                                        <option value="Pengadilan Agama Sumedang" {{ old('asal_surat') == 'Pengadilan Agama Sumedang' ? 'selected' : '' }}>Pengadilan Agama Sumedang</option>
+                                        <option value="Pengadilan Agama Tasikmalaya" {{ old('asal_surat') == 'Pengadilan Agama Tasikmalaya' ? 'selected' : '' }}>Pengadilan Agama Tasikmalaya</option>
+                                    </select>
+                                    @error('asal_surat')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
 
@@ -60,24 +108,34 @@
                                 </div>
 
                                 <div class="form-group mb-4">
-                                    <label class="label-modern text-info">Tgl Masuk Bag. Umum</label>
-                                    <input type="date" name="tgl_masuk_umum" class="form-control modern-input border-info-soft" value="{{ date('Y-m-d') }}">
+                                    <label class="label-modern text-info">Tgl Masuk Bag. Umum <span class="text-danger">*</span></label>
+                                    <input type="date" name="tgl_masuk_umum" class="form-control modern-input @error('tgl_masuk_umum') is-invalid @enderror" value="{{ old('tgl_masuk_umum', date('Y-m-d')) }}" required>
+                                    @error('tgl_masuk_umum')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="form-group mb-4">
-                                    <label class="label-modern">Tgl Masuk Kepaniteraan</label>
-                                    <input type="date" name="tgl_masuk_pan" class="form-control modern-input">
+                                    <label class="label-modern">Tgl Masuk Kepaniteraan <span class="text-danger">*</span></label>
+                                    <input type="date" name="tgl_masuk_pan" class="form-control modern-input @error('tgl_masuk_pan') is-invalid @enderror" value="{{ old('tgl_masuk_pan', date('Y-m-d')) }}" required>
+                                    @error('tgl_masuk_pan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="label-modern">Tujuan Disposisi</label>
-                                    <select name="disposisi" class="form-control modern-input select-custom">
-                                        <option value="">Pilih Pejabat...</option>
-                                        <option value="Ketua">Ketua</option>
-                                        <option value="Wakil Ketua">Wakil Ketua</option>
-                                        <option value="Panitera">Panitera</option>
-                                        <option value="Sekretaris">Sekretaris</option>
+                                    <label class="label-modern">Tujuan Disposisi <span class="text-danger">*</span></label>
+                                    <select name="disposisi" class="form-control modern-input @error('disposisi') is-invalid @enderror" required>
+                                        <option value="">--Pilih--</option>
+                                        @foreach ($users as $user)
+                                        <option value="{{ $user->name }}" {{ old('disposisi') == $user->name ? 'selected' : '' }}>
+                                            {{ $user->name }}
+                                        </option>
+                                        @endforeach
                                     </select>
+                                    @error('disposisi')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
 
@@ -88,25 +146,35 @@
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <label class="label-modern">Perihal / Ringkasan</label>
-                                    <textarea name="perihal" class="form-control modern-input no-resize" rows="3" placeholder="Apa inti dari surat ini?" required></textarea>
+                                    <label class="label-modern">Perihal / Ringkasan <span class="text-danger">*</span></label>
+                                    <textarea name="perihal" class="form-control modern-input no-resize @error('perihal') is-invalid @enderror" rows="3" placeholder="Apa inti dari surat ini?" required>{{ old('perihal') }}</textarea>
+                                    @error('perihal')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="form-group mb-4">
-                                    <label class="label-modern">Catatan / Keterangan</label>
-                                    <textarea name="keterangan" class="form-control modern-input no-resize" rows="2" placeholder="Catatan tambahan jika ada..."></textarea>
+                                    <label class="label-modern">Catatan / Keterangan <span class="text-danger">*</span></label>
+                                    <textarea name="keterangan" class="form-control modern-input no-resize @error('keterangan') is-invalid @enderror" rows="2" placeholder="Catatan tambahan jika ada..." required>{{ old('keterangan') }}</textarea>
+                                    @error('keterangan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="form-group mb-0">
-                                    <label class="label-modern">Dokumen Digital (PDF)</label>
+                                    <label class="label-modern">Dokumen Digital (PDF/Image) <span class="text-muted">(Opsional)</span></label>
                                     <div id="drop-area" class="upload-container d-flex flex-column align-items-center justify-content-center">
                                         <div class="upload-icon mb-2">
-                                            <i class="fas fa-file-pdf fa-2x text-danger"></i>
+                                            <i class="fas fa-cloud-upload-alt fa-2x text-primary"></i>
                                         </div>
-                                        <p class="small font-weight-bold mb-1" id="file-name text-dark">Tarik file ke sini</p>
+                                        <p class="small font-weight-bold mb-1 text-dark" id="file-name-text">Tarik file ke sini</p>
                                         <p class="text-muted mb-0" style="font-size: 10px;">Atau klik untuk pilih file</p>
                                         <input type="file" name="lampiran" id="file-input" class="d-none" accept=".pdf,.jpg,.jpeg,.png">
                                     </div>
+                                    <small class="text-muted form-text">Max 10MB (PDF, JPG, PNG)</small>
+                                    @error('lampiran')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -116,7 +184,7 @@
                                 <i class="fas fa-info-circle mr-1"></i> Data yang disimpan akan otomatis masuk ke buku register digital.
                             </div>
                             <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-lg fw-bold hover-lift">
-                                <i class="fas fa-save mr-2"></i> Simpan Arsip
+                                <i class="fas fa-save mr-2"></i> Simpan
                             </button>
                         </div>
                     </form>
@@ -133,9 +201,14 @@
         --border-color: #e3e6f0;
     }
 
-    .rounded-xl { border-radius: 1.25rem !important; }
-    .bg-gradient-primary { background: var(--primary-gradient); }
-    
+    .rounded-xl {
+        border-radius: 1.25rem !important;
+    }
+
+    .bg-gradient-primary {
+        background: var(--primary-gradient);
+    }
+
     .border-right-dashed {
         border-right: 1px dashed var(--border-color);
     }
@@ -165,9 +238,24 @@
         box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1);
     }
 
-    .badge-soft-primary { background: #e8ebf8; color: #4e73df; }
-    .badge-soft-info { background: #e0f2f1; color: #00897b; }
-    .badge-soft-success { background: #e8f5e9; color: #2e7d32; }
+    .modern-input.is-invalid {
+        border-color: #e74a3b;
+    }
+
+    .badge-soft-primary {
+        background: #e8ebf8;
+        color: #4e73df;
+    }
+
+    .badge-soft-info {
+        background: #e0f2f1;
+        color: #00897b;
+    }
+
+    .badge-soft-success {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
 
     .upload-container {
         border: 2px dashed #d1d3e2;
@@ -181,6 +269,11 @@
     .upload-container:hover {
         background: #f1f4ff;
         border-color: #4e73df;
+    }
+
+    .upload-container.has-file {
+        background: #e8f5e9;
+        border-color: #2e7d32;
     }
 
     .btn-glass {
@@ -199,22 +292,70 @@
         transform: translateY(-2px);
     }
 
-    .no-resize { resize: none; }
-    
+    .no-resize {
+        resize: none;
+    }
+
+    .bg-soft-light {
+        background: #f8f9fc;
+    }
+
     @media (max-width: 768px) {
-        .border-right-dashed { border-right: none; border-bottom: 1px dashed var(--border-color); margin-bottom: 2rem; padding-bottom: 2rem; }
+        .border-right-dashed {
+            border-right: none;
+            border-bottom: 1px dashed var(--border-color);
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+        }
     }
 </style>
 
 <script>
-    document.getElementById('drop-area').onclick = function() {
-        document.getElementById('file-input').click();
+    // Drag & Drop file upload
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    const fileNameText = document.getElementById('file-name-text');
+
+    dropArea.onclick = function() {
+        fileInput.click();
     };
 
-    document.getElementById('file-input').onchange = function() {
-        let name = this.files[0].name;
-        document.querySelector('#drop-area p').innerText = name;
-        document.getElementById('drop-area').classList.add('bg-soft-primary');
+    fileInput.onchange = function() {
+        if (this.files && this.files[0]) {
+            let fileName = this.files[0].name;
+            fileNameText.innerText = fileName;
+            dropArea.classList.add('has-file');
+        } else {
+            fileNameText.innerText = 'Tarik file ke sini';
+            dropArea.classList.remove('has-file');
+        }
     };
+
+    // Drag & Drop events
+    dropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropArea.style.background = '#f1f4ff';
+        dropArea.style.borderColor = '#4e73df';
+    });
+
+    dropArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropArea.style.background = '#fdfdfd';
+        dropArea.style.borderColor = '#d1d3e2';
+    });
+
+    dropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropArea.style.background = '#fdfdfd';
+        dropArea.style.borderColor = '#d1d3e2';
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            let fileName = files[0].name;
+            fileNameText.innerText = fileName;
+            dropArea.classList.add('has-file');
+        }
+    });
 </script>
 @endsection
