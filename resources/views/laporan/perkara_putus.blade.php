@@ -47,7 +47,6 @@
         padding-left: 5px !important;
     }
 
-    /* Style Notif Terakhir Sinkron */
     .sync-pill {
         display: inline-flex;
         align-items: center;
@@ -69,7 +68,6 @@
                     Periode: {{ \Carbon\Carbon::parse($start)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($end)->format('d/m/Y') }}
                 </small>
 
-                {{-- Logika Penarikan Waktu Terakhir Sinkron --}}
                 @php
                 $lastSync = \DB::table('sync_logs')
                 ->where('modul', 'like', '%rk4%')
@@ -105,12 +103,9 @@
                     <button type="submit" class="btn btn-dark btn-sm px-4 shadow-sm">
                         <i class="fas fa-filter me-1"></i> FILTER
                     </button>
-
-                    {{-- TOMBOL RESET FILTER --}}
                     <a href="{{ route('laporan.diputus.index') }}" class="btn btn-outline-secondary btn-sm px-3 shadow-sm bg-white">
-                        <i class="fas fa-undo me-1"></i> RESET FILTER
+                        <i class="fas fa-undo me-1"></i> RESET
                     </a>
-
                     <button type="button" onclick="window.print()" class="btn btn-outline-danger btn-sm px-3 shadow-sm bg-white">
                         <i class="fas fa-print me-1"></i> CETAK
                     </button>
@@ -134,11 +129,14 @@
                     <th rowspan="2" class="v-text">DITERIMA BULAN INI</th>
                     <th rowspan="2" class="v-text bg-kuning">JUMLAH (BEBAN)</th>
                     <th rowspan="2" class="v-text">DICABUT</th>
+                    <th rowspan="2" class="v-text">DISMISSAL</th>
                     <th colspan="{{ count($jenisPerkara) }}">DIKABULKAN (PER JENIS PERKARA)</th>
                     <th rowspan="2" class="v-text">DITOLAK</th>
                     <th rowspan="2" class="v-text">TIDAK DITERIMA (NO)</th>
                     <th rowspan="2" class="v-text">GUGUR</th>
+                    <th rowspan="2" class="v-text">DIGUGURKAN</th>
                     <th rowspan="2" class="v-text">DICORET DARI REGISTER</th>
+                    <th rowspan="2" class="v-text">PERDAMAIAN</th>
                     <th rowspan="2" class="v-text bg-primary text-white">JUMLAH PUTUS</th>
                     <th rowspan="2" class="v-text bg-danger text-white">SISA AKHIR</th>
                 </tr>
@@ -150,9 +148,9 @@
             </thead>
             <tbody>
                 @php
-                $t_sisa_lalu = 0; $t_terima = 0; $t_beban = 0; $t_cabut = 0;
+                $t_sisa_lalu = 0; $t_terima = 0; $t_beban = 0; $t_cabut = 0; $t_dismissal = 0;
                 $t_kabul = array_fill_keys(array_keys($jenisPerkara), 0);
-                $t_tolak = 0; $t_no = 0; $t_gugur = 0; $t_coret = 0; $t_putus = 0; $t_akhir = 0;
+                $t_tolak = 0; $t_no = 0; $t_gugur = 0; $t_digugurkan = 0; $t_coret = 0; $t_damai = 0; $t_putus = 0; $t_akhir = 0;
                 @endphp
 
                 @foreach($laporan as $row)
@@ -162,7 +160,10 @@
                     <td>{{ $row->sisa_tahun_lalu > 0 ? number_format($row->sisa_tahun_lalu) : '-' }}</td>
                     <td>{{ $row->diterima > 0 ? number_format($row->diterima) : '-' }}</td>
                     <td class="bg-kuning fw-bold text-dark">{{ $row->beban > 0 ? number_format($row->beban) : '-' }}</td>
+
+                    {{-- Status Putus --}}
                     <td>{{ $row->dicabut > 0 ? number_format($row->dicabut) : '-' }}</td>
+                    <td>{{ $row->dismissal > 0 ? number_format($row->dismissal) : '-' }}</td>
 
                     @foreach($jenisPerkara as $key => $label)
                     @php $t_kabul[$key] += ($row->$key ?? 0); @endphp
@@ -172,14 +173,27 @@
                     <td>{{ $row->ditolak > 0 ? number_format($row->ditolak) : '-' }}</td>
                     <td>{{ $row->tidak_diterima > 0 ? number_format($row->tidak_diterima) : '-' }}</td>
                     <td>{{ $row->gugur > 0 ? number_format($row->gugur) : '-' }}</td>
+                    <td>{{ $row->digugurkan > 0 ? number_format($row->digugurkan) : '-' }}</td>
                     <td>{{ $row->dicoret > 0 ? number_format($row->dicoret) : '-' }}</td>
+                    <td>{{ $row->perdamaian > 0 ? number_format($row->perdamaian) : '-' }}</td>
+
                     <td class="bg-primary bg-opacity-10 fw-bold">{{ number_format($row->jml) }}</td>
                     <td class="bg-danger bg-opacity-10 fw-bold">{{ number_format($row->sisa) }}</td>
                 </tr>
                 @php
-                $t_sisa_lalu += $row->sisa_tahun_lalu; $t_terima += $row->diterima; $t_beban += $row->beban;
-                $t_cabut += $row->dicabut; $t_tolak += $row->ditolak; $t_no += $row->tidak_diterima;
-                $t_gugur += $row->gugur; $t_coret += $row->dicoret; $t_putus += $row->jml; $t_akhir += $row->sisa;
+                $t_sisa_lalu += $row->sisa_tahun_lalu;
+                $t_terima += $row->diterima;
+                $t_beban += $row->beban;
+                $t_cabut += $row->dicabut;
+                $t_dismissal += $row->dismissal;
+                $t_tolak += $row->ditolak;
+                $t_no += $row->tidak_diterima;
+                $t_gugur += $row->gugur;
+                $t_digugurkan += $row->digugurkan;
+                $t_coret += $row->dicoret;
+                $t_damai += $row->perdamaian;
+                $t_putus += $row->jml;
+                $t_akhir += $row->sisa;
                 @endphp
                 @endforeach
             </tbody>
@@ -190,13 +204,16 @@
                     <td>{{ number_format($t_terima) }}</td>
                     <td class="bg-kuning text-dark">{{ number_format($t_beban) }}</td>
                     <td>{{ number_format($t_cabut) }}</td>
+                    <td>{{ number_format($t_dismissal) }}</td>
                     @foreach($jenisPerkara as $key => $label)
                     <td>{{ number_format($t_kabul[$key]) }}</td>
                     @endforeach
                     <td>{{ number_format($t_tolak) }}</td>
                     <td>{{ number_format($t_no) }}</td>
                     <td>{{ number_format($t_gugur) }}</td>
+                    <td>{{ number_format($t_digugurkan) }}</td>
                     <td>{{ number_format($t_coret) }}</td>
+                    <td>{{ number_format($t_damai) }}</td>
                     <td class="bg-primary text-white">{{ number_format($t_putus) }}</td>
                     <td class="bg-danger text-white">{{ number_format($t_akhir) }}</td>
                 </tr>

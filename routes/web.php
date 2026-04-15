@@ -31,7 +31,8 @@ use App\Http\Controllers\{
     InputDataController,
     PerkaraTepatWaktuController,
     AmarMonitoringController,
-    MediasiController
+    MediasiController,
+    SaldoMinusController
 };
 
 /*
@@ -90,7 +91,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ---------------------------------------------------------------------
-    // MODUL: KALENDER PENGADILAN
+    // MODUL: KALENDER PENGADILAN (COURT CALENDAR)
     // ---------------------------------------------------------------------
     Route::controller(CourtCalendarController::class)
         ->prefix('court-calendar')
@@ -183,7 +184,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/sync', function () {
                 Artisan::queue('sync:perkara-diterima', [
                     '--start' => date('Y-m-d'),
-                    '--end' => date('Y-m-d')
+                    '--end'   => date('Y-m-d')
                 ]);
                 return back()->with('success', 'Sinkronisasi RK3 sedang berjalan.');
             })->name('sync');
@@ -201,7 +202,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/sync', function () {
                 Artisan::queue('sync:perkara-diputus', [
                     '--start' => date('Y-m-d'),
-                    '--end' => date('Y-m-d')
+                    '--end'   => date('Y-m-d')
                 ]);
                 return back()->with('success', 'Sinkronisasi RK4 sedang berjalan.');
             })->name('sync');
@@ -350,7 +351,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/start-rk4', function () {
                 Artisan::queue('sync:perkara-diputus', [
                     '--start' => date('Y-m-01'),
-                    '--end' => date('Y-m-d')
+                    '--end'   => date('Y-m-d')
                 ]);
                 return response()->json(['status' => 'started']);
             })->name('start_rk4');
@@ -380,7 +381,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/monitoring-elaporan', [MonitoringElaporanController::class, 'index'])->name('monitoring.index');
 
     // ---------------------------------------------------------------------
-    // MODUL: INPUT PERKARA
+    // MODUL: INPUT PERKARA (KEDISIPLINAN USER)
     // ---------------------------------------------------------------------
     Route::get('/input-perkara', [InputDataController::class, 'index'])->name('input.index');
     Route::get('/input-perkara/detail', [InputDataController::class, 'detail'])->name('input.detail');
@@ -389,13 +390,11 @@ Route::middleware(['auth'])->group(function () {
     // MODUL: PERKARA TEPAT WAKTU
     // ---------------------------------------------------------------------
     Route::get('/perkara-tepat-waktu', [PerkaraTepatWaktuController::class, 'index'])->name('perkara.tepat_waktu');
-    Route::get(
-        '/laporan/perkara-tepat-waktu/detail/{koneksi_satker}',
-        [PerkaraTepatWaktuController::class, 'showDetail']
-    )->name('perkara.tepatwaktu.detail');
+    Route::get('/laporan/perkara-tepat-waktu/detail/{koneksi_satker}', [PerkaraTepatWaktuController::class, 'showDetail'])
+        ->name('perkara.tepatwaktu.detail');
 
     // ---------------------------------------------------------------------
-    // MODUL: AMAR MONITORING
+    // MODUL: AMAR MONITORING (AMAR PUTUSAN TIDAK LENGKAP)
     // ---------------------------------------------------------------------
     Route::get('/monitoring-amar', [AmarMonitoringController::class, 'index'])->name('monitoring.amar');
 
@@ -404,4 +403,9 @@ Route::middleware(['auth'])->group(function () {
     // ---------------------------------------------------------------------
     Route::get('/mediasi', [MediasiController::class, 'index'])->name('mediasi.index');
     Route::get('/mediasi/export', [MediasiController::class, 'export'])->name('mediasi.export');
+
+    // ---------------------------------------------------------------------
+    // MODUL: SALDO MINUS
+    // ---------------------------------------------------------------------
+    Route::get('/saldo-minus', [SaldoMinusController::class, 'index'])->name('saldo.minus');
 });

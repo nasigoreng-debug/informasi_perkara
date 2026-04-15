@@ -21,6 +21,11 @@
         border-radius: 4px;
     }
 
+    .bg-persen {
+        background-color: #fff9db;
+        font-weight: bold;
+    }
+
     @media print {
         .no-print {
             display: none !important;
@@ -69,14 +74,15 @@
                         <tr>
                             <th rowspan="2" width="40" class="align-middle">NO</th>
                             <th rowspan="2" class="align-middle text-left pl-3">PENGADILAN AGAMA</th>
-                            <th rowspan="2" width="120" class="align-middle">TOTAL PERKARA DIPUTUS</th>
-                            <th colspan="3">JUMLAH DISELESAIKAN</th>
-                            <th rowspan="2" width="150" class="align-middle bg-light">BELUM PUTUS > 5 BULAN</th>
+                            <th rowspan="2" width="100" class="align-middle">TOTAL PUTUS</th>
+                            <th colspan="3">WAKTU PUTUS</th>
+                            <th rowspan="2" width="100" class="align-middle bg-persen">TEPAT WAKTU (%)</th>
+                            <th rowspan="2" width="120" class="align-middle bg-light">BELUM PUTUS > {{ floor($batasHari/30) }} BLN</th>
                         </tr>
                         <tr>
-                            <th width="110">s/d 3 bulan</th>
-                            <th width="110">3-{{ ceil($batasHari/30) }} bulan</th>
-                            <th width="110">> {{ ceil($batasHari/30) }} bulan</th>
+                            <th width="90">s/d 3 bln</th>
+                            <th width="90">3-{{ floor($batasHari/30) }} bln</th>
+                            <th width="90">> {{ floor($batasHari/30) }} bln</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -84,7 +90,9 @@
                         $gt_total = 0; $gt_3 = 0; $gt_35 = 0; $gt_5 = 0; $gt_belum = 0;
                         @endphp
                         @foreach($results as $index => $row)
-                        @php $params = ['koneksi_satker' => $row->koneksi_satker, 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir, 'batas_hari' => $batasHari]; @endphp
+                        @php
+                        $params = ['koneksi_satker' => $row->koneksi_satker, 'tgl_awal' => $tglAwal, 'tgl_akhir' => $tglAkhir, 'batas_hari' => $batasHari];
+                        @endphp
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td class="text-left pl-3 text-uppercase font-weight-bold text-start">{{ $row->nama_satker }}</td>
@@ -92,18 +100,38 @@
                             <td><a href="{{ route('perkara.tepatwaktu.detail', array_merge($params, ['status' => '3_bulan'])) }}" class="link-angka text-success">{{ number_format($row->diputus_3_bulan) }}</a></td>
                             <td><a href="{{ route('perkara.tepatwaktu.detail', array_merge($params, ['status' => '3_5_bulan'])) }}" class="link-angka text-primary">{{ number_format($row->diputus_3_5_bulan) }}</a></td>
                             <td><a href="{{ route('perkara.tepatwaktu.detail', array_merge($params, ['status' => 'lebih_5_bulan'])) }}" class="link-angka text-danger">{{ number_format($row->diputus_lebih_5_bulan) }}</a></td>
+
+                            <td class="bg-persen">
+                                {{ $row->persen_tepat_waktu ?? 0 }}%
+                            </td>
+
                             <td class="bg-light"><a href="{{ route('perkara.tepatwaktu.detail', array_merge($params, ['status' => 'belum_putus'])) }}" class="link-angka text-danger">{{ number_format($row->belum_putus_lebih_5_bulan) }}</a></td>
                         </tr>
-                        @php $gt_total += $row->total_putus; $gt_3 += $row->diputus_3_bulan; $gt_35 += $row->diputus_3_5_bulan; $gt_5 += $row->diputus_lebih_5_bulan; $gt_belum += $row->belum_putus_lebih_5_bulan; @endphp
+                        @php
+                        $gt_total += $row->total_putus;
+                        $gt_3 += $row->diputus_3_bulan;
+                        $gt_35 += $row->diputus_3_5_bulan;
+                        $gt_5 += $row->diputus_lebih_5_bulan;
+                        $gt_belum += $row->belum_putus_lebih_5_bulan;
+                        @endphp
                         @endforeach
                     </tbody>
                     <tfoot class="font-weight-bold bg-dark text-white">
                         <tr>
-                            <td colspan="2">JUMLAH</td>
+                            <td colspan="2">JUMLAH TOTAL</td>
                             <td>{{ number_format($gt_total) }}</td>
                             <td>{{ number_format($gt_3) }}</td>
                             <td>{{ number_format($gt_35) }}</td>
                             <td>{{ number_format($gt_5) }}</td>
+
+                            <td>
+                                @php
+                                $total_tepat_waktu = $gt_3 + $gt_35;
+                                $persen_total = ($gt_total > 0) ? ($total_tepat_waktu / $gt_total) * 100 : 0;
+                                @endphp
+                                {{ number_format($persen_total, 2) }}%
+                            </td>
+
                             <td>{{ number_format($gt_belum) }}</td>
                         </tr>
                     </tfoot>
