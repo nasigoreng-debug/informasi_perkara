@@ -58,15 +58,22 @@ class LaporanKasasiController extends Controller
             return $item;
         });
 
-        // ✅ TAMBAHKAN LOG INDEX
+        // Hitung statistik untuk log
+        $totalData = $data->count();
+        $totalDokumen = $data->filter(fn($item) => !is_null($item->file_pdf))->count();
+        $totalKosong = $totalData - $totalDokumen;
+
+        // ✅ LOG AKSES INDEX (PAKAI MODEL)
         $satkerInfo = $user->satker ? $user->satker->nama : 'Semua Satker';
         $bulanInfo = $bulan ? Carbon::create()->month($bulan)->format('F') : 'Semua Bulan';
 
-        ActivityLog::record(
-            'Akses Monitoring Kasasi',
-            'MonitoringKasasi',
-            "Melihat laporan Kasasi tahun {$tahun}, bulan: {$bulanInfo}, filter: {$satkerInfo}"
-        );
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity' => 'Akses Monitoring Kasasi',
+            'description' => "Melihat laporan Kasasi tahun {$tahun}, bulan: {$bulanInfo}, filter: {$satkerInfo} | Total Data: {$totalData} | Dokumen Tersedia: {$totalDokumen} | Kosong: {$totalKosong}",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
 
         return view('kasasi.index', compact('data', 'years', 'tahun', 'grandTotal', 'bulan'));
     }
@@ -88,12 +95,14 @@ class LaporanKasasiController extends Controller
             $keyword = strtolower($user->satker->tabel);
             if (!str_contains(strtolower($request->nama_db), $keyword)) {
 
-                // ✅ LOG AKSES DITOLAK
-                ActivityLog::record(
-                    'Upload PDF Kasasi DITOLAK',
-                    'MonitoringKasasi',
-                    "Akses ditolak! User mencoba upload ke satker lain: {$request->nama_db}"
-                );
+                // ✅ LOG AKSES DITOLAK (PAKAI MODEL)
+                ActivityLog::create([
+                    'user_id' => auth()->id(),
+                    'activity' => 'Upload PDF Kasasi DITOLAK',
+                    'description' => "Akses ditolak! User (" . ($user->username ?? $user->name ?? 'Unknown') . ") mencoba upload ke satker lain: {$request->nama_db}",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ]);
 
                 return back()->with('error', 'Akses Ditolak! Anda hanya boleh mengunggah dokumen satker Anda sendiri.');
             }
@@ -132,16 +141,19 @@ class LaporanKasasiController extends Controller
                     ['perkara_id' => $perkara_id, 'nama_db' => $nama_db],
                     [
                         'file_pdf' => 'putusan_pdf/' . $filename,
-                        'updated_at' => now()
+                        'updated_at' => now(),
+                        'created_at' => $oldData ? $oldData->created_at : now()
                     ]
                 );
 
-                // ✅ LOG BERHASIL UPLOAD
-                ActivityLog::record(
-                    'Upload PDF Kasasi',
-                    'MonitoringKasasi',
-                    "Berhasil upload PDF untuk Perkara ID: {$perkara_id} di database: {$nama_db}, file: {$filename}"
-                );
+                // ✅ LOG BERHASIL UPLOAD (PAKAI MODEL)
+                ActivityLog::create([
+                    'user_id' => auth()->id(),
+                    'activity' => 'Upload PDF Kasasi',
+                    'description' => "Berhasil upload PDF untuk Perkara ID: {$perkara_id} di database: {$nama_db}, file: {$filename}",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ]);
 
                 return back()->with('success', 'Dokumen berhasil diunggah.');
             }
@@ -149,14 +161,131 @@ class LaporanKasasiController extends Controller
             return back()->with('error', 'Gagal memindahkan file.');
         } catch (\Exception $e) {
 
-            // ✅ LOG ERROR UPLOAD
-            ActivityLog::record(
-                'Error Upload PDF Kasasi',
-                'MonitoringKasasi',
-                "Gagal upload PDF Perkara ID: {$perkara_id}, Error: " . $e->getMessage()
-            );
+            // ✅ LOG ERROR UPLOAD (PAKAI MODEL)
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity' => 'Error Upload PDF Kasasi',
+                'description' => "Gagal upload PDF Perkara ID: {$perkara_id}, Error: " . $e->getMessage(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
 
             return back()->with('error', 'Kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Hapus file PDF Kasasi
+     */
+    public function deletePdf(Request $request, $perkara_id, $nama_db)
+    {
+        $user = Auth::user();
+
+        // Proteksi satker
+        if (!$user->isAdmin() && $user->satker) {
+            $keyword = strtolower($user->satker->tabel);
+            if (!str_contains(strtolower($nama_db), $keyword)) {
+                ActivityLog::create([
+                    'user_id' => auth()->id(),
+                    'activity' => 'Hapus PDF Kasasi DITOLAK',
+                    'description' => "Akses ditolak! User mencoba hapus file dari satker lain: {$nama_db}",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ]);
+
+                return back()->with('error', 'Akses Ditolak!');
+            }
+        }
+
+        try {
+            $data = DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')
+                ->where('perkara_id', $perkara_id)
+                ->where('nama_db', $nama_db)
+                ->first();
+
+            if (!$data) {
+                return back()->with('error', 'Data tidak ditemukan');
+            }
+
+            // Hapus file fisik
+            if ($data->file_pdf) {
+                $filePath = storage_path('app/public/' . $data->file_pdf);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
+            // Hapus record dari database
+            DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')
+                ->where('perkara_id', $perkara_id)
+                ->where('nama_db', $nama_db)
+                ->delete();
+
+            // ✅ LOG BERHASIL HAPUS
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity' => 'Hapus PDF Kasasi',
+                'description' => "Berhasil hapus PDF untuk Perkara ID: {$perkara_id} di database: {$nama_db}",
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
+            return back()->with('success', 'File PDF berhasil dihapus');
+        } catch (\Exception $e) {
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity' => 'Error Hapus PDF Kasasi',
+                'description' => "Gagal hapus PDF Perkara ID: {$perkara_id}, Error: " . $e->getMessage(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
+            return back()->with('error', 'Gagal menghapus file: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download file PDF Kasasi
+     */
+    public function downloadPdf(Request $request, $perkara_id, $nama_db)
+    {
+        $user = Auth::user();
+
+        try {
+            $data = DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')
+                ->where('perkara_id', $perkara_id)
+                ->where('nama_db', $nama_db)
+                ->first();
+
+            if (!$data || !$data->file_pdf) {
+                return back()->with('error', 'File tidak ditemukan');
+            }
+
+            $filePath = storage_path('app/public/' . $data->file_pdf);
+            if (!file_exists($filePath)) {
+                return back()->with('error', 'File fisik tidak ditemukan');
+            }
+
+            // ✅ LOG DOWNLOAD
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity' => 'Download PDF Kasasi',
+                'description' => "Download PDF untuk Perkara ID: {$perkara_id} di database: {$nama_db}",
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
+            return response()->download($filePath, basename($data->file_pdf));
+        } catch (\Exception $e) {
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity' => 'Error Download PDF Kasasi',
+                'description' => "Gagal download PDF Perkara ID: {$perkara_id}, Error: " . $e->getMessage(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
+            return back()->with('error', 'Gagal download file: ' . $e->getMessage());
         }
     }
 
@@ -187,19 +316,68 @@ class LaporanKasasiController extends Controller
             return $item;
         });
 
-        // ✅ LOG EXPORT EXCEL
+        // ✅ LOG EXPORT EXCEL (PAKAI MODEL)
         $satkerName = $user->satker ? $user->satker->nama : 'Seluruh Satker';
         $bulanInfo = $bulan ? Carbon::create()->month($bulan)->format('F') : 'Semua Bulan';
 
-        ActivityLog::record(
-            'Export Excel Kasasi',
-            'MonitoringKasasi',
-            "Mendownload laporan Kasasi tahun {$tahun}, bulan: {$bulanInfo}, filter: {$satkerName}, total data: " . $data->count()
-        );
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity' => 'Export Excel Kasasi',
+            'description' => "Mendownload laporan Kasasi tahun {$tahun}, bulan: {$bulanInfo}, filter: {$satkerName}, total data: " . $data->count(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
 
         $suffix = $user->satker ? $user->satker->tabel : 'semua';
         $fileName = "kasasi_" . $suffix . "_" . $tahun . "_" . date('Ymd_His') . ".xlsx";
 
         return Excel::download(new KasasiExport($data), $fileName);
+    }
+
+    /**
+     * Statistik Kasasi
+     */
+    public function statistics(Request $request)
+    {
+        $tahun = (int) $request->input('tahun', date('Y'));
+        $bulanInput = $request->input('bulan');
+        $bulan = ($bulanInput !== null && $bulanInput !== '') ? (int) $bulanInput : null;
+
+        $dataRaw = $this->kasasiService->getLaporanKasasi($tahun, $bulan);
+
+        $totalPerkara = $dataRaw->count();
+        $totalDiterima = $dataRaw->where('status_putusan_kasasi_text', 'Diterima')->count();
+        $totalDitolak = $dataRaw->where('status_putusan_kasasi_text', 'Ditolak')->count();
+
+        $allDocs = DB::connection('db_pm_hukum')->table('monitoring_kasasi_docs')->get();
+        $totalDokumen = 0;
+
+        foreach ($dataRaw as $item) {
+            $doc = $allDocs->where('perkara_id', $item->perkara_id)
+                ->where('nama_db', $item->nama_db)
+                ->first();
+            if ($doc) $totalDokumen++;
+        }
+
+        // ✅ LOG STATISTICS
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity' => 'Statistik Kasasi',
+            'description' => "Periode: Tahun {$tahun}" . ($bulan ? ", Bulan: " . Carbon::create()->month($bulan)->format('F') : "") . " | Total Perkara: {$totalPerkara} | Diterima: {$totalDiterima} | Ditolak: {$totalDitolak} | Dokumen Upload: {$totalDokumen}",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total_perkara' => $totalPerkara,
+                'diterima' => $totalDiterima,
+                'ditolak' => $totalDitolak,
+                'persen_diterima' => $totalPerkara > 0 ? round(($totalDiterima / $totalPerkara) * 100, 2) : 0,
+                'total_dokumen' => $totalDokumen,
+                'persen_dokumen' => $totalPerkara > 0 ? round(($totalDokumen / $totalPerkara) * 100, 2) : 0
+            ]
+        ]);
     }
 }

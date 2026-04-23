@@ -49,6 +49,9 @@ class Kernel extends ConsoleKernel
             ->dailyAt('02:30')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/sync_saldo_minus.log'));
+
+        // Sync Non-Mediasi - Jalankan setiap hari jam 3 pagi
+        $schedule->command('sync:non-mediasi')->dailyAt('03:00');
     }
 
     /**

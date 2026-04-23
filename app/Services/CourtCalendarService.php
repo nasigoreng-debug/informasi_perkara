@@ -24,12 +24,30 @@ class CourtCalendarService
     {
         try {
             $total = DB::connection('bandung')->table("{$db}.perkara as p")
-                ->whereBetween('p.tanggal_pendaftaran', [$tglAwal, $tglAkhir])->count();
+                ->leftJoin("{$db}.perkara_putusan as pp", 'p.perkara_id', '=', 'pp.perkara_id')
+                ->leftJoin("{$db}.perkara_akta_cerai as pac", 'p.perkara_id', '=', 'pac.perkara_id')
+                ->whereBetween('p.tanggal_pendaftaran', [$tglAwal, $tglAkhir])
+                ->where(function ($query) {
+                    // Filter: Hanya ambil yang sudah Minutasi ATAU sudah Putus ATAU sudah ada Akta Cerai
+                    $query->whereNotNull('pp.tanggal_minutasi')
+                        ->orWhereNotNull('pp.tanggal_putusan')
+                        ->orWhereNotNull('pac.nomor_akta_cerai');
+                })
+                ->count();
 
             $belum = DB::connection('bandung')->table("{$db}.perkara as p")
+                ->leftJoin("{$db}.perkara_putusan as pp", 'p.perkara_id', '=', 'pp.perkara_id')
+                ->leftJoin("{$db}.perkara_akta_cerai as pac", 'p.perkara_id', '=', 'pac.perkara_id')
+                // Gunakan join ke court calendar untuk cek yang kosong
                 ->leftJoin("{$db}.perkara_court_calendar as pcc", 'p.perkara_id', '=', 'pcc.perkara_id')
                 ->whereBetween('p.tanggal_pendaftaran', [$tglAwal, $tglAkhir])
-                ->whereNull('pcc.rencana_tanggal')->count();
+                ->where(function ($query) {
+                    $query->whereNotNull('pp.tanggal_minutasi')
+                        ->orWhereNotNull('pp.tanggal_putusan')
+                        ->orWhereNotNull('pac.nomor_akta_cerai');
+                })
+                ->whereNull('pcc.rencana_tanggal') // Filter yang belum isi Court Calendar
+                ->count();
 
             $sudah = $total - $belum;
             $persen = $total > 0 ? round(($sudah / $total) * 100, 2) : 0;
@@ -43,7 +61,8 @@ class CourtCalendarService
                 'persentase' => $persen
             ];
         } catch (\Exception $e) {
-            return (object) ['satker' => $namaSatker, 'db' => $db, 'total' => 0, 'sudah' => 0, 'belum' => 0, 'persentase' => 0];
+            // Jika masih kosong, coba return error untuk debug
+            return (object) ['satker' => $namaSatker . ' (Error)', 'db' => $db, 'total' => 0, 'sudah' => 0, 'belum' => 0, 'persentase' => 0];
         }
     }
 }

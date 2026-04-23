@@ -6,150 +6,208 @@
 <style>
     body {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: #f4f7fa;
+        background-color: #f8f9fc;
+        color: #333;
     }
 
-    .detail-card {
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    }
-
-    .table-detail thead th {
-        background: #f8f9fc;
+    .breadcrumb-item a {
         color: #4e73df;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 15px;
-        border: none;
+        text-decoration: none;
+        font-weight: 600;
     }
 
-    .perkara-row {
-        border-bottom: 1px solid #ebedf2;
-        transition: all 0.2s;
+    /* Tabel Header */
+    .table thead th {
+        background-color: #f1f4f9;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        color: #2c3e50;
+        border-top: none;
+        text-transform: uppercase;
     }
 
     .perkara-row:hover {
-        background-color: #f8faff;
+        background-color: #f1f4ff !important;
+        transition: 0.3s;
     }
 
+    /* Identitas Perkara */
     .no-banding {
-        font-size: 14px;
         font-weight: 800;
-        color: #2e59d9;
-        margin-bottom: 2px;
+        color: #1a237e;
+        font-size: 0.95rem;
     }
 
     .info-sub {
-        font-size: 11px;
-        color: #858796;
-        display: block;
-    }
-
-    .badge-status {
-        font-size: 10px;
-        padding: 5px 12px;
-        border-radius: 50px;
-        font-weight: 700;
-    }
-
-    .timeline-mini {
-        font-size: 10px;
-        color: #a0aec0;
-        margin-top: 5px;
-    }
-
-    .timeline-step {
-        display: inline-block;
-        margin-right: 10px;
-    }
-
-    .step-done {
-        color: #00b894;
+        font-size: 0.75rem;
         font-weight: 600;
+        color: #546e7a;
+    }
+
+    /* Timeline Badges (NO WHITE FONT) */
+    .timeline-mini {
+        display: flex;
+        gap: 5px;
+        margin-top: 8px;
+    }
+
+    .step-badge {
+        font-size: 9px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .badge-done {
+        background-color: #c8e6c9;
+        color: #1b5e20;
+        border: 1px solid #81c784;
+    }
+
+    .badge-wait {
+        background-color: #eceff1;
+        color: #607d8b;
+        border: 1px solid #cfd8dc;
+    }
+
+    /* Durasi Warna Soft (Teks Gelap) */
+    .durasi-hijau {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .durasi-kuning-muda {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+
+    .durasi-kuning-tua {
+        background-color: #ffe8d1;
+        color: #af5c00;
+        border: 1px solid #ffcc99;
+    }
+
+    .durasi-merah {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        .card {
+            border: none !important;
+        }
     }
 </style>
 
 <div class="container-fluid py-4">
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    {{-- Header --}}
+    <div class="d-flex align-items-center justify-content-between mb-4 no-print">
         <div>
-            <h4 class="fw-800 text-dark mb-0">Detail Monitoring Perkara</h4>
-            <span class="badge bg-primary text-uppercase">{{ str_replace('_', ' ', $type) }}</span>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1" style="background: transparent; padding: 0;">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active fw-600">Detail Perkara</li>
+                </ol>
+            </nav>
+            <h2 class="h3 mb-0 text-gray-800 fw-800">
+                Data: <span style="color: #1a237e;">{{ strtoupper(str_replace(['_', 'n_o'], [' ', 'N.O'], $type)) }}</span>
+                @if($jenis) <small class="text-muted">({{ $jenis }})</small> @endif
+            </h2>
+            <div class="text-muted small fw-600">
+                <i class="far fa-calendar-alt me-1"></i> {{ date('d/m/Y', strtotime($tgl_awal)) }} — {{ date('d/m/Y', strtotime($tgl_akhir)) }}
+            </div>
         </div>
-        <a href="{{ route('dashboard', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-primary btn-sm rounded-3 px-3 fw-600 shadow-sm">
-            <i class="fas fa-arrow-left me-1"></i> Kembali
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary btn-sm fw-600">Kembali</a>
+            <button onclick="window.print()" class="btn btn-primary btn-sm fw-600 shadow-sm">
+                <i class="fas fa-print me-1"></i> Cetak Laporan
+            </button>
+        </div>
     </div>
 
-    <div class="card detail-card overflow-hidden">
+    {{-- Main Table --}}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 table-detail text-nowrap">
+                <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th class="ps-4 text-center">No</th>
-                            <th width="300">Nomor Perkara (Banding / PA)</th>
-                            <th>Satker & Jenis</th>
-                            <th>Pihak (P / T)</th>
-                            <th>Register & Putus</th>
-                            <th class="text-center">Durasi & Status</th>
-                            <th>Majelis & PP</th>
+                            <th class="text-center ps-4">NO</th>
+                            <th>IDENTITAS PERKARA</th>
+                            <th>SATKER & JENIS</th>
+                            <th>PIHAK BERPERKARA</th>
+                            <th>MAJELIS & TIMELINE</th>
+                            <th class="text-center pe-4">HASIL PUTUSAN</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($data as $key => $row)
                         @php
                         $tReg = \Carbon\Carbon::parse($row->tgl_register);
-                        $tPut = $row->tgl_putusan ? \Carbon\Carbon::parse($row->tgl_putusan) : \Carbon\Carbon::now();
+                        $tPut = $row->tgl_putusan ? \Carbon\Carbon::parse($row->tgl_putusan) : now();
                         $diff = $tReg->diffInDays($tPut);
-                        $color = $diff > 90 ? 'danger' : ($diff > 30 ? 'warning text-dark' : 'success');
+
+                        if($diff > 90) $cls = 'durasi-merah';
+                        elseif($diff > 60) $cls = 'durasi-kuning-tua';
+                        elseif($diff > 30) $cls = 'durasi-kuning-muda';
+                        else $cls = 'durasi-hijau';
                         @endphp
                         <tr class="perkara-row">
-                            <td class="text-center text-muted small ps-4">{{ $key + 1 }}</td>
+                            <td class="text-center ps-4 text-muted small fw-600">{{ $key + 1 }}</td>
                             <td>
-                                {{-- PAKAI nomor_perkara_banding --}}
                                 <div class="no-banding">{{ $row->nomor_perkara_banding }}</div>
-                                <div class="info-sub text-muted">PA: {{ $row->nomor_perkara_pa }}</div>
+                                <div class="info-sub">PA: {{ $row->nomor_perkara_pa }}</div>
                             </td>
                             <td>
-                                <div class="fw-700 text-dark small">{{ $row->nama_satker }}</div>
-                                <div class="info-sub text-uppercase">{{ $row->jenis_perkara }}</div>
+                                <div class="fw-800 text-dark small">{{ $row->nama_satker }}</div>
+                                <div class="info-sub text-uppercase" style="color: #2e59d9;">{{ $row->jenis_perkara }}</div>
                             </td>
                             <td>
-                                <div class="small text-truncate" style="max-width: 200px;"><strong class="text-primary">P:</strong> {{ $row->nama_pembanding }}</div>
-                                <div class="small text-truncate" style="max-width: 200px;"><strong class="text-danger">T:</strong> {{ $row->nama_terbanding }}</div>
-                            </td>
-                            <td>
-                                <div class="small mb-1">Reg: <strong>{{ date('d/m/y', strtotime($row->tgl_register)) }}</strong></div>
-                                @if($row->tgl_putusan)
-                                <div class="small text-success">Putus: <strong>{{ date('d/m/y', strtotime($row->tgl_putusan)) }}</strong></div>
-                                @else
-                                <div class="small text-muted italic">Proses Sidang</div>
-                                @endif
-                                {{-- Timeline Mini Tracker --}}
-                                <div class="timeline-mini">
-                                    <span class="timeline-step {{ $row->tgl_minutasi ? 'step-done' : '' }}"><i class="fas fa-check-circle"></i> Min</span>
-                                    <span class="timeline-step {{ $row->tgl_kirim_pa ? 'step-done' : '' }}"><i class="fas fa-check-circle"></i> Kirim</span>
-                                    <span class="timeline-step {{ $row->tgl_upload ? 'step-done' : '' }}"><i class="fas fa-check-circle"></i> Up</span>
+                                <div class="small text-truncate" style="max-width: 220px;">
+                                    <strong style="color: #0d47a1;">P:</strong> {{ $row->nama_pembanding }}
+                                </div>
+                                <div class="small text-truncate" style="max-width: 220px;">
+                                    <strong style="color: #b71c1c;">T:</strong> {{ $row->nama_terbanding }}
                                 </div>
                             </td>
-                            <td class="text-center">
-                                <div class="h5 fw-800 mb-0 {{ $diff > 90 ? 'text-danger' : 'text-dark' }}">{{ $diff }}</div>
-                                <div class="text-muted mb-1" style="font-size: 8px;">HARI</div>
-                                <span class="badge badge-status bg-{{ $color }}">{{ $row->jenis_putus_text ?? 'Aktif' }}</span>
-                            </td>
                             <td>
-                                <div class="small fw-700 text-dark">{{ $row->nama_km }}</div>
-                                <div class="info-sub">PP: {{ $row->nama_pp }}</div>
-                                @if($row->tgl_putusan_sela)
-                                <div class="mt-1"><span class="badge bg-danger" style="font-size: 8px;">PUTUSAN SELA</span></div>
+                                <div class="small mb-1 text-dark">
+                                    <span class="text-muted">Hakim:</span> <strong>{{ $row->nama_km ?? '-' }}</strong>
+                                </div>
+                                <div class="small mb-2 text-dark">
+                                    Reg: {{ date('d/m/y', strtotime($row->tgl_register)) }}
+                                    @if($row->tgl_putusan)
+                                    | <span style="color: #1b5e20; font-weight: 700;">Putus: {{ date('d/m/y', strtotime($row->tgl_putusan)) }}</span>
+                                    @endif
+                                </div>
+                                <div class="timeline-mini">
+                                    <span class="step-badge {{ $row->tgl_minutasi ? 'badge-done' : 'badge-wait' }}">Minutasi</span>
+                                    <span class="step-badge {{ $row->tgl_kirim_pa ? 'badge-done' : 'badge-wait' }}">Kirim</span>
+                                    <span class="step-badge {{ $row->tgl_upload ? 'badge-done' : 'badge-wait' }}">Upload</span>
+                                    <span class="step-badge {{ $cls }} ms-auto">{{ $diff }} Hari</span>
+                                </div>
+                            </td>
+                            <td class="text-center pe-4">
+                                @if($row->jenis_putus_text)
+                                <div class="fw-800 text-dark small mb-1">{{ $row->jenis_putus_text }}</div>
+                                <span class="badge" style="background-color: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; font-size: 9px;">SELESAI</span>
+                                @else
+                                <span class="badge" style="background-color: #fff3e0; color: #e65100; border: 1px solid #ffcc80; font-size: 9px;">PROSES</span>
                                 @endif
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">Data tidak ditemukan.</td>
+                            <td colspan="6" class="text-center py-5 text-muted fw-600">Data perkara tidak ditemukan.</td>
                         </tr>
                         @endforelse
                     </tbody>

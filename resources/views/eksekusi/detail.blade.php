@@ -65,7 +65,7 @@
         border-color: var(--accent-blue);
     }
 
-    /* Table DNA - Classic & Clean Grid */
+    /* Table DNA */
     .table-container {
         background: white;
         border: 1px solid var(--border-color);
@@ -150,6 +150,12 @@
         color: #64748b;
     }
 
+    .biaya-amount {
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
     @media print {
 
         .btn-back,
@@ -202,11 +208,11 @@
             </div>
         </div>
         <div class="d-flex gap-2 no-print">
-            <input type="text" id="tableSearch" class="search-field" placeholder="Cari nomor perkara..." style="width: 240px;">
+            <input type="text" id="tableSearch" class="search-field" placeholder="Cari data..." style="width: 240px;">
             <button onclick="exportToExcel('detailTable', 'Detail_Eksekusi')" class="btn btn-success fw-bold px-4 rounded-3 btn-sm shadow-sm">
                 <i class="bi bi-file-earmark-excel me-2"></i> EXCEL
             </button>
-            <button onclick="window.open(window.location.href, '_blank').print()" class="btn btn-dark fw-bold px-4 rounded-3 btn-sm shadow-sm">
+            <button onclick="window.print()" class="btn btn-dark fw-bold px-4 rounded-3 btn-sm shadow-sm">
                 <i class="bi bi-printer me-2"></i> CETAK
             </button>
         </div>
@@ -217,14 +223,15 @@
             <table class="table-luxury align-middle text-center" id="detailTable">
                 <thead>
                     <tr>
-                        <th width="60">NO</th>
-                        @if($satker == 'ALL') <th width="150">SATKER</th> @endif
+                        <th width="50">NO</th>
+                        @if($satker == 'ALL') <th width="120">SATKER</th> @endif
                         <th class="text-start">NOMOR REGISTER EKSEKUSI</th>
                         <th class="text-start">NOMOR PERKARA ASAL</th>
                         <th>JENIS</th>
                         <th>TGL PERMOHONAN</th>
                         <th>STATUS</th>
                         <th>LAMA PROSES</th>
+                        <th class="text-end">SISA PANJAR (Rp)</th>
                         <th class="text-start">KETERANGAN</th>
                     </tr>
                 </thead>
@@ -248,8 +255,8 @@
                         else $colorClass='bg-soft-red' ;
 
                         $p=[];
-                        if ($diff->y > 0) $p[] = "{$diff->y} Tahun,";
-                        if ($diff->m > 0) $p[] = "{$diff->m} Bulan,";
+                        if ($diff->y > 0) $p[] = "{$diff->y} Thn";
+                        if ($diff->m > 0) $p[] = "{$diff->m} Bln";
                         $p[] = "{$diff->d} Hari";
                         $usiaText = implode(' ', $p);
                         }
@@ -277,15 +284,18 @@
                                 <span class="text-muted opacity-50">—</span>
                                 @endif
                             </td>
+                            <td class="text-end">
+                                <span class="biaya-amount">{{ number_format($row->sisa_biaya ?? 0, 0, ',', '.') }}</span>
+                            </td>
                             <td class="text-start">
-                                <div class="text-muted small" style="line-height: 1.4; max-width: 200px;">
+                                <div class="text-muted small" style="line-height: 1.4; max-width: 180px;">
                                     {{ $row->keterangan ?: '-' }}
                                 </div>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="10" class="py-5 text-center">
+                            <td colspan="{{ $satker == 'ALL' ? '10' : '9' }}" class="py-5 text-center">
                                 <i class="bi bi-inbox h1 d-block opacity-10"></i>
                                 <span class="text-muted fw-bold">Tidak ada data rincian ditemukan.</span>
                             </td>
@@ -318,6 +328,7 @@
                 th, td { border: 1px solid #000; padding: 8px; text-align: center; font-family: sans-serif; font-size: 10pt; } 
                 th { background-color: #f2f2f2; font-weight: bold; }
                 .text-start { text-align: left; }
+                .text-end { text-align: right; }
             </style></head>
             <body>
                 <h3 style="text-align:center">LAPORAN DETAIL EKSEKUSI ({{ $jenis }})</h3>

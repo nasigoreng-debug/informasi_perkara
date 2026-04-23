@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request; // Untuk menangani request HTTP
-use App\Services\AktaCeraiService; // Service untuk logika bisnis terkait Akta Cerai
-use App\Exports\AktaCeraiExport; // Untuk ekspor Excel
-use Maatwebsite\Excel\Facades\Excel; // Untuk ekspor Excel
-use Illuminate\Support\Facades\Log; // Untuk logging error
-use App\Models\ActivityLog; // Model untuk menyimpan log ke database
-use Carbon\Carbon; // Untuk manipulasi tanggal
+use Illuminate\Http\Request; 
+use App\Services\AktaCeraiService; 
+use App\Exports\AktaCeraiExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log; 
+use App\Models\ActivityLog; 
+use Carbon\Carbon;
 
 class AktaCeraiController extends Controller
 {

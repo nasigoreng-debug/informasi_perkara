@@ -32,7 +32,9 @@ use App\Http\Controllers\{
     PerkaraTepatWaktuController,
     AmarMonitoringController,
     MediasiController,
-    SaldoMinusController
+    SaldoMinusController,
+    ProdeoController,
+    NonMediasiGugatanController
 };
 
 /*
@@ -408,4 +410,17 @@ Route::middleware(['auth'])->group(function () {
     // MODUL: SALDO MINUS
     // ---------------------------------------------------------------------
     Route::get('/saldo-minus', [SaldoMinusController::class, 'index'])->name('saldo.minus');
+
+    // ---------------------------------------------------------------------
+    // MODUL: PRODEO
+    // ---------------------------------------------------------------------
+    Route::get('/prodeo', [ProdeoController::class, 'index'])->name('prodeo.index');
+    Route::get('/prodeo/export', [ProdeoController::class, 'export'])->name('prodeo.export');
+    Route::get('/prodeo/detail', [ProdeoController::class, 'detail'])->name('prodeo.detail');
+
+    // ---------------------------------------------------------------------
+    // MODUL: NON MEDIASI GUGATAN
+    // ---------------------------------------------------------------------
+    Route::get('/non-mediasi-gugatan', [NonMediasiGugatanController::class, 'index'])->name('non-mediasi.gugatan');
+    Route::get('/non-mediasi-gugatan/detail/{satker}', [NonMediasiGugatanController::class, 'detail'])->name('non-mediasi.gugatan.detail');
 });

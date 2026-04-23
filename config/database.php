@@ -48,11 +48,11 @@ return [
         // ============================================
         'db_pm_hukum' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST_PM_HUKUM', '127.0.0.1'),
-            'port' => env('DB_PORT_PM_HUKUM', '3306'),
+            'host' => env('DB_HOST_PM_HUKUM', '192.168.16.236'),
+            'port' => env('DB_PORT_PM_HUKUM', '6033'),
             'database' => env('DB_DATABASE_PM_HUKUM', 'db_pm_hukum'),
-            'username' => env('DB_USERNAME_PM_HUKUM', 'root'),
-            'password' => env('DB_PASSWORD_PM_HUKUM', ''),
+            'username' => env('DB_USERNAME_PM_HUKUM', 'pta'),
+            'password' => env('DB_PASSWORD_PM_HUKUM', 'rootw2e3r4'),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',

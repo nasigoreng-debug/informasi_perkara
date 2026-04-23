@@ -8,11 +8,32 @@ class RekapEksekusiService
 {
     protected $barisTotal = null;
     protected $daftarSatker = [
-        'BANDUNG', 'INDRAMAYU', 'MAJALENGKA', 'SUMBER', 'CIAMIS', 
-        'TASIKMALAYA', 'KARAWANG', 'CIMAHI', 'SUBANG', 'SUMEDANG', 
-        'PURWAKARTA', 'SUKABUMI', 'CIANJUR', 'KUNINGAN', 'CIBADAK', 
-        'CIREBON', 'GARUT', 'BOGOR', 'BEKASI', 'CIBINONG', 
-        'CIKARANG', 'DEPOK', 'TASIKKOTA', 'BANJAR', 'SOREANG', 'NGAMPRAH'
+        'BANDUNG',
+        'INDRAMAYU',
+        'MAJALENGKA',
+        'SUMBER',
+        'CIAMIS',
+        'TASIKMALAYA',
+        'KARAWANG',
+        'CIMAHI',
+        'SUBANG',
+        'SUMEDANG',
+        'PURWAKARTA',
+        'SUKABUMI',
+        'CIANJUR',
+        'KUNINGAN',
+        'CIBADAK',
+        'CIREBON',
+        'GARUT',
+        'BOGOR',
+        'BEKASI',
+        'CIBINONG',
+        'CIKARANG',
+        'DEPOK',
+        'TASIKKOTA',
+        'BANJAR',
+        'SOREANG',
+        'NGAMPRAH'
     ];
 
     public function getRekap($tglAwal, $tglAkhir)
@@ -20,14 +41,21 @@ class RekapEksekusiService
         $unions = [];
         foreach ($this->daftarSatker as $satker) {
             $db = strtolower($satker);
-            $unions[] = "SELECT '{$satker}' AS satker, pe.permohonan_eksekusi, lipa5.tanggal_selesai FROM {$db}.perkara_eksekusi pe LEFT JOIN elaporan.lipa5 ON pe.nomor_register_eksekusi = lipa5.nomor_eksekusi";
-            $unions[] = "SELECT '{$satker}' AS satker, peh.permohonan_eksekusi, lipa5.tanggal_selesai FROM {$db}.perkara_eksekusi_ht peh LEFT JOIN elaporan.lipa5 ON peh.eksekusi_nomor_perkara = lipa5.nomor_eksekusi";
+            // Gunakan IFNULL pada kolom tanggal agar query tidak pecah jika data corrupt
+            $unions[] = "SELECT '{$satker}' AS satker, pe.permohonan_eksekusi, IFNULL(lipa5.tanggal_selesai, '0000-00-00') as tanggal_selesai FROM {$db}.perkara_eksekusi pe LEFT JOIN elaporan.lipa5 ON pe.nomor_register_eksekusi = lipa5.nomor_eksekusi";
+            $unions[] = "SELECT '{$satker}' AS satker, peh.permohonan_eksekusi, IFNULL(lipa5.tanggal_selesai, '0000-00-00') as tanggal_selesai FROM {$db}.perkara_eksekusi_ht peh LEFT JOIN elaporan.lipa5 ON peh.eksekusi_nomor_perkara = lipa5.nomor_eksekusi";
         }
 
         $gabunganSatkerSql = implode("\n UNION ALL \n", $unions);
 
         $sql = "
-            SELECT IFNULL(satker, 'TOTAL SEMUA SATKER') AS satker, SISA, DITERIMA, BEBAN, SELESAI, `SISA_TAHUN_INI`
+            SELECT 
+                IFNULL(satker, 'TOTAL SEMUA SATKER') AS satker, 
+                CAST(IFNULL(SISA, 0) AS UNSIGNED) as SISA, 
+                CAST(IFNULL(DITERIMA, 0) AS UNSIGNED) as DITERIMA, 
+                CAST(IFNULL(BEBAN, 0) AS UNSIGNED) as BEBAN, 
+                CAST(IFNULL(SELESAI, 0) AS UNSIGNED) as SELESAI, 
+                CAST(IFNULL(SISA_TAHUN_INI, 0) AS SIGNED) as SISA_TAHUN_INI
             FROM (
                 SELECT satker,
                     SUM(CASE WHEN permohonan_eksekusi < '$tglAwal' AND (tanggal_selesai IS NULL OR tanggal_selesai = '0000-00-00' OR tanggal_selesai >= '$tglAwal') THEN 1 ELSE 0 END) AS SISA,
@@ -58,12 +86,16 @@ class RekapEksekusiService
 
     public function getSummary($data)
     {
+        // Pastikan $this->barisTotal tidak null
         if ($this->barisTotal) return $this->barisTotal;
+
         $summary = ['SISA' => 0, 'DITERIMA' => 0, 'BEBAN' => 0, 'SELESAI' => 0, 'SISA_TAHUN_INI' => 0];
         foreach ($data as $row) {
-            $summary['SISA'] += $row->SISA; $summary['DITERIMA'] += $row->DITERIMA;
-            $summary['BEBAN'] += $row->BEBAN; $summary['SELESAI'] += $row->SELESAI;
-            $summary['SISA_TAHUN_INI'] += $row->SISA_TAHUN_INI;
+            $summary['SISA'] += $row->SISA ?? 0;
+            $summary['DITERIMA'] += $row->DITERIMA ?? 0;
+            $summary['BEBAN'] += $row->BEBAN ?? 0;
+            $summary['SELESAI'] += $row->SELESAI ?? 0;
+            $summary['SISA_TAHUN_INI'] += $row->SISA_TAHUN_INI ?? 0;
         }
         return $summary;
     }
@@ -79,8 +111,17 @@ class RekapEksekusiService
         $gabunganSatkerSql = implode("\n UNION ALL \n", $unions);
         $sql = "SELECT COUNT(*) AS total_diterima, SUM(CASE WHEN tanggal_selesai IS NOT NULL AND tanggal_selesai != '0000-00-00' THEN 1 ELSE 0 END) AS total_selesai, SUM(CASE WHEN tanggal_selesai IS NULL OR tanggal_selesai = '0000-00-00' THEN 1 ELSE 0 END) AS total_sisa FROM ($gabunganSatkerSql) AS all_data WHERE permohonan_eksekusi IS NOT NULL";
         $res = DB::connection('elaporan')->selectOne($sql);
-        $d = $res->total_diterima ?? 0; $s = $res->total_selesai ?? 0;
-        return ['diterima' => $d, 'selesai' => $s, 'sisa' => ($res->total_sisa ?? 0), 'persentase' => $d > 0 ? round(($s / $d) * 100, 2) : 0];
+
+        $d = $res->total_diterima ?? 0;
+        $s = $res->total_selesai ?? 0;
+        $si = $res->total_sisa ?? 0;
+
+        return [
+            'diterima' => $d,
+            'selesai' => $s,
+            'sisa' => $si,
+            'persentase' => $d > 0 ? round(($s / $d) * 100, 2) : 0
+        ];
     }
 
     public function getDetailPerkara($satker, $jenis, $tglAwal, $tglAkhir)
@@ -97,17 +138,35 @@ class RekapEksekusiService
                 elseif ($jenis === 'TOTAL_SELESAI') $kondisi = "lipa5.tanggal_selesai IS NOT NULL AND lipa5.tanggal_selesai != '0000-00-00'";
                 elseif ($jenis === 'TOTAL_SISA') $kondisi = "lipa5.tanggal_selesai IS NULL OR lipa5.tanggal_selesai = '0000-00-00'";
             } else {
-                if ($jenis === 'SISA') $kondisi = "permohonan_eksekusi < '$tglAwal' AND (lipa5.tanggal_selesai IS NULL OR lipa5.tanggal_selesai = '0000-00-00' OR lipa5.tanggal_selesai >= '$tglAwal')";
-                elseif ($jenis === 'DITERIMA') $kondisi = "permohonan_eksekusi >= '$tglAwal' AND permohonan_eksekusi <= '$tglAkhir'";
-                elseif ($jenis === 'BEBAN') $kondisi = "((permohonan_eksekusi < '$tglAwal' AND (lipa5.tanggal_selesai IS NULL OR lipa5.tanggal_selesai = '0000-00-00' OR lipa5.tanggal_selesai >= '$tglAwal')) OR (permohonan_eksekusi >= '$tglAwal' AND permohonan_eksekusi <= '$tglAkhir'))";
-                elseif ($jenis === 'SELESAI') $kondisi = "lipa5.tanggal_selesai >= '$tglAwal' AND lipa5.tanggal_selesai <= '$tglAkhir' AND lipa5.tanggal_selesai != '0000-00-00'";
-                elseif ($jenis === 'SISA_TAHUN_INI') $kondisi = "((permohonan_eksekusi < '$tglAwal' AND (lipa5.tanggal_selesai IS NULL OR lipa5.tanggal_selesai = '0000-00-00' OR lipa5.tanggal_selesai >= '$tglAwal')) OR (permohonan_eksekusi >= '$tglAwal' AND permohonan_eksekusi <= '$tglAkhir')) AND (lipa5.tanggal_selesai IS NULL OR lipa5.tanggal_selesai = '0000-00-00' OR lipa5.tanggal_selesai > '$tglAkhir')";
+                if ($jenis === 'SISA')
+                    $kondisi = "pe.permohonan_eksekusi < '$tglAwal' AND (lipa5.tanggal_selesai IS NULL OR lipa5.tanggal_selesai = '0000-00-00' OR lipa5.tanggal_selesai >= '$tglAwal')";
+                elseif ($jenis === 'DITERIMA')
+                    $kondisi = "pe.permohonan_eksekusi >= '$tglAwal' AND pe.permohonan_eksekusi <= '$tglAkhir'";
+                elseif ($jenis === 'BEBAN')
+                    $kondisi = "((pe.permohonan_eksekusi < '$tglAwal' AND (lipa5.tanggal_selesai IS NULL OR lipa5.tanggal_selesai = '0000-00-00' OR lipa5.tanggal_selesai >= '$tglAwal')) OR (pe.permohonan_eksekusi >= '$tglAwal' AND pe.permohonan_eksekusi <= '$tglAkhir'))";
+                elseif ($jenis === 'SELESAI')
+                    $kondisi = "lipa5.tanggal_selesai >= '$tglAwal' AND lipa5.tanggal_selesai <= '$tglAkhir' AND lipa5.tanggal_selesai != '0000-00-00'";
+                elseif ($jenis === 'SISA_TAHUN_INI')
+                    $kondisi = "((pe.permohonan_eksekusi < '$tglAwal' AND (lipa5.tanggal_selesai IS NULL OR lipa5.tanggal_selesai = '0000-00-00' OR lipa5.tanggal_selesai >= '$tglAwal')) OR (pe.permohonan_eksekusi >= '$tglAwal' AND pe.permohonan_eksekusi <= '$tglAkhir')) AND (lipa5.tanggal_selesai IS NULL OR lipa5.tanggal_selesai = '0000-00-00' OR lipa5.tanggal_selesai > '$tglAkhir')";
             }
 
             if ($kondisi) {
-                // Tambahkan lipa5.keterangan di sini
-                $unions[] = "SELECT '{$s}' as satker_nama, pe.nomor_register_eksekusi AS nomor_eksekusi, pe.nomor_perkara_pn AS nomor_perkara_asal, pe.permohonan_eksekusi AS tanggal_permohonan, lipa5.tanggal_selesai, lipa5.keterangan, 'Putusan' AS jenis_eksekusi FROM {$db}.perkara_eksekusi pe LEFT JOIN elaporan.lipa5 ON pe.nomor_register_eksekusi = lipa5.nomor_eksekusi WHERE " . $kondisi;
-                $unions[] = "SELECT '{$s}' as satker_nama, peh.eksekusi_nomor_perkara AS nomor_eksekusi, peh.nomor_perkara_pn AS nomor_perkara_asal, peh.permohonan_eksekusi AS tanggal_permohonan, lipa5.tanggal_selesai, lipa5.keterangan, 'Hak Tanggungan' AS jenis_eksekusi FROM {$db}.perkara_eksekusi_ht peh LEFT JOIN elaporan.lipa5 ON peh.eksekusi_nomor_perkara = lipa5.nomor_eksekusi WHERE " . str_replace('pe.', 'peh.', $kondisi);
+                $unions[] = "
+                    SELECT '{$s}' as satker_nama, pe.nomor_register_eksekusi AS nomor_eksekusi, pe.nomor_perkara_pn AS nomor_perkara_asal, pe.permohonan_eksekusi AS tanggal_permohonan, lipa5.tanggal_selesai, lipa5.keterangan, 
+                    COALESCE((SELECT SUM(pb.jenis_transaksi * pb.jumlah) FROM {$db}.perkara_biaya pb WHERE pb.perkara_id = pe.perkara_id AND pb.tahapan_id = 50), 0) AS sisa_biaya, 
+                    'Putusan' AS jenis_eksekusi 
+                    FROM {$db}.perkara_eksekusi pe 
+                    LEFT JOIN elaporan.lipa5 ON pe.nomor_register_eksekusi = lipa5.nomor_eksekusi 
+                    WHERE " . $kondisi;
+
+                $kondisiHt = str_replace('pe.', 'peh.', $kondisi);
+                $unions[] = "
+                    SELECT '{$s}' as satker_nama, peh.eksekusi_nomor_perkara AS nomor_eksekusi, peh.nomor_perkara_pn AS nomor_perkara_asal, peh.permohonan_eksekusi AS tanggal_permohonan, lipa5.tanggal_selesai, lipa5.keterangan, 
+                    COALESCE((SELECT SUM(CASE WHEN pbh.jenis_transaksi = 1 THEN pbh.jumlah ELSE -pbh.jumlah END) FROM {$db}.perkara_biaya_ht pbh WHERE pbh.ht_id = peh.ht_id), 0) AS sisa_biaya, 
+                    'Hak Tanggungan' AS jenis_eksekusi 
+                    FROM {$db}.perkara_eksekusi_ht peh 
+                    LEFT JOIN elaporan.lipa5 ON peh.eksekusi_nomor_perkara = lipa5.nomor_eksekusi 
+                    WHERE " . $kondisiHt;
             }
         }
 

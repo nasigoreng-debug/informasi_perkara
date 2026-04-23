@@ -50,15 +50,28 @@ class CourtCalendarController extends Controller
         try {
             $data = DB::connection('bandung')->table("{$satker}.perkara as p")
                 ->leftJoin("{$satker}.perkara_court_calendar as pcc", 'p.perkara_id', '=', 'pcc.perkara_id')
+                ->leftJoin("{$satker}.perkara_putusan as pp", 'p.perkara_id', '=', 'pp.perkara_id')
+                ->leftJoin("{$satker}.perkara_akta_cerai as pac", 'p.perkara_id', '=', 'pac.perkara_id')
                 ->whereBetween('p.tanggal_pendaftaran', [$tglAwal, $tglAkhir])
-                ->whereNull('pcc.rencana_tanggal')
-                ->select(['p.nomor_perkara', 'p.tanggal_pendaftaran', 'p.jenis_perkara_nama', 'p.proses_terakhir_text'])
+                ->whereNull('pcc.rencana_tanggal') // Yang belum isi Court Calendar
+                ->where(function ($query) {
+                    // Filter: Hanya yang sudah Minutasi / Putusan / Akta Cerai
+                    $query->whereNotNull('pp.tanggal_minutasi')
+                        ->orWhereNotNull('pp.tanggal_putusan')
+                        ->orWhereNotNull('pac.nomor_akta_cerai');
+                })
+                ->select([
+                    'p.nomor_perkara',
+                    'p.tanggal_pendaftaran',
+                    'p.jenis_perkara_nama',
+                    'p.proses_terakhir_text'
+                ])
                 ->orderBy('p.tanggal_pendaftaran', 'desc')
                 ->get();
 
             $namaSatker = SatkerConfig::SATKERS[$satker] ?? strtoupper($satker);
 
-            // ✅ TAMBAHKAN LOG DETAIL
+            // ✅ LOG DETAIL
             ActivityLog::create([
                 'user_id' => auth()->id(),
                 'activity' => 'Lihat Detail COURT CALENDAR',
@@ -69,7 +82,7 @@ class CourtCalendarController extends Controller
 
             return view('court_calendar.detail', compact('data', 'namaSatker', 'tglAwal', 'tglAkhir'));
         } catch (\Exception $e) {
-            // ✅ LOG ERROR (Opsional)
+            // ✅ LOG ERROR
             ActivityLog::create([
                 'user_id' => auth()->id(),
                 'activity' => 'Error Detail COURT CALENDAR',
