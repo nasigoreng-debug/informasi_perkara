@@ -30,22 +30,6 @@ class PeraturanController extends Controller
 
         $data = $query->orderBy('tahun', 'desc')->paginate(10);
 
-        // ✅ LOG AKSES PUBLIC (tanpa user_id)
-        $logMessage = "Akses publik JDIH";
-        if ($searchTerm || $jenisFilter) {
-            $logMessage .= " dengan filter";
-            if ($searchTerm) $logMessage .= " - search: '{$searchTerm}'";
-            if ($jenisFilter) $logMessage .= " - jenis: '{$jenisFilter}'";
-        }
-
-        ActivityLog::create([
-            'user_id' => null, // Public access, no user
-            'activity' => 'Akses Public JDIH',
-            'description' => $logMessage,
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent()
-        ]);
-
         return view('peraturan_public', compact('data'));
     }
 

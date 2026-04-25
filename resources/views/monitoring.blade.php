@@ -19,6 +19,8 @@
         --saldo-custom: #e74c3c;
         --navy-custom: #1e3799;
         --slate-custom: #2c3e50;
+        --maroon-custom: #d63031;
+        --salem-custom: #38ada9;
     }
 
     .hero-header {
@@ -93,7 +95,7 @@
         transform: scale(1.02);
     }
 
-    /* Warna UNIK untuk setiap menu */
+    /* Warna UNIK untuk setiap menu - TIDAK ADA YANG SAMA */
     .bg-primary-light {
         background-color: rgba(13, 110, 253, 0.1);
         color: #0d6efd;
@@ -130,6 +132,15 @@
         background-color: #00d2d3;
     }
 
+    .bg-slate-light {
+        background-color: rgba(44, 62, 80, 0.1);
+        color: #2c3e50;
+    }
+
+    .btn-slate-custom {
+        background-color: #2c3e50;
+    }
+
     .bg-saldo-light {
         background-color: rgba(231, 76, 60, 0.1);
         color: #e74c3c;
@@ -139,13 +150,13 @@
         background-color: #e74c3c;
     }
 
-    .bg-danger-light {
-        background-color: rgba(220, 53, 69, 0.1);
-        color: #dc3545;
+    .bg-coral-light {
+        background-color: rgba(255, 107, 107, 0.1);
+        color: #ff6b6b;
     }
 
-    .btn-danger-custom {
-        background-color: #dc3545;
+    .btn-coral-custom {
+        background-color: #ff6b6b;
     }
 
     .bg-warning-light {
@@ -212,15 +223,6 @@
         background-color: #6f42c1;
     }
 
-    .bg-coral-light {
-        background-color: rgba(255, 107, 107, 0.1);
-        color: #ff6b6b;
-    }
-
-    .btn-coral-custom {
-        background-color: #ff6b6b;
-    }
-
     .bg-navy-light {
         background-color: rgba(30, 57, 153, 0.1);
         color: #1e3799;
@@ -230,13 +232,22 @@
         background-color: #1e3799;
     }
 
-    .bg-slate-light {
-        background-color: rgba(44, 62, 80, 0.1);
-        color: #2c3e50;
+    .bg-salem-light {
+        background-color: rgba(56, 173, 169, 0.1);
+        color: #38ada9;
     }
 
-    .btn-slate-custom {
-        background-color: #2c3e50;
+    .btn-salem-custom {
+        background-color: #38ada9;
+    }
+
+    .bg-maroon-light {
+        background-color: rgba(214, 48, 49, 0.1);
+        color: #d63031;
+    }
+
+    .btn-maroon-custom {
+        background-color: #d63031;
     }
 
     /* Role Badge */
@@ -350,9 +361,7 @@
         {{-- 1. MONITORING KASASI --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp">
             <a href="{{ route('kasasi.index') }}" class="menu-card">
-                <div class="icon-box bg-primary-light">
-                    <i class="fas fa-file-signature"></i>
-                </div>
+                <div class="icon-box bg-primary-light"><i class="fas fa-file-signature"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Kasasi</h5>
                 <p class="card-desc">Informasi permohonan perkara banding yang dimohonkan kasasi se-Jawa Barat.</p>
                 <div class="btn btn-primary-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -362,9 +371,7 @@
         {{-- 2. MONITORING EKSEKUSI --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.05s">
             <a href="{{ route('laporan.eksekusi.index') }}" class="menu-card">
-                <div class="icon-box bg-info-light">
-                    <i class="fas fa-gavel"></i>
-                </div>
+                <div class="icon-box bg-info-light"><i class="fas fa-gavel"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Eksekusi</h5>
                 <p class="card-desc">Rekapitulasi data penyelesaian perkara eksekusi se-Jawa Barat.</p>
                 <div class="btn btn-info-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -374,9 +381,7 @@
         {{-- 3. JADWAL SIDANG --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
             <a href="{{ route('sidang.index') }}" class="menu-card">
-                <div class="icon-box bg-success-light">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
+                <div class="icon-box bg-success-light"><i class="fas fa-calendar-check"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Jadwal Sidang</h5>
                 <p class="card-desc">Informasi jadwal persidangan di PTA Bandung.</p>
                 <div class="btn btn-success-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -386,9 +391,7 @@
         {{-- 4. MONITORING MEDIASI --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.15s">
             <a href="{{ route('mediasi.index') }}" class="menu-card">
-                <div class="icon-box bg-mint-light">
-                    <i class="fas fa-hands-helping"></i>
-                </div>
+                <div class="icon-box bg-mint-light"><i class="fas fa-hands-helping"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Mediasi</h5>
                 <p class="card-desc">Rekapitulasi keberhasilan mediasi se-Jawa Barat.</p>
                 <div class="btn btn-mint-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -398,9 +401,7 @@
         {{-- 5. PERKARA GUGATAN TIDAK MEDIASI --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
             <a href="{{ route('non-mediasi.gugatan') }}" class="menu-card">
-                <div class="icon-box bg-slate-light">
-                    <i class="fas fa-file-exclamation"></i>
-                </div>
+                <div class="icon-box bg-slate-light"><i class="fas fa-file-exclamation"></i></div>
                 <h5 class="card-title text-uppercase">Gugatan Tidak Mediasi</h5>
                 <p class="card-desc">Monitoring perkara gugatan yang tidak melaksanakan proses mediasi.</p>
                 <div class="btn btn-slate-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -410,9 +411,7 @@
         {{-- 6. MONITORING SALDO MINUS --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.25s">
             <a href="{{ route('saldo.minus') }}" class="menu-card">
-                <div class="icon-box bg-saldo-light">
-                    <i class="fas fa-chart-line"></i>
-                </div>
+                <div class="icon-box bg-saldo-light"><i class="fas fa-chart-line"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Saldo Minus</h5>
                 <p class="card-desc">Pantau perkara dengan saldo minus.</p>
                 <div class="btn btn-saldo-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -422,21 +421,17 @@
         {{-- 7. SISA PANJAR --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
             <a href="{{ route('sisa.panjar.menu') }}" class="menu-card">
-                <div class="icon-box bg-danger-light">
-                    <i class="fas fa-wallet"></i>
-                </div>
+                <div class="icon-box bg-coral-light"><i class="fas fa-wallet"></i></div>
                 <h5 class="card-title text-uppercase">Sisa Panjar</h5>
                 <p class="card-desc">Transparansi pengelolaan sisa panjar biaya perkara.</p>
-                <div class="btn btn-danger-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
+                <div class="btn btn-coral-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
         {{-- 8. COURT CALENDAR --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.35s">
             <a href="{{ route('court-calendar.') }}" class="menu-card">
-                <div class="icon-box bg-warning-light">
-                    <i class="fas fa-tasks"></i>
-                </div>
+                <div class="icon-box bg-warning-light"><i class="fas fa-tasks"></i></div>
                 <h5 class="card-title text-uppercase">Court Calendar</h5>
                 <p class="card-desc">Pantau kepatuhan pengisian Court Calendar pada aplikasi SIPP Satker.</p>
                 <div class="btn btn-warning-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -446,9 +441,7 @@
         {{-- 9. AKTA CERAI --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
             <a href="{{ route('akta-cerai.index') }}" class="menu-card">
-                <div class="icon-box bg-orange-light">
-                    <i class="fas fa-certificate"></i>
-                </div>
+                <div class="icon-box bg-orange-light"><i class="fas fa-certificate"></i></div>
                 <h5 class="card-title text-uppercase">Akta Cerai</h5>
                 <p class="card-desc">Pantau kepatuhan penerbitan akta cerai di wilayah PTA Bandung.</p>
                 <div class="btn btn-orange-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -458,9 +451,7 @@
         {{-- 10. MONITORING E-LAPORAN --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.45s">
             <a href="{{ route('monitoring.index') }}" class="menu-card">
-                <div class="icon-box bg-indigo-light">
-                    <i class="fas fa-chart-line"></i>
-                </div>
+                <div class="icon-box bg-indigo-light"><i class="fas fa-chart-line"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring E-Laporan</h5>
                 <p class="card-desc">Pantau kepatuhan konfirmasi e-laporan se-Jawa Barat.</p>
                 <div class="btn btn-indigo-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -470,9 +461,7 @@
         {{-- 11. KEDISIPLINAN USER --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
             <a href="{{ route('input.index') }}" class="menu-card">
-                <div class="icon-box bg-dark-light">
-                    <i class="fas fa-user-shield"></i>
-                </div>
+                <div class="icon-box bg-dark-light"><i class="fas fa-user-shield"></i></div>
                 <h5 class="card-title text-uppercase">Kedisiplinan User</h5>
                 <p class="card-desc">Monitoring penggunaan akun Admin dalam penginputan data SIPP.</p>
                 <div class="btn btn-dark-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -482,9 +471,7 @@
         {{-- 12. PERKARA TEPAT WAKTU --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.55s">
             <a href="{{ route('perkara.tepat_waktu') }}" class="menu-card">
-                <div class="icon-box bg-teal-light">
-                    <i class="fas fa-stopwatch"></i>
-                </div>
+                <div class="icon-box bg-teal-light"><i class="fas fa-stopwatch"></i></div>
                 <h5 class="card-title text-uppercase">Perkara Tepat Waktu</h5>
                 <p class="card-desc">Monitoring penyelesaian perkara tepat waktu.</p>
                 <div class="btn btn-teal-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -494,9 +481,7 @@
         {{-- 13. KONTROL ALAMAT PIHAK --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.6s">
             <a href="https://kabayan.pta-bandung.go.id/e_laporan/control_alamat" class="menu-card" target="_blank">
-                <div class="icon-box bg-pink-light">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
+                <div class="icon-box bg-pink-light"><i class="fas fa-map-marker-alt"></i></div>
                 <h5 class="card-title text-uppercase">Kontrol Alamat Pihak</h5>
                 <p class="card-desc">Monitoring kelengkapan data alamat pihak pada aplikasi SIPP.</p>
                 <div class="btn btn-pink-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -506,9 +491,7 @@
         {{-- 14. KONTROL DATA DISPENSASI KAWIN --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.65s">
             <a href="https://kabayan.pta-bandung.go.id/e_laporan/control_dk" class="menu-card" target="_blank">
-                <div class="icon-box bg-purple-light">
-                    <i class="fas fa-child"></i>
-                </div>
+                <div class="icon-box bg-purple-light"><i class="fas fa-child"></i></div>
                 <h5 class="card-title text-uppercase">Kontrol Data Dispensasi Kawin</h5>
                 <p class="card-desc">Monitoring kelengkapan data perkara dispensasi kawin.</p>
                 <div class="btn btn-purple-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
@@ -518,43 +501,44 @@
         {{-- 15. MONITORING AMAR PUTUSAN TIDAK LENGKAP --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.7s">
             <a href="{{ route('monitoring.amar') }}" class="menu-card">
-                <div class="icon-box bg-coral-light">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
+                <div class="icon-box bg-navy-light"><i class="fas fa-exclamation-triangle"></i></div>
                 <h5 class="card-title text-uppercase">Amar Putusan Tidak Lengkap</h5>
                 <p class="card-desc">Pantau amar putusan yang belum lengkap.</p>
-                <div class="btn btn-coral-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
+                <div class="btn btn-navy-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
         {{-- 16. MONITORING PRODEO --}}
         <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.75s">
             <a href="{{ route('prodeo.index') }}" class="menu-card">
-                <div class="icon-box bg-navy-light">
-                    <i class="fas fa-balance-scale"></i>
-                </div>
+                <div class="icon-box bg-salem-light"><i class="fas fa-balance-scale"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Prodeo</h5>
                 <p class="card-desc">Pantau permohonan dan penetapan perkara prodeo (bantuan hukum) se-Jawa Barat.</p>
-                <div class="btn btn-navy-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
+                <div class="btn btn-salem-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
+            </a>
+        </div>
+
+        {{-- 17. MONITORING PERKARA GUGUR & DIGUGURKAN --}}
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.8s">
+            <a href="{{ route('perkara_gugur.index') }}" class="menu-card">
+                <div class="icon-box bg-maroon-light"><i class="fas fa-file-signature"></i></div>
+                <h5 class="card-title text-uppercase">Perkara Gugur & Digugurkan</h5>
+                <p class="card-desc">Pantau statistik perkara yang diputus gugur atau digugurkan oleh majelis hakim.</p>
+                <div class="btn btn-maroon-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
 
         {{-- ==================== MENU UNTUK USER (HANYA MONITORING KASASI) ==================== --}}
         @elseif(Auth::user()->canSeeKasasiOnly())
 
-        {{-- HANYA MONITORING KASASI --}}
         <div class="col-md-8 col-lg-6 animate__animated animate__fadeInUp">
             <a href="{{ route('kasasi.index') }}" class="menu-card">
-                <div class="icon-box bg-primary-light">
-                    <i class="fas fa-file-signature"></i>
-                </div>
+                <div class="icon-box bg-primary-light"><i class="fas fa-file-signature"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Kasasi</h5>
                 <p class="card-desc">Informasi permohonan perkara banding yang dimohonkan kasasi se-Jawa Barat.</p>
                 <div class="btn btn-primary-custom btn-sm rounded-pill w-100 mt-auto fw-bold btn-custom">Lihat Detail</div>
             </a>
         </div>
-
-        {{-- Informasi akses terbatas untuk User --}}
         <div class="col-12 mt-4">
             <div class="alert alert-info border-0 rounded-4 text-center">
                 <i class="fas fa-info-circle me-2"></i>
@@ -566,230 +550,175 @@
         @elseif(Auth::user()->canSeeAllMonitoring())
 
         {{-- 1. MONITORING KASASI --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('kasasi.index') }}" class="menu-card">
-                <div class="icon-box bg-primary-light">
-                    <i class="fas fa-file-signature"></i>
-                </div>
+                <div class="icon-box bg-primary-light"><i class="fas fa-file-signature"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Kasasi</h5>
                 <p class="card-desc">Informasi permohonan perkara banding yang dimohonkan kasasi se-Jawa Barat.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 2. MONITORING EKSEKUSI --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.05s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('laporan.eksekusi.index') }}" class="menu-card">
-                <div class="icon-box bg-info-light">
-                    <i class="fas fa-gavel"></i>
-                </div>
+                <div class="icon-box bg-info-light"><i class="fas fa-gavel"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Eksekusi</h5>
                 <p class="card-desc">Rekapitulasi data penyelesaian perkara eksekusi se-Jawa Barat.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 3. JADWAL SIDANG --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('sidang.index') }}" class="menu-card">
-                <div class="icon-box bg-success-light">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
+                <div class="icon-box bg-success-light"><i class="fas fa-calendar-check"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Jadwal Sidang</h5>
                 <p class="card-desc">Informasi jadwal persidangan di PTA Bandung.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 4. MONITORING MEDIASI --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.15s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('mediasi.index') }}" class="menu-card">
-                <div class="icon-box bg-mint-light">
-                    <i class="fas fa-hands-helping"></i>
-                </div>
+                <div class="icon-box bg-mint-light"><i class="fas fa-hands-helping"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Mediasi</h5>
                 <p class="card-desc">Rekapitulasi keberhasilan mediasi se-Jawa Barat.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 5. PERKARA GUGATAN TIDAK MEDIASI --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('non-mediasi.gugatan') }}" class="menu-card">
-                <div class="icon-box bg-slate-light">
-                    <i class="fas fa-file-exclamation"></i>
-                </div>
+                <div class="icon-box bg-slate-light"><i class="fas fa-file-exclamation"></i></div>
                 <h5 class="card-title text-uppercase">Gugatan Tidak Mediasi</h5>
                 <p class="card-desc">Monitoring perkara gugatan yang tidak melaksanakan proses mediasi.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 6. MONITORING SALDO MINUS --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.25s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('saldo.minus') }}" class="menu-card">
-                <div class="icon-box bg-saldo-light">
-                    <i class="fas fa-chart-line"></i>
-                </div>
+                <div class="icon-box bg-saldo-light"><i class="fas fa-chart-line"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Saldo Minus</h5>
                 <p class="card-desc">Pantau perkara dengan saldo minus.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 7. SISA PANJAR --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('sisa.panjar.menu') }}" class="menu-card">
-                <div class="icon-box bg-danger-light">
-                    <i class="fas fa-wallet"></i>
-                </div>
+                <div class="icon-box bg-coral-light"><i class="fas fa-wallet"></i></div>
                 <h5 class="card-title text-uppercase">Sisa Panjar</h5>
                 <p class="card-desc">Transparansi pengelolaan sisa panjar biaya perkara.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 8. COURT CALENDAR --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.35s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('court-calendar.') }}" class="menu-card">
-                <div class="icon-box bg-warning-light">
-                    <i class="fas fa-tasks"></i>
-                </div>
+                <div class="icon-box bg-warning-light"><i class="fas fa-tasks"></i></div>
                 <h5 class="card-title text-uppercase">Court Calendar</h5>
                 <p class="card-desc">Pantau kepatuhan pengisian Court Calendar pada aplikasi SIPP Satker.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 9. AKTA CERAI --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('akta-cerai.index') }}" class="menu-card">
-                <div class="icon-box bg-orange-light">
-                    <i class="fas fa-certificate"></i>
-                </div>
+                <div class="icon-box bg-orange-light"><i class="fas fa-certificate"></i></div>
                 <h5 class="card-title text-uppercase">Akta Cerai</h5>
                 <p class="card-desc">Pantau kepatuhan penerbitan akta cerai di wilayah PTA Bandung.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 10. MONITORING E-LAPORAN --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.45s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('monitoring.index') }}" class="menu-card">
-                <div class="icon-box bg-indigo-light">
-                    <i class="fas fa-chart-line"></i>
-                </div>
+                <div class="icon-box bg-indigo-light"><i class="fas fa-chart-line"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring E-Laporan</h5>
                 <p class="card-desc">Pantau kepatuhan konfirmasi e-laporan se-Jawa Barat.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 11. KEDISIPLINAN USER --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('input.index') }}" class="menu-card">
-                <div class="icon-box bg-dark-light">
-                    <i class="fas fa-user-shield"></i>
-                </div>
+                <div class="icon-box bg-dark-light"><i class="fas fa-user-shield"></i></div>
                 <h5 class="card-title text-uppercase">Kedisiplinan User</h5>
                 <p class="card-desc">Monitoring penggunaan akun Admin dalam penginputan data SIPP.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 12. PERKARA TEPAT WAKTU --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.55s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('perkara.tepat_waktu') }}" class="menu-card">
-                <div class="icon-box bg-teal-light">
-                    <i class="fas fa-stopwatch"></i>
-                </div>
+                <div class="icon-box bg-teal-light"><i class="fas fa-stopwatch"></i></div>
                 <h5 class="card-title text-uppercase">Perkara Tepat Waktu</h5>
                 <p class="card-desc">Monitoring penyelesaian perkara tepat waktu.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 13. KONTROL ALAMAT PIHAK --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.6s">
+        <div class="col-md-6 col-lg-4">
             <a href="https://kabayan.pta-bandung.go.id/e_laporan/control_alamat" class="menu-card" target="_blank">
-                <div class="icon-box bg-pink-light">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
+                <div class="icon-box bg-pink-light"><i class="fas fa-map-marker-alt"></i></div>
                 <h5 class="card-title text-uppercase">Kontrol Alamat Pihak</h5>
                 <p class="card-desc">Monitoring kelengkapan data alamat pihak pada aplikasi SIPP.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-external-link-alt me-2"></i> BUKA (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-external-link-alt me-2"></i> BUKA (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 14. KONTROL DATA DISPENSASI KAWIN --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.65s">
+        <div class="col-md-6 col-lg-4">
             <a href="https://kabayan.pta-bandung.go.id/e_laporan/control_dk" class="menu-card" target="_blank">
-                <div class="icon-box bg-purple-light">
-                    <i class="fas fa-child"></i>
-                </div>
+                <div class="icon-box bg-purple-light"><i class="fas fa-child"></i></div>
                 <h5 class="card-title text-uppercase">Kontrol Data Dispensasi Kawin</h5>
                 <p class="card-desc">Monitoring kelengkapan data perkara dispensasi kawin.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-external-link-alt me-2"></i> BUKA (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-external-link-alt me-2"></i> BUKA (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 15. MONITORING AMAR PUTUSAN TIDAK LENGKAP --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.7s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('monitoring.amar') }}" class="menu-card">
-                <div class="icon-box bg-coral-light">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
+                <div class="icon-box bg-navy-light"><i class="fas fa-exclamation-triangle"></i></div>
                 <h5 class="card-title text-uppercase">Amar Putusan Tidak Lengkap</h5>
                 <p class="card-desc">Pantau amar putusan yang belum lengkap.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
         {{-- 16. MONITORING PRODEO --}}
-        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.75s">
+        <div class="col-md-6 col-lg-4">
             <a href="{{ route('prodeo.index') }}" class="menu-card">
-                <div class="icon-box bg-navy-light">
-                    <i class="fas fa-balance-scale"></i>
-                </div>
+                <div class="icon-box bg-salem-light"><i class="fas fa-balance-scale"></i></div>
                 <h5 class="card-title text-uppercase">Monitoring Prodeo</h5>
                 <p class="card-desc">Pantau permohonan dan penetapan perkara prodeo (bantuan hukum) se-Jawa Barat.</p>
-                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold">
-                    <i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)
-                </div>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
             </a>
         </div>
 
-        {{-- Informasi Viewer --}}
+        {{-- 17. MONITORING PERKARA GUGUR & DIGUGURKAN --}}
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ route('perkara_gugur.index') }}" class="menu-card">
+                <div class="icon-box bg-maroon-light"><i class="fas fa-file-signature"></i></div>
+                <h5 class="card-title text-uppercase">Perkara Gugur & Digugurkan</h5>
+                <p class="card-desc">Pantau statistik perkara yang diputus gugur atau digugurkan oleh majelis hakim.</p>
+                <div class="btn btn-secondary btn-sm rounded-pill w-100 mt-auto fw-bold"><i class="fas fa-eye me-2"></i> LIHAT (READ ONLY)</div>
+            </a>
+        </div>
+
         <div class="col-12 mt-4">
             <div class="alert alert-secondary border-0 rounded-4 text-center">
                 <i class="fas fa-eye me-2"></i>

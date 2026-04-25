@@ -24,9 +24,13 @@
 
                             <div class="bg-soft-light p-4 rounded-lg border-soft mb-4">
                                 <div class="mb-3">
-                                    <label class="text-xxs font-weight-bold text-uppercase text-muted d-block">Nomor Pengaduan</label>
+                                    <label class="text-xxs font-weight-bold text-uppercase text-muted d-block">Nomor Register Pengaduan</label>
                                     <span class="fw-bold text-dark">{{ $pgd->no_pgd }}</span>
                                 </div>
+                                <div class="mb-3">
+                                    <label class="text-xxs font-weight-bold text-uppercase text-muted d-block">Nomor Surat Pengaduan</label>
+                                    <span class="fw-bold text-dark">{{ $pgd->no_surat_pgd }}</span>
+                                </div> {{-- PERBAIKAN: tutup div mb-3 yang kurang --}}
                                 <div class="mb-3">
                                     <label class="text-xxs font-weight-bold text-uppercase text-muted d-block">Identitas Pelapor</label>
                                     <span class="fw-bold text-primary">{{ $pgd->pelapor }}</span>
@@ -66,14 +70,21 @@
 
                             <div class="vertical-tracking">
                                 @php
-                                // Urutan Logika Active dari Tahap Akhir ke Awal
+                                // PERBAIKAN: Logika Active dari tahap AKHIR ke AWAL dengan elseif
                                 $activePos = 'DITERIMA';
-                                if($pgd->dis_pm_hk) $activePos = 'PM-HK';
-                                if($pgd->dis_kpta) $activePos = 'KPTA';
-                                if($pgd->dis_wkpta) $activePos = 'WKPTA';
-                                if($pgd->dis_hatiwasda) $activePos = 'HATIWASDA';
-                                if($pgd->tgl_tindak_lanjut) $activePos = 'TINDAK-LANJUT';
-                                if($pgd->tgl_selesai_pgd) $activePos = 'SELESAI';
+                                if($pgd->tgl_selesai_pgd) {
+                                $activePos = 'SELESAI';
+                                } elseif($pgd->tgl_tindak_lanjut) {
+                                $activePos = 'TINDAK-LANJUT';
+                                } elseif($pgd->dis_hatiwasda) {
+                                $activePos = 'HATIWASDA';
+                                } elseif($pgd->dis_wkpta) {
+                                $activePos = 'WKPTA';
+                                } elseif($pgd->dis_kpta) {
+                                $activePos = 'KPTA';
+                                } elseif($pgd->dis_pm_hk) {
+                                $activePos = 'PM-HK';
+                                }
                                 @endphp
 
                                 @if($pgd->tgl_selesai_pgd)

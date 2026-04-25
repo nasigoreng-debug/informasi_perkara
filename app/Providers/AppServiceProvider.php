@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
      */
     // public function boot(): void
     // {
-    //     // Baris ini yang akan merapikan tampilan pagination Anda
+    //     // Baris ini yang akan merapikan tampilan pagination 
     //     Paginator::useBootstrapFive();
     // }
     public function boot()
@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         if (env('APP_ENV') !== 'local') {
             URL::forceScheme('https');
         }
+
+        Paginator::useBootstrapFive();
     }
-    // end
 }

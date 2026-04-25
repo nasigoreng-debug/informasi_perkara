@@ -19,13 +19,13 @@ class PengaduanController extends Controller
      */
     public function dashboard()
     {
-        $notif_deadline = \App\Models\Pengaduan::whereNull('tgl_selesai_pgd')
+        $notif_deadline = Pengaduan::whereNull('tgl_selesai_pgd')
             ->orderBy('tgl_terima_pgd', 'asc')
             ->get();
 
-        $total_semua = \App\Models\Pengaduan::count();
-        $total_selesai = \App\Models\Pengaduan::whereNotNull('tgl_selesai_pgd')->count();
-        $total_proses = \App\Models\Pengaduan::whereNull('tgl_selesai_pgd')->count();
+        $total_semua = Pengaduan::count();
+        $total_selesai = Pengaduan::whereNotNull('tgl_selesai_pgd')->count();
+        $total_proses = Pengaduan::whereNull('tgl_selesai_pgd')->count();
 
         // LOG AKSES DASHBOARD
         ActivityLog::record('Akses Dashboard PENGADUAN', 'Pengaduan', 'Membuka ringkasan statistik dan monitoring deadline');
@@ -40,7 +40,7 @@ class PengaduanController extends Controller
 
     /**
      * INDEX - Daftar Pengaduan
-     * Menampilkan list pengaduan dengan filter tanggal dan pencarian
+     * Menampilkan list pengaduan dengan filter tanggal dan pencarian multi-kolom
      */
     public function index(Request $request)
     {
@@ -52,22 +52,21 @@ class PengaduanController extends Controller
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('no_pgd', 'like', "%{$request->search}%")
+                    ->orWhere('no_surat_pgd', 'like', "%{$request->search}%")
                     ->orWhere('pelapor', 'like', "%{$request->search}%")
-                    ->orWhere('terlapor', 'like', "%{$request->search}%");
+                    ->orWhere('terlapor', 'like', "%{$request->search}%")
+                    ->orWhere('uraian_pgd', 'like', "%{$request->search}%");
             });
         }
 
         $query->whereBetween('tgl_terima_pgd', [$startDate, $endDate]);
         $data = $query->latest('tgl_terima_pgd')->paginate(10)->withQueryString();
 
-        // LOG AKSES INDEX dengan detail filter
+        // LOG AKSES INDEX
         $logMessage = "Membuka daftar pengaduan";
-        if ($request->filled('search')) {
-            $logMessage .= " - Pencarian: '{$request->search}'";
-        }
-        if ($request->filled('from_date') && $request->filled('to_date')) {
-            $logMessage .= " - Periode: {$startDate} s/d {$endDate}";
-        }
+        if ($request->filled('search')) $logMessage .= " - Pencarian: '{$request->search}'";
+        if ($request->filled('from_date')) $logMessage .= " - Periode: {$startDate} s/d {$endDate}";
+
         ActivityLog::record('Akses PENGADUAN', 'Pengaduan', $logMessage);
 
         return view('pengaduan.index', compact('data', 'startDate', 'endDate'));
@@ -75,29 +74,26 @@ class PengaduanController extends Controller
 
     /**
      * CREATE - Form Tambah Pengaduan
-     * Menampilkan form input pengaduan baru
      */
     public function create()
     {
-        // LOG AKSES FORM TAMBAH
         ActivityLog::record('Akses Form Tambah PENGADUAN', 'Pengaduan', 'Membuka form input pengaduan baru');
-
         return view('pengaduan.create');
     }
 
     /**
      * STORE - Simpan Pengaduan Baru
-     * Menyimpan data pengaduan beserta file upload
+     * Menangani semua kolom sesuai struktur tb_pengaduan
      */
     public function store(Request $request)
     {
         $request->validate([
-            'no_pgd' => 'required',
-            'tgl_terima_pgd' => 'required|date',
-            'pelapor' => 'required',
-            'terlapor' => 'required',
-            'surat_pgd' => 'nullable|mimes:pdf|max:10240',
-            'lampiran' => 'nullable|max:20480'
+            'no_pgd'            => 'required|unique:tb_pengaduan,no_pgd',
+            'tgl_terima_pgd'    => 'required|date',
+            'pelapor'           => 'required',
+            'terlapor'          => 'required',
+            'surat_pgd'         => 'nullable|mimes:pdf|max:10240',
+            'lampiran'          => 'nullable|max:20480'
         ]);
 
         $input = $request->all();
@@ -120,7 +116,6 @@ class PengaduanController extends Controller
 
         Pengaduan::create($input);
 
-        // LOG TAMBAH DATA
         ActivityLog::record('Tambah Pengaduan', 'Pengaduan', "Input Pengaduan No: {$request->no_pgd}");
 
         return redirect()->route('pengaduan.index')->with('success', 'Data pengaduan berhasil disimpan!');
@@ -128,13 +123,10 @@ class PengaduanController extends Controller
 
     /**
      * EDIT - Form Edit Pengaduan
-     * Menampilkan form edit data pengaduan
      */
     public function edit($id)
     {
         $pgd = Pengaduan::findOrFail($id);
-
-        // LOG AKSES FORM EDIT
         ActivityLog::record('Akses Form Edit PENGADUAN', 'Pengaduan', "Membuka form edit No: {$pgd->no_pgd}");
 
         return view('pengaduan.edit', compact('pgd'));
@@ -142,17 +134,22 @@ class PengaduanController extends Controller
 
     /**
      * UPDATE - Perbarui Data Pengaduan
-     * Mengupdate data pengaduan beserta file upload
      */
     public function update(Request $request, $id)
     {
         $pgd = Pengaduan::findOrFail($id);
+
+        $request->validate([
+            'no_pgd'            => 'required|unique:tb_pengaduan,no_pgd,' . $id,
+            'tgl_terima_pgd'    => 'required|date',
+            'surat_pgd'         => 'nullable|mimes:pdf|max:10240',
+        ]);
+
         $input = $request->all();
 
-        // Upload surat pengaduan (jika ada file baru)
+        // Update File Surat
         if ($request->hasFile('surat_pgd')) {
-            // Hapus file lama
-            if ($pgd->surat_pgd) {
+            if ($pgd->surat_pgd && file_exists(storage_path('app/public/pengaduan/surat/' . $pgd->surat_pgd))) {
                 @unlink(storage_path('app/public/pengaduan/surat/' . $pgd->surat_pgd));
             }
 
@@ -162,10 +159,9 @@ class PengaduanController extends Controller
             $input['surat_pgd'] = $name;
         }
 
-        // Upload lampiran (jika ada file baru)
+        // Update File Lampiran
         if ($request->hasFile('lampiran')) {
-            // Hapus file lama
-            if ($pgd->lampiran) {
+            if ($pgd->lampiran && file_exists(storage_path('app/public/pengaduan/lampiran/' . $pgd->lampiran))) {
                 @unlink(storage_path('app/public/pengaduan/lampiran/' . $pgd->lampiran));
             }
 
@@ -177,7 +173,6 @@ class PengaduanController extends Controller
 
         $pgd->update($input);
 
-        // LOG UPDATE DATA
         ActivityLog::record('Update Pengaduan', 'Pengaduan', "Ubah Data No: {$pgd->no_pgd}");
 
         return redirect()->route('pengaduan.index')->with('success', 'Data pengaduan berhasil diperbarui!');
@@ -185,21 +180,17 @@ class PengaduanController extends Controller
 
     /**
      * DETAIL - Lihat Detail Pengaduan
-     * Menampilkan detail lengkap pengaduan
      */
     public function detail($id)
     {
-        $pgd = \App\Models\Pengaduan::findOrFail($id);
-
-        // LOG LIHAT DETAIL
+        $pgd = Pengaduan::findOrFail($id);
         ActivityLog::record('Lihat Detail PENGADUAN', 'Pengaduan', "Melihat detail pengaduan No: {$pgd->no_pgd}");
 
         return view('pengaduan.detail', compact('pgd'));
     }
 
     /**
-     * DOWNLOAD - Download Berkas Pengaduan
-     * Mendownload file surat atau lampiran
+     * DOWNLOAD - Berkas
      */
     public function download($id, $type)
     {
@@ -209,7 +200,6 @@ class PengaduanController extends Controller
         $path = storage_path("app/public/pengaduan/{$folder}/" . $fileName);
 
         if ($fileName && file_exists($path)) {
-            // LOG DOWNLOAD FILE
             ActivityLog::record("Download Berkas PENGADUAN", 'Pengaduan', "File No: {$pgd->no_pgd} ({$type})");
             return response()->download($path);
         }
@@ -219,53 +209,44 @@ class PengaduanController extends Controller
 
     /**
      * DESTROY - Hapus Pengaduan
-     * Menghapus data pengaduan beserta file-file terkait
      */
     public function destroy($id)
     {
         $pgd = Pengaduan::findOrFail($id);
 
-        // Hapus file surat
         if ($pgd->surat_pgd) {
             @unlink(storage_path('app/public/pengaduan/surat/' . $pgd->surat_pgd));
         }
 
-        // Hapus file lampiran
         if ($pgd->lampiran) {
             @unlink(storage_path('app/public/pengaduan/lampiran/' . $pgd->lampiran));
         }
 
         $pgd->delete();
 
-        // LOG HAPUS DATA
         ActivityLog::record('Hapus Pengaduan', 'Pengaduan', "Hapus No: {$pgd->no_pgd}");
 
         return redirect()->route('pengaduan.index')->with('success', 'Data pengaduan telah dihapus!');
     }
 
     /**
-     * MODAL DETAIL - Tracking Modal
-     * Menampilkan modal tracking alur proses pengaduan
+     * MODAL DETAIL - Tracking
      */
     public function modalDetail($id)
     {
-        $pgd = \App\Models\Pengaduan::findOrFail($id);
-
-        // LOG AKSES MODAL TRACKING
+        $pgd = Pengaduan::findOrFail($id);
         ActivityLog::record('Lihat Tracking Modal', 'Pengaduan', "Melihat alur proses No: {$pgd->no_pgd}");
 
         return view('pengaduan.modal_detail', compact('pgd'));
     }
 
     /**
-     * EXPORT EXCEL - Export ke Excel
-     * Mengekspor data pengaduan ke file Excel
+     * EXPORT EXCEL
      */
     public function exportExcel(Request $request)
     {
-        $query = \App\Models\Pengaduan::query();
+        $query = Pengaduan::query();
 
-        // Filter pencarian
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -275,26 +256,18 @@ class PengaduanController extends Controller
             });
         }
 
-        // Filter tanggal
         if ($request->filled('from_date') && $request->filled('to_date')) {
             $query->whereBetween('tgl_terima_pgd', [$request->from_date, $request->to_date]);
         }
 
         $data = $query->orderBy('tgl_terima_pgd', 'desc')->get();
 
-        // LOG EXPORT EXCEL dengan detail filter
         $logMessage = "Menarik laporan excel (Total: " . $data->count() . " data)";
-        if ($request->filled('search')) {
-            $logMessage .= " - Filter pencarian: '{$request->search}'";
-        }
-        if ($request->filled('from_date') && $request->filled('to_date')) {
-            $logMessage .= " - Periode: {$request->from_date} s/d {$request->to_date}";
-        }
         ActivityLog::record('Export Excel PENGADUAN', 'Pengaduan', $logMessage);
 
         return Excel::download(
-            new \App\Exports\PengaduanExport($data),
-            'Register_Pengaduan_Filtered_' . date('Ymd_His') . '.xlsx'
+            new PengaduanExport($data),
+            'Register_Pengaduan_' . date('Ymd_His') . '.xlsx'
         );
     }
 }

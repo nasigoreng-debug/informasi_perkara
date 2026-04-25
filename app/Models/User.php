@@ -123,7 +123,7 @@ class User extends Authenticatable
      */
     public function canSeeAllData(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin();
+        return $this->isSuperAdmin() || $this->isAdmin() || $this->isViewer();
     }
 
     /**

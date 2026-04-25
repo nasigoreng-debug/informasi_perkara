@@ -163,7 +163,7 @@
             <p class="card-desc">Kumpulan salinan putusan yang telah berkekuatan hukum.</p>
         </a>
 
-        <a href="#" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.4s">
+        <a href="{{ route('pinjam.index') }}" class="menu-card animate__animated animate__zoomIn" style="animation-delay: 0.4s">
             <div class="icon-box bg-warning bg-opacity-10 text-warning"><i class="fas fa-user-clock"></i></div>
             <h5 class="card-title">Peminjam Berkas</h5>
             <p class="card-desc">Log data peminjaman berkas perkara oleh Hakim/PP.</p>

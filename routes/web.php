@@ -34,7 +34,9 @@ use App\Http\Controllers\{
     MediasiController,
     SaldoMinusController,
     ProdeoController,
-    NonMediasiGugatanController
+    NonMediasiGugatanController,
+    PinjamController,
+    PerkaraGugurController
 };
 
 /*
@@ -364,6 +366,13 @@ Route::middleware(['auth'])->group(function () {
     // ---------------------------------------------------------------------
     Route::get('/bank-putusan', [BankPutusanController::class, 'index'])->name('bank.index');
     Route::post('/bank-putusan/upload', [BankPutusanController::class, 'upload'])->name('bank.upload');
+    Route::get('/download/{nomor_perkara}/{jenis_file}', [BankPutusanController::class, 'download'])
+        ->name('bank.download')
+        ->where('nomor_perkara', '.*');
+    Route::delete('/delete/{nomor_perkara}/{jenis_file}', [BankPutusanController::class, 'deleteFile'])
+        ->name('bank.delete')
+        ->where('nomor_perkara', '.*');
+    Route::get('/export', [BankPutusanController::class, 'export'])->name('bank.export');
 
     // ---------------------------------------------------------------------
     // MODUL: ARSIP AKTIF
@@ -423,4 +432,12 @@ Route::middleware(['auth'])->group(function () {
     // ---------------------------------------------------------------------
     Route::get('/non-mediasi-gugatan', [NonMediasiGugatanController::class, 'index'])->name('non-mediasi.gugatan');
     Route::get('/non-mediasi-gugatan/detail/{satker}', [NonMediasiGugatanController::class, 'detail'])->name('non-mediasi.gugatan.detail');
+
+    // ---------------------------------------------------------------------
+    // MODUL: PINJAM
+    // ---------------------------------------------------------------------
+    Route::resource('pinjam', PinjamController::class);
+
+    Route::get('/perkara-gugur', [PerkaraGugurController::class, 'index'])->name('perkara_gugur.index');
+    Route::get('/perkara-gugur/detail/{satker}', [PerkaraGugurController::class, 'detail'])->name('perkara_gugur.detail');
 });

@@ -15,8 +15,12 @@
 
             <div class="bg-soft-light p-4 rounded-lg border-soft mb-4">
                 <div class="mb-3">
-                    <label class="text-xxs font-weight-bold text-uppercase text-muted d-block mb-1">Nomor Pengaduan</label>
+                    <label class="text-xxs font-weight-bold text-uppercase text-muted d-block mb-1">Nomor Register Pengaduan</label>
                     <span class="fw-bold text-dark small">{{ $pgd->no_pgd }}</span>
+                </div>
+                <div class="mb-3">
+                    <label class="text-xxs font-weight-bold text-uppercase text-muted d-block mb-1">Nomor Surat Pengaduan</label>
+                    <span class="fw-bold text-dark small">{{ $pgd->su }}</span>
                 </div>
                 <div class="mb-3">
                     <label class="text-xxs font-weight-bold text-uppercase text-muted d-block mb-1">Identitas Pelapor</label>

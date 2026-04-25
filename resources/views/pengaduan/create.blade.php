@@ -29,9 +29,15 @@
                             </div>
 
                             <div class="form-group mb-3">
-                                <label class="text-xs font-weight-bold text-muted text-uppercase mb-1">Nomor Pengaduan</label>
-                                <input type="text" name="no_pgd" class="form-control modern-input @error('no_pgd') is-invalid @enderror" value="{{ old('no_pgd') }}" placeholder="W11-A/..." required>
+                                <label class="text-xs font-weight-bold text-muted text-uppercase mb-1">Nomor Register Pengaduan</label>
+                                <input type="text" name="no_pgd" class="form-control modern-input @error('no_pgd') is-invalid @enderror" value="{{ old('no_pgd') }}" placeholder="1/RHS/..." required>
                                 @error('no_pgd') <div class="invalid-feedback fw-bold small">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="text-xs font-weight-bold text-muted text-uppercase mb-1">Nomor Surat Pengaduan</label>
+                                <input type="text" name="no_surat_pgd" class="form-control modern-input @error('no_surat_pgd') is-invalid @enderror" value="{{ old('no_surat_pgd') }}" placeholder="W11-A/..." required>
+                                @error('no_surat_pgd') <div class="invalid-feedback fw-bold small">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="form-group mb-3">

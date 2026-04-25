@@ -44,8 +44,8 @@
                     <tr>
                         <th class="border-bottom">Gugatan</th>
                         <th class="border-bottom">Permohonan</th>
-                        <th class="text-success border-bottom">Sudah</th>
-                        <th class="text-danger border-bottom">Belum/Tidak</th>
+                        <th class="text-success border-bottom">Mediasi</th>
+                        <th class="text-danger border-bottom">Tidak</th>
                         <th class="border-bottom">% Persentase</th>
                         <th width="100" class="border-bottom">Aksi</th>
                     </tr>
