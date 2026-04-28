@@ -25,7 +25,6 @@
             <th rowspan="2" style="border: 1px solid #000; vertical-align: middle; text-align: center;">GUGUR</th>
             <th rowspan="2" style="border: 1px solid #000; vertical-align: middle; text-align: center;">DIGUGURKAN</th>
             <th rowspan="2" style="border: 1px solid #000; vertical-align: middle; text-align: center;">DICORET DARI REGISTER</th>
-            <th rowspan="2" style="border: 1px solid #000; vertical-align: middle; text-align: center;">PERDAMAIAN</th>
             <th rowspan="2" style="border: 1px solid #000; vertical-align: middle; text-align: center; background-color: #007bff; color: #ffffff;">JUMLAH PUTUS</th>
             <th rowspan="2" style="border: 1px solid #000; vertical-align: middle; text-align: center; background-color: #dc3545; color: #ffffff;">SISA AKHIR</th>
         </tr>
@@ -63,7 +62,6 @@
             <td style="border: 1px solid #000; text-align: center;">{{ $row->gugur }}</td>
             <td style="border: 1px solid #000; text-align: center;">{{ $row->digugurkan }}</td>
             <td style="border: 1px solid #000; text-align: center;">{{ $row->dicoret }}</td>
-            <td style="border: 1px solid #000; text-align: center;">{{ $row->perdamaian }}</td>
             <td style="border: 1px solid #000; text-align: center; font-weight: bold;">{{ $row->jml }}</td>
             <td style="border: 1px solid #000; text-align: center; font-weight: bold;">{{ $row->sisa }}</td>
         </tr>
@@ -100,7 +98,6 @@
             <td style="border: 1px solid #000; text-align: center;">{{ $t_gugur }}</td>
             <td style="border: 1px solid #000; text-align: center;">{{ $t_digugurkan }}</td>
             <td style="border: 1px solid #000; text-align: center;">{{ $t_coret }}</td>
-            <td style="border: 1px solid #000; text-align: center;">{{ $t_damai }}</td>
             <td style="border: 1px solid #000; text-align: center;">{{ $t_putus }}</td>
             <td style="border: 1px solid #000; text-align: center;">{{ $t_akhir }}</td>
         </tr>

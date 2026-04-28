@@ -26,32 +26,41 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // Sync Perkara Diterima - Setiap hari jam 01:00
+        // Sync Perkara Diterima - 01:00, 09:00, 15:00
         $schedule->command('sync:perkara-diterima')
-            ->dailyAt('01:00')
+            ->cron('0 1,9,15 * * *')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/sync_perkara_diterima.log'));
 
-        // Sync Perkara Diputus - Setiap hari jam 01:30
+        // Sync Perkara Diputus - 01:30, 09:30, 15:30
         $schedule->command('sync:perkara-diputus')
-            ->dailyAt('01:30')
+            ->cron('30 1,9,15 * * *')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/sync_perkara_diputus.log'));
 
-        // Sync Sisa Panjar (5 Tahun Terakhir) - Setiap hari jam 02:00
+        // Sync Sisa Panjar - 02:00, 10:00, 16:00
         $schedule->command('sync:sisa-panjar')
-            ->dailyAt('02:00')
+            ->cron('0 2,10,16 * * *')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/sync_sisa_panjar.log'));
 
-        // Sync Saldo Minus (2 Tahun Terakhir) - Setiap hari jam 02:30
+        // Sync Saldo Minus - 02:30, 10:30, 16:30
         $schedule->command('sync:saldo-minus')
-            ->dailyAt('02:30')
+            ->cron('30 2,10,16 * * *')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/sync_saldo_minus.log'));
 
-        // Sync Non-Mediasi - Jalankan setiap hari jam 3 pagi
-        $schedule->command('sync:non-mediasi')->dailyAt('03:00');
+        // Sync Non-Mediasi - 03:00, 11:00, 17:00
+        $schedule->command('sync:non-mediasi')
+            ->cron('0 3,11,17 * * *')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/sync_non_mediasi.log'));
+
+        // Sync BHT Akta - 03:30, 11:30, 17:30
+        $schedule->command('sync:bht-akta')
+            ->cron('30 3,11,17 * * *')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/sync_bht_akta.log'));
     }
 
     /**

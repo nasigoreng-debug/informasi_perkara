@@ -2,57 +2,53 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h4 class="fw-bold text-dark mb-0">Detail Anomali Mediasi: {{ strtoupper($satker) }}</h4>
-            <small class="text-muted">Periode Pendaftaran: {{ $tgl_awal }} s.d {{ $tgl_akhir }}</small>
-        </div>
-        <a href="{{ route('non-mediasi.gugatan', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-secondary btn-sm">
-            <i class="fas fa-arrow-left"></i> Kembali ke Rekap
-        </a>
+    <div class="mb-3 text-right">
+        <a href="{{ route('non-mediasi-gugatan.index', ['tgl_awal' => $tgl_awal, 'tgl_akhir' => $tgl_akhir]) }}" class="btn btn-sm btn-secondary px-4 shadow-sm">KEMBALI</a>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-danger text-white py-3">
-            <h6 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>Daftar Perkara Gugatan Belum Input Data Mediasi</h6>
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-danger text-white font-weight-bold d-flex justify-content-between">
+            <span>DETAIL TIDAK MEDIASI: {{ $satker }}</span>
+            <span>{{ count($perkaraDetail) }} PERKARA</span>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
-                    <thead class="table-light text-secondary small">
-                        <tr>
-                            <th class="ps-3">NO</th>
-                            <th>NOMOR PERKARA</th>
-                            <th>TANGGAL DAFTAR</th>
-                            <th>JENIS PERKARA</th>
-                            <th>PARA PIHAK</th>
-                            <th>PROSES TERAKHIR</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($perkaraDetail as $index => $p)
-                        <tr>
-                            <td class="ps-3 fw-bold text-muted">{{ $index + 1 }}</td>
-                            <td class="fw-bold text-primary">{{ $p->nomor_perkara }}</td>
-                            <td>{{ date('d/m/Y', strtotime($p->tanggal_pendaftaran)) }}</td>
-                            <td><span class="badge bg-light text-dark border">{{ $p->jenis_perkara_nama }}</span></td>
-                            <td>
-                                <div class="small fw-bold text-success">P: {{ Str::limit($p->pihak1_text, 50) }}</div>
-                                <div class="small fw-bold text-danger">T: {{ Str::limit($p->pihak2_text, 50) }}</div>
-                            </td>
-                            <td class="text-muted small italic">{{ $p->proses_terakhir_text ?? '-' }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="fas fa-check-circle fa-3x mb-3 text-success d-block"></i>
-                                Tidak ada data anomali untuk periode ini.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped mb-0 text-center small">
+                <thead class="bg-light font-weight-bold">
+                    <tr>
+                        <th width="50">NO</th>
+                        <th width="180">NOMOR PERKARA</th>
+                        <th>TGL DAFTAR</th>
+                        <th>TGL PUTUSAN</th>
+                        <th class="text-left">PIHAK (P1 / P2)</th>
+                        <th>STATUS PUTUSAN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($perkaraDetail as $p)
+                    <tr>
+                        <td class="align-middle">{{ $loop->iteration }}</td>
+                        <td class="font-weight-bold align-middle">{{ $p->nomor_perkara }}</td>
+                        <td class="align-middle">{{ $p->tanggal_pendaftaran ? \Carbon\Carbon::parse($p->tanggal_pendaftaran)->format('d-m-Y') : '-' }}</td>
+                        <td class="text-primary font-weight-bold align-middle">
+                            {{ $p->tanggal_putusan ? \Carbon\Carbon::parse($p->tanggal_putusan)->format('d-m-Y') : '-' }}
+                        </td>
+                        <td class="text-left">
+                            <small class="d-block"><b>P1:</b> {{ $p->pihak1_text }}</small>
+                            <small class="d-block text-muted"><b>P2:</b> {{ $p->pihak2_text }}</small>
+                        </td>
+                        <td class="align-middle">
+                            <span class="badge badge-warning font-weight-normal px-2 text-dark">
+                                {{ $p->status_putusan }}
+                            </span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="py-5 text-muted font-italic">Data Tidak Ditemukan atau Semua Perkara Sudah Mediasi/Cabut.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

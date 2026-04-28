@@ -36,7 +36,11 @@ use App\Http\Controllers\{
     ProdeoController,
     NonMediasiGugatanController,
     PinjamController,
-    PerkaraGugurController
+    PerkaraGugurController,
+    RekapEkonomiSyariahController,
+    MonitoringEfilingController,
+    RekapEcourtController,
+    BhtBelumTerbitAktaCeraiController
 };
 
 /*
@@ -384,6 +388,9 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/update/{id}', [ArsipAktifController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [ArsipAktifController::class, 'destroy'])->name('destroy');
         Route::get('/get-perkara', [ArsipAktifController::class, 'getPerkaraSiappta'])->name('get-perkara');
+
+        // PERBAIKAN DI SINI: Nama route cukup 'download' saja
+        Route::get('/download/{id}/{type}', [ArsipAktifController::class, 'downloadFile'])->name('download');
     });
 
     // ---------------------------------------------------------------------
@@ -430,14 +437,44 @@ Route::middleware(['auth'])->group(function () {
     // ---------------------------------------------------------------------
     // MODUL: NON MEDIASI GUGATAN
     // ---------------------------------------------------------------------
-    Route::get('/non-mediasi-gugatan', [NonMediasiGugatanController::class, 'index'])->name('non-mediasi.gugatan');
-    Route::get('/non-mediasi-gugatan/detail/{satker}', [NonMediasiGugatanController::class, 'detail'])->name('non-mediasi.gugatan.detail');
+    Route::get('/non-mediasi-gugatan', [NonMediasiGugatanController::class, 'index'])->name('non-mediasi-gugatan.index');
+    Route::get('/non-mediasi-gugatan/detail/{satker}', [NonMediasiGugatanController::class, 'detail'])->name('non-mediasi-gugatan.detail');
 
     // ---------------------------------------------------------------------
     // MODUL: PINJAM
     // ---------------------------------------------------------------------
     Route::resource('pinjam', PinjamController::class);
 
+    // ---------------------------------------------------------------------
+    // MODUL: PEKARA GUGUR
+    // ---------------------------------------------------------------------
+
     Route::get('/perkara-gugur', [PerkaraGugurController::class, 'index'])->name('perkara_gugur.index');
     Route::get('/perkara-gugur/detail/{satker}', [PerkaraGugurController::class, 'detail'])->name('perkara_gugur.detail');
+
+    // ---------------------------------------------------------------------
+    // MODUL: REKAP EKONOMI SYARIAH
+    // ---------------------------------------------------------------------
+    Route::get('/rekap-ekonomi-syariah', [RekapEkonomiSyariahController::class, 'index'])->name('ekonomi-syariah.index');
+    Route::get('/ekonomi-syariah/detail/{satker}', [RekapEkonomiSyariahController::class, 'detail'])->name('ekonomi-syariah.detail');
+
+    // ---------------------------------------------------------------------
+    // MODUL: MONITORING E-FILING
+    // ---------------------------------------------------------------------
+
+    Route::get('/efiling', [MonitoringEfilingController::class, 'index'])->name('efiling.index');
+    Route::get('/efiling/detail/{satker}', [MonitoringEfilingController::class, 'detail'])->name('efiling.detail');
+
+    // ---------------------------------------------------------------------
+    // MODUL: REKAP ECOURT
+    // ---------------------------------------------------------------------
+
+    Route::get('/ecourt', [RekapEcourtController::class, 'index'])->name('ecourt.index');
+
+    // ---------------------------------------------------------------------
+    // MODUL: SUDAH BHT TAPI BELUM TERBIT AKTA CERAI
+    // ---------------------------------------------------------------------
+
+    Route::get('/bht-no-akta', [BhtBelumTerbitAktaCeraiController::class, 'index'])->name('bht.no.akta.index');
+    Route::get('/bht-no-akta/detail/{satker}', [BhtBelumTerbitAktaCeraiController::class, 'detail'])->name('bht.no.akta.detail');
 });

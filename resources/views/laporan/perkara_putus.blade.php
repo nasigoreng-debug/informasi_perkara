@@ -136,7 +136,7 @@
                     <th rowspan="2" class="v-text">GUGUR</th>
                     <th rowspan="2" class="v-text">DIGUGURKAN</th>
                     <th rowspan="2" class="v-text">DICORET DARI REGISTER</th>
-                    <th rowspan="2" class="v-text">PERDAMAIAN</th>
+                    <!-- <th rowspan="2" class="v-text">PERDAMAIAN</th> -->
                     <th rowspan="2" class="v-text bg-primary text-white">JUMLAH PUTUS</th>
                     <th rowspan="2" class="v-text bg-danger text-white">SISA AKHIR</th>
                 </tr>
@@ -175,7 +175,7 @@
                     <td>{{ $row->gugur > 0 ? number_format($row->gugur) : '-' }}</td>
                     <td>{{ $row->digugurkan > 0 ? number_format($row->digugurkan) : '-' }}</td>
                     <td>{{ $row->dicoret > 0 ? number_format($row->dicoret) : '-' }}</td>
-                    <td>{{ $row->perdamaian > 0 ? number_format($row->perdamaian) : '-' }}</td>
+                    <!-- <td>{{ $row->perdamaian > 0 ? number_format($row->perdamaian) : '-' }}</td> -->
 
                     <td class="bg-primary bg-opacity-10 fw-bold">{{ number_format($row->jml) }}</td>
                     <td class="bg-danger bg-opacity-10 fw-bold">{{ number_format($row->sisa) }}</td>
@@ -213,7 +213,7 @@
                     <td>{{ number_format($t_gugur) }}</td>
                     <td>{{ number_format($t_digugurkan) }}</td>
                     <td>{{ number_format($t_coret) }}</td>
-                    <td>{{ number_format($t_damai) }}</td>
+                    <!-- <td>{{ number_format($t_damai) }}</td> -->
                     <td class="bg-primary text-white">{{ number_format($t_putus) }}</td>
                     <td class="bg-danger text-white">{{ number_format($t_akhir) }}</td>
                 </tr>

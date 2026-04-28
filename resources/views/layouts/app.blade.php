@@ -232,16 +232,17 @@
     <nav class="navbar navbar-expand-lg navbar-dark navbar-public sticky-top">
         <div class="container-fluid px-4">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/') }}">
-                <div class="bg-white rounded-circle d-flex justify-content-center align-items-center" style="width: 35px; height: 35px;">
+                <div class="bg-white rounded-circle d-flex justify-content-center align-items-center"
+                    style="width: 35px; height: 35px;">
                     <i class="fas fa-balance-scale text-dark fs-6"></i>
                 </div>
                 <div>
                     PANMUD HUKUM CONNECTION
                     <small>
                         @auth
-                        {{ Auth::user()->satker ? Auth::user()->satker->nama : 'PTA BANDUNG (ADMIN)' }}
+                            {{ Auth::user()->satker ? Auth::user()->satker->nama : 'PTA BANDUNG (ADMIN)' }}
                         @else
-                        Pengadilan Agama Se-Jawa Barat
+                            Pengadilan Agama Se-Jawa Barat
                         @endauth
                     </small>
                 </div>
@@ -259,60 +260,74 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                            href="{{ route('dashboard') }}">
                             <i class="fas fa-chart-line me-1"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('kinerja.index') ? 'active' : '' }}" href="{{ route('kinerja.index') }}">
+                        <a class="nav-link {{ request()->routeIs('monitoring') ? 'active' : '' }}"
+                            href="{{ route('monitoring') }}">
+                            <i class="fas fa-binoculars me-1"></i> Monitoring
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('kinerja.index') ? 'active' : '' }}"
+                            href="{{ route('kinerja.index') }}">
                             <i class="fas fa-star me-1"></i> Kinerja Hakim & PP
                         </a>
                     </li>
                     @auth
-                    @if(Auth::user()->isSuperAdmin())
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
-                            <i class="fas fa-users-cog me-1"></i> Manajemen User
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('activity-log*') ? 'active' : '' }}" href="{{ url('/activity-log') }}">
-                            <i class="fas fa-history me-1"></i> Log Aktivitas
-                        </a>
-                    </li>
-                    @endif
+                        @if (Auth::user()->isSuperAdmin())
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}"
+                                    href="{{ route('users.index') }}">
+                                    <i class="fas fa-users-cog me-1"></i> Manajemen User
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->is('activity-log*') ? 'active' : '' }}"
+                                    href="{{ url('/activity-log') }}">
+                                    <i class="fas fa-history me-1"></i> Log Aktivitas
+                                </a>
+                            </li>
+                        @endif
                     @endauth
                 </ul>
 
                 <div class="d-flex align-items-center">
                     @auth
-                    <div class="dropdown user-dropdown">
-                        <button class="btn dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle fs-5 text-warning"></i>
-                            <div class="text-start d-none d-sm-block">
-                                <div class="fw-bold" style="font-size: 0.75rem; line-height: 1;">{{ Auth::user()->name }}</div>
-                                <div style="font-size: 0.65rem; opacity: 0.8;">{{ optional(Auth::user()->role)->nama_role ?? 'Pengguna' }}</div>
-                            </div>
-                            <i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 15px;">
-                            <li class="px-3 py-2 border-bottom mb-1">
-                                <span class="d-block small text-muted">ID: {{ Auth::user()->username }}</span>
-                            </li>
-                            <li>
-                                <form id="logout-form-main" action="{{ route('logout') }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2">
-                                        <i class="fas fa-power-off"></i> Logout
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
+                        <div class="dropdown user-dropdown">
+                            <button class="btn dropdown-toggle d-flex align-items-center gap-2" type="button"
+                                data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle fs-5 text-warning"></i>
+                                <div class="text-start d-none d-sm-block">
+                                    <div class="fw-bold" style="font-size: 0.75rem; line-height: 1;">
+                                        {{ Auth::user()->name }}</div>
+                                    <div style="font-size: 0.65rem; opacity: 0.8;">
+                                        {{ optional(Auth::user()->role)->nama_role ?? 'Pengguna' }}</div>
+                                </div>
+                                <i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 15px;">
+                                <li class="px-3 py-2 border-bottom mb-1">
+                                    <span class="d-block small text-muted">ID: {{ Auth::user()->username }}</span>
+                                </li>
+                                <li>
+                                    <form id="logout-form-main" action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit"
+                                            class="dropdown-item text-danger d-flex align-items-center gap-2">
+                                            <i class="fas fa-power-off"></i> Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     @else
-                    <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">
-                        <i class="fas fa-sign-in-alt me-1"></i> Login
-                    </a>
+                        <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-sign-in-alt me-1"></i> Login
+                        </a>
                     @endauth
 
                     <div class="d-none d-lg-block header-clock">
@@ -331,7 +346,8 @@
     <footer class="footer-public mt-auto">
         <div class="container text-center">
             <h6 class="fw-bold text-dark mb-1">PENGADILAN TINGGI AGAMA BANDUNG</h6>
-            <p class="mb-0 small text-muted">&copy; {{ date('Y') }} Sistem Statistik Perkara - Bidang Kepaniteraan Hukum.</p>
+            <p class="mb-0 small text-muted">&copy; {{ date('Y') }} Sistem Statistik Perkara - Bidang Kepaniteraan
+                Hukum.</p>
         </div>
     </footer>
 
@@ -359,10 +375,12 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             // Link navigation
-            const links = document.querySelectorAll('a:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not(.no-loader)');
+            const links = document.querySelectorAll(
+                'a:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not(.no-loader)');
             links.forEach(link => {
                 link.addEventListener('click', function(e) {
-                    if (e.button === 0 && !e.ctrlKey && !e.metaKey && this.getAttribute('href') !== null && this.getAttribute('href') !== '#') {
+                    if (e.button === 0 && !e.ctrlKey && !e.metaKey && this.getAttribute('href') !==
+                        null && this.getAttribute('href') !== '#') {
                         loader.classList.remove('loader-hidden');
                     }
                 });
@@ -409,36 +427,36 @@
             timerProgressBar: true
         });
 
-        @if(session('success'))
-        Toast.fire({
-            icon: 'success',
-            title: "{{ session('success') }}"
-        });
+        @if (session('success'))
+            Toast.fire({
+                icon: 'success',
+                title: "{{ session('success') }}"
+            });
         @endif
 
-        @if(session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops!',
-            text: "{{ session('error') }}",
-            confirmButtonColor: '#3085d6'
-        });
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops!',
+                text: "{{ session('error') }}",
+                confirmButtonColor: '#3085d6'
+            });
         @endif
 
-        @if(session('warning'))
-        Swal.fire({
-            icon: 'warning',
-            title: 'Perhatian',
-            text: "{{ session('warning') }}",
-            confirmButtonColor: '#f0ad4e'
-        });
+        @if (session('warning'))
+            Swal.fire({
+                icon: 'warning',
+                title: 'Perhatian',
+                text: "{{ session('warning') }}",
+                confirmButtonColor: '#f0ad4e'
+            });
         @endif
 
-        @if(session('info'))
-        Toast.fire({
-            icon: 'info',
-            title: "{{ session('info') }}"
-        });
+        @if (session('info'))
+            Toast.fire({
+                icon: 'info',
+                title: "{{ session('info') }}"
+            });
         @endif
 
         // Fungsi global untuk konfirmasi hapus

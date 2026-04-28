@@ -44,7 +44,7 @@ class RekapEksekusiController extends Controller
                 $namaSatker = is_object($item) ? $item->satker : ($item['satker'] ?? '');
                 return str_contains(strtoupper($namaSatker), $keyword);
             });
-            
+
             $filterInfo = "Satker: {$user->satker->nama} ({$keyword})";
         }
 
@@ -54,7 +54,7 @@ class RekapEksekusiController extends Controller
         // ✅ TAMBAHKAN LOG INDEX
         $totalData = $data->count();
         $logMessage = "Melihat Rekap Eksekusi - Periode: {$tglAwal} s/d {$tglAkhir}, {$filterInfo}, Total Satker: {$totalData}";
-        
+
         ActivityLog::record('Akses Rekap Eksekusi', 'RekapEksekusi', $logMessage);
 
         return view('eksekusi.index', compact('data', 'summary', 'allTime', 'tglAwal', 'tglAkhir'));
@@ -71,21 +71,24 @@ class RekapEksekusiController extends Controller
         $tglAwal = $request->get('tgl_awal') ?? date('Y-01-01');
         $tglAkhir = $request->get('tgl_akhir') ?? date('Y-12-31');
 
-        if (!$user->isSuperAdmin() && !$user->isAdmin()  && $user->satker) {
+        if (!$user->isSuperAdmin() && !$user->isAdmin() && !$user->isViewer() && $user->satker) {
             $keyword = strtoupper($user->satker->tabel);
             if (!str_contains(strtoupper($satker), $keyword)) {
-                
+
                 // ✅ LOG AKSES DITOLAK
-                ActivityLog::record('Akses Detail DITOLAK', 'RekapEksekusi', 
-                    "User mencoba akses satker {$satker} (jenis: {$jenis}) - Tidak berhak");
-                
+                ActivityLog::record(
+                    'Akses Detail DITOLAK',
+                    'RekapEksekusi',
+                    "User mencoba akses satker {$satker} (jenis: {$jenis}) - Tidak berhak"
+                );
+
                 return redirect()->route('laporan.eksekusi.index')->with('error', 'Akses Ditolak!');
             }
         }
-        
+
         // Kita simpan hasil ke variabel $data
         $data = $this->rekapService->getDetailPerkara($satker, $jenis, $tglAwal, $tglAkhir);
-        
+
         // ✅ CEK TIPE DATA dan hitung jumlah dengan benar
         $totalData = 0;
         if (is_array($data)) {
@@ -97,8 +100,11 @@ class RekapEksekusiController extends Controller
         }
 
         // ✅ LOG: Catat aktivitas intip detail
-        ActivityLog::record('Lihat Detail', 'RekapEksekusi', 
-            "Melihat detail {$jenis} Satker: {$satker}, Periode: {$tglAwal} s/d {$tglAkhir}, Total Data: {$totalData}");
+        ActivityLog::record(
+            'Lihat Detail',
+            'RekapEksekusi',
+            "Melihat detail {$jenis} Satker: {$satker}, Periode: {$tglAwal} s/d {$tglAkhir}, Total Data: {$totalData}"
+        );
 
         return view('eksekusi.detail', compact('satker', 'jenis', 'tglAwal', 'tglAkhir', 'data'));
     }
@@ -132,7 +138,7 @@ class RekapEksekusiController extends Controller
 
             // ✅ LOG EXPORT
             $logMessage = "Export CSV Rekap Eksekusi - Periode: {$tglAwal} s/d {$tglAkhir}, {$filterInfo}, Total Satker: " . $data->count();
-            
+
             ActivityLog::record('Export Data', 'RekapEksekusi', $logMessage);
 
             $filename = "rekap_eksekusi_{$suffix}_" . date('Ymd_His') . ".csv";
@@ -164,13 +170,15 @@ class RekapEksekusiController extends Controller
                 'Content-Type' => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => "attachment; filename={$filename}",
             ]);
-            
         } catch (\Exception $e) {
-            
+
             // ✅ LOG ERROR EKSPOR
-            ActivityLog::record('Error Export Data', 'RekapEksekusi', 
-                "Gagal export periode {$tglAwal} s/d {$tglAkhir} - Error: " . $e->getMessage());
-            
+            ActivityLog::record(
+                'Error Export Data',
+                'RekapEksekusi',
+                "Gagal export periode {$tglAwal} s/d {$tglAkhir} - Error: " . $e->getMessage()
+            );
+
             return redirect()->back()->with('error', 'Gagal ekspor: ' . $e->getMessage());
         }
     }

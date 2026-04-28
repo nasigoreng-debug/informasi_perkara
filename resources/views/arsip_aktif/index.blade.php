@@ -249,12 +249,22 @@
                             </td>
                             <td>
                                 @if($item->tgl_masuk != '-')
-                                <div class="box-arsip shadow-sm">
-                                    <div class="d-flex flex-column gap-1">
-                                        @if($item->file_putusan) <a href="/storage/arsip_aktif/pdf/{{ $item->file_putusan }}" target="_blank" class="btn-dl btn-pdf"><i class="fas fa-file-pdf"></i> PDF</a> @endif
-                                        @if($item->file_bundel_b) <a href="/storage/arsip_aktif/rar/{{ $item->file_bundel_b }}" target="_blank" class="btn-dl btn-rar"><i class="fas fa-file-archive"></i> BUNDEL B</a> @endif
-                                    </div>
-                                    <div class="mt-1 fw-bold text-primary" style="font-size: 0.6rem;">MASUK: {{ $item->tgl_masuk }}</div>
+                                <div class="d-flex flex-column gap-1">
+                                    {{-- Download PDF --}}
+                                    @if($item->file_putusan)
+                                    <a href="{{ route('arsip-aktif.download', [$item->perkara_id, 'pdf']) }}"
+                                        class="btn-dl btn-pdf" target="_blank">
+                                        <i class="fas fa-file-pdf"></i> PDF
+                                    </a>
+                                    @endif
+
+                                    {{-- Download BUNDEL B (RAR) --}}
+                                    @if($item->file_bundel_b)
+                                    <a href="{{ route('arsip-aktif.download', [$item->perkara_id, 'rar']) }}"
+                                        class="btn-dl btn-rar" target="_blank">
+                                        <i class="fas fa-file-archive"></i> BUNDEL B
+                                    </a>
+                                    @endif
                                 </div>
                                 @else <span class="badge bg-light text-muted border">BELUM MASUK ARSIP</span> @endif
                             </td>
