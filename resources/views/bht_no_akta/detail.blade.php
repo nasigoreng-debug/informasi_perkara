@@ -29,9 +29,10 @@
                             <th width="40">No</th>
                             <th class="text-left">Nomor Perkara</th>
                             <th class="text-left">Jenis Perkara</th>
+                            <th class="text-left">Status Putusan</th>
                             <th>Putusan</th>
                             <th>Minutasi</th>
-                            <th>BHT / Ikrar</th>
+                            <th>Tanggal</th>
                             <th class="bg-danger-soft text-danger">Belum Terbit</th>
                         </tr>
                     </thead>
@@ -49,15 +50,18 @@
                                 <span class="badge badge-outline-purple font-weight-normal"><i class="fas fa-male mr-1"></i> {{ $perkara->jenis_perkara_nama }}</span>
                                 @endif
                             </td>
+                            <td class="text-left align-middle">
+                                {{-- Menampilkan Status Putusan --}}
+                                <span class="text-dark">{{ $perkara->status_putusan_nama ?? '-' }}</span>
+                            </td>
                             <td class="align-middle text-sm">{{ $perkara->tanggal_putusan ? date('d/m/Y', strtotime($perkara->tanggal_putusan)) : '-' }}</td>
                             <td class="align-middle text-sm text-muted">{{ $perkara->tanggal_minutasi ? date('d/m/Y', strtotime($perkara->tanggal_minutasi)) : '-' }}</td>
                             <td class="align-middle">
                                 @if(str_contains($perkara->jenis_perkara_nama, 'Talak'))
-                                <span class="text-purple font-weight-bold">{{ $perkara->tgl_ikrar_talak ? date('d/m/Y', strtotime($perkara->tgl_ikrar_talak)) : '-' }}</span>
-                                <br><small class="badge badge-warning py-0 text-danger" style="font-size: 10px; opacity: 0.8;">IKRAR</small>
+                                <span class="text-purple font-weight-bold"><small class="badge badge-warning py-0 text-danger" style="font-size: 10px; opacity: 0.8;">IKRAR</small> <br> {{ $perkara->tgl_ikrar_talak ? date('d/m/Y', strtotime($perkara->tgl_ikrar_talak)) : '-' }}</span>
+
                                 @else
-                                <span class="text-info font-weight-bold">{{ $perkara->tanggal_bht ? date('d/m/Y', strtotime($perkara->tanggal_bht)) : '-' }}</span>
-                                <br><small class="badge badge-info py-0 text-danger" style="font-size: 10px; opacity: 0.8;">BHT</small>
+                                <span class="text-info font-weight-bold"><small class="badge badge-info py-0 text-danger" style="font-size: 10px; opacity: 0.8;">BHT</small> <br> {{ $perkara->tanggal_bht ? date('d/m/Y', strtotime($perkara->tanggal_bht)) : '-' }}</span>
                                 @endif
                             </td>
                             <td class="align-middle">
@@ -67,7 +71,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="py-5 text-center text-muted font-italic">
+                            <td colspan="8" class="py-5 text-center text-muted font-italic"> {{-- Colspan jadi 8 --}}
                                 <i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>
                                 Tidak ada tunggakan ditemukan untuk satker ini.
                             </td>
@@ -79,6 +83,7 @@
         </div>
         <div class="card-footer bg-white text-muted small py-2">
             <i class="fas fa-info-circle mr-1"></i> Data dihitung berdasarkan Tgl. BHT untuk Cerai Gugat dan Tgl. Ikrar untuk Cerai Talak.
+            <strong>Hanya menampilkan perkara dengan status putusan Dikabulkan.</strong>
         </div>
     </div>
 </div>

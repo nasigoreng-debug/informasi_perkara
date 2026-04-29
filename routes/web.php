@@ -40,7 +40,10 @@ use App\Http\Controllers\{
     RekapEkonomiSyariahController,
     MonitoringEfilingController,
     RekapEcourtController,
-    BhtBelumTerbitAktaCeraiController
+    BhtBelumTerbitAktaCeraiController,
+    PertimbanganHukumController,
+    NikTidakValidController,
+    NoKutipanAktaNikahController
 };
 
 /*
@@ -477,4 +480,27 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/bht-no-akta', [BhtBelumTerbitAktaCeraiController::class, 'index'])->name('bht.no.akta.index');
     Route::get('/bht-no-akta/detail/{satker}', [BhtBelumTerbitAktaCeraiController::class, 'detail'])->name('bht.no.akta.detail');
+
+
+
+    // ---------------------------------------------------------------------
+    // MODUL: PERTIMBANGAN HUKUM TIDAK DIINPUT DI SIPP
+    // ---------------------------------------------------------------------
+
+    Route::get('/pertimbangan-hukum', [PertimbanganHukumController::class, 'index'])->name('pertimbangan.index');
+    Route::get('/pertimbangan-hukum/detail/{satker}', [PertimbanganHukumController::class, 'detail'])->name('pertimbangan.detail');
+
+    // ---------------------------------------------------------------------
+    // MODUL: NIK TIDAK VALID
+    // ---------------------------------------------------------------------
+
+    Route::get('/nik-tidak-valid', [NikTidakValidController::class, 'index'])->name('nik.index');
+    Route::get('/nik-tidak-valid/detail/{satker}', [NikTidakValidController::class, 'detail'])->name('nik.detail');
+
+    // ---------------------------------------------------------------------
+    // MODUL: NO KUTIPAN AKTA NIKAH
+    // ---------------------------------------------------------------------
+
+    Route::get('/no-kutipan-akta', [NoKutipanAktaNikahController::class, 'index'])->name('no_kutipan.index');
+    Route::get('/no-kutipan-akta/detail/{satker}', [NoKutipanAktaNikahController::class, 'detail'])->name('no_kutipan.detail');
 });

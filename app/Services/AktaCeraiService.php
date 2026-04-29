@@ -28,34 +28,35 @@ class AktaCeraiService
     protected function getDataPerSatker($db, $namaSatker, $tglAwal, $tglAkhir): object
     {
         try {
-            $data = DB::connection('bandung')->table("{$db}.perkara as a")
+            // Query ini jauh lebih cepat karena mengandalkan agregasi database
+            $summary = DB::connection('bandung')->table("{$db}.perkara as a")
                 ->join("{$db}.perkara_putusan as p", 'a.perkara_id', '=', 'p.perkara_id')
                 ->join("{$db}.perkara_akta_cerai as b", 'a.perkara_id', '=', 'b.perkara_id')
                 ->leftJoin("{$db}.perkara_ikrar_talak as c", 'a.perkara_id', '=', 'c.perkara_id')
                 ->whereBetween('b.tgl_akta_cerai', [$tglAwal, $tglAkhir])
-                ->select([
-                    'a.jenis_perkara_nama',
-                    'b.tgl_akta_cerai',
-                    'p.tanggal_bht',
-                    'c.tgl_ikrar_talak',
-                    DB::raw("CASE WHEN a.jenis_perkara_nama LIKE '%Talak%' THEN DATEDIFF(b.tgl_akta_cerai, c.tgl_ikrar_talak) ELSE DATEDIFF(b.tgl_akta_cerai, p.tanggal_bht) END as selisih_hari"),
-                    DB::raw("DATEDIFF(b.tgl_akta_cerai, p.tanggal_bht) as selisih_anomali")
-                ])->get();
+                ->selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN 
+                    (CASE WHEN a.jenis_perkara_nama LIKE '%Talak%' THEN DATEDIFF(b.tgl_akta_cerai, c.tgl_ikrar_talak) 
+                          ELSE DATEDIFF(b.tgl_akta_cerai, p.tanggal_bht) END) BETWEEN 0 AND 7 
+                    THEN 1 ELSE 0 END) as tepat_waktu,
+                SUM(CASE WHEN 
+                    (CASE WHEN a.jenis_perkara_nama LIKE '%Talak%' THEN DATEDIFF(b.tgl_akta_cerai, c.tgl_ikrar_talak) 
+                          ELSE DATEDIFF(b.tgl_akta_cerai, p.tanggal_bht) END) > 7 
+                    THEN 1 ELSE 0 END) as terlambat,
+                SUM(CASE WHEN DATEDIFF(b.tgl_akta_cerai, p.tanggal_bht) < 0 THEN 1 ELSE 0 END) as anomali
+            ")
+                ->first();
 
-            $total = $data->count();
-            if ($total === 0) return $this->emptyResponse($namaSatker);
-
-            $tepat = $data->whereBetween('selisih_hari', [0, 7])->count();
-            $lambat = $data->where('selisih_hari', '>', 7)->count();
-            $anomali = $data->where('selisih_anomali', '<', 0)->count();
+            if (!$summary || $summary->total == 0) return $this->emptyResponse($namaSatker);
 
             return (object) [
                 'satker' => $namaSatker,
-                'total' => $total,
-                'tepat_waktu' => $tepat,
-                'terlambat' => $lambat,
-                'anomali' => $anomali,
-                'persen_tepat_waktu' => round(($tepat / $total) * 100, 2)
+                'total' => (int)$summary->total,
+                'tepat_waktu' => (int)$summary->tepat_waktu,
+                'terlambat' => (int)$summary->terlambat,
+                'anomali' => (int)$summary->anomali,
+                'persen_tepat_waktu' => round(($summary->tepat_waktu / $summary->total) * 100, 2)
             ];
         } catch (\Exception $e) {
             return $this->emptyResponse($namaSatker, true);

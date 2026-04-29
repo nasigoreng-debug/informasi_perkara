@@ -107,7 +107,7 @@
                 </tbody>
                 <tfoot class="bg-dark text-white font-weight-bold">
                     <tr>
-                        <td colspan="2">TOTAL SE-WILAYAH</td>
+                        <td colspan="2">TOTAL</td>
                         <td>{{ number_format($totals['non_verstek']) }}</td>
                         <td>{{ number_format($totals['sudah']) }}</td>
                         <td>{{ number_format($totals['cabut']) }}</td>

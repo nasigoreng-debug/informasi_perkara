@@ -667,6 +667,36 @@
             <div class="btn-list btn-primary-custom">Lihat Detail →</div>
         </a>
 
+        <a href="{{ route('pertimbangan.index') }}" class="list-menu-item">
+            <div class="menu-info">
+                <div class="menu-number">{{ $no++ }}.</div>
+                {{-- Ikon Gavel (Palu) dengan warna amber/kuning untuk kesan monitoring --}}
+                <div class="list-icon-box bg-warning-light">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <div class="menu-text">
+                    <div class="menu-title">Pertimbangan Hukum</div>
+                    <div class="menu-desc">Monitoring kelengkapan data pertimbangan hukum pada perkara yang telah putus.</div>
+                </div>
+            </div>
+            <div class="btn-list btn-primary-custom">Lihat Detail →</div>
+        </a>
+
+        <a href="{{ route('nik.index') }}" class="list-menu-item">
+            <div class="menu-info">
+                <div class="menu-number">{{ $no++ }}.</div>
+                {{-- Ikon ID Card dengan warna merah untuk masalah NIK --}}
+                <div class="list-icon-box bg-danger-light">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <div class="menu-text">
+                    <div class="menu-title">NIK Tidak Valid</div>
+                    <div class="menu-desc">Monitoring dan rekapitulasi data NIK yang tidak valid (dispensasi kawin).</div>
+                </div>
+            </div>
+            <div class="btn-list btn-primary-custom">Lihat Detail →</div>
+        </a>
+
         {{-- ==================== MENU UNTUK USER (HANYA MONITORING KASASI) ==================== --}}
         @elseif(Auth::user()->canSeeKasasiOnly())
         <a href="{{ route('kasasi.index') }}" class="list-menu-item">
@@ -712,18 +742,6 @@
                 <div class="menu-text">
                     <div class="menu-title"> Eksekusi</div>
                     <div class="menu-desc">Monitoring penyelesaian perkara eksekusi se-Jawa Barat.</div>
-                </div>
-            </div>
-            <div class="btn-list btn-secondary-custom"><i class="fas fa-eye me-1"></i> Lihat (Read Only) →</div>
-        </a>
-
-        <a href="{{ route('sidang.index') }}" class="list-menu-item">
-            <div class="menu-info">
-                <div class="menu-number">{{ $no++ }}.</div>
-                <div class="list-icon-box bg-success-light"><i class="fas fa-calendar-check"></i></div>
-                <div class="menu-text">
-                    <div class="menu-title"> Jadwal Sidang</div>
-                    <div class="menu-desc">Informasi jadwal persidangan di PTA Bandung.</div>
                 </div>
             </div>
             <div class="btn-list btn-secondary-custom"><i class="fas fa-eye me-1"></i> Lihat (Read Only) →</div>
@@ -954,6 +972,36 @@
                     <div class="menu-text">
                         <div class="menu-title"> Sudah BHT Belum Terbit Akta Cerai</div>
                         <div class="menu-desc">Monitoring perkara yang sudah BHT tetapi belum terbit Akta Cerai.</div>
+                    </div>
+                </div>
+                <div class="btn-list btn-secondary-custom"><i class="fas fa-eye me-1"></i> Lihat (Read Only) →</div>
+            </a>
+
+            <a href="{{ route('pertimbangan.index') }}" class="list-menu-item">
+                <div class="menu-info">
+                    <div class="menu-number">{{ $no++ }}.</div>
+                    {{-- Ikon 'balance-scale' sangat cocok untuk Pertimbangan Hukum --}}
+                    <div class="list-icon-box bg-success-light">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="menu-text">
+                        <div class="menu-title">Pertimbangan Hukum</div>
+                        <div class="menu-desc">Monitoring validasi pengisian data pertimbangan hukum pada perkara yang telah putus.</div>
+                    </div>
+                </div>
+                <div class="btn-list btn-secondary-custom"><i class="fas fa-eye me-1"></i> Lihat (Read Only) →</div>
+            </a>
+
+            <a href="{{ route('nik.index') }}" class="list-menu-item">
+                <div class="menu-info">
+                    <div class="menu-number">{{ $no++ }}.</div>
+                    {{-- Ikon ID Card untuk NIK Tidak Valid --}}
+                    <div class="list-icon-box bg-danger-light">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <div class="menu-text">
+                        <div class="menu-title">NIK Tidak Valid</div>
+                        <div class="menu-desc">Monitoring dan rekapitulasi data NIK yang tidak valid pada perkara dispensasi kawin.</div>
                     </div>
                 </div>
                 <div class="btn-list btn-secondary-custom"><i class="fas fa-eye me-1"></i> Lihat (Read Only) →</div>
